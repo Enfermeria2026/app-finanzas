@@ -4,51 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Crear Cuenta - BudgetWise</title>
-  <!-- Enlaza el archivo manifest para que sea instalable -->
   <link rel="manifest" href="manifest.json">
-  <!-- Le dice a los móviles de Apple que esto es una app -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background-color: #ffffff;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      height: 100vh;       
-      overflow: hidden;    
+      display: flex; justify-content: center; align-items: center; 
+      height: 100vh; overflow: hidden;    
     }
 
     .container {
-      width: 100%; 
-      max-width: 400px; 
-      padding: 24px; 
-      display: flex; 
-      flex-direction: column;
-      justify-content: center; 
-      max-height: 100vh; 
-      overflow-y: auto;  
-      padding-bottom: 24px; 
-      animation: fadeIn 0.4s ease-out;
+      width: 100%; max-width: 400px; padding: 24px; display: flex; flex-direction: column;
+      justify-content: center; max-height: 100vh; overflow-y: auto;  
+      padding-bottom: 24px; animation: fadeIn 0.4s ease-out;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .back-arrow { position: absolute; top: 24px; left: 24px; color: #0B1A2E; cursor: pointer; }
-    
-    h1 { 
-      text-align: center; 
-      font-size: 24px; 
-      margin-top: 0; 
-      margin-bottom: 8px; 
-      color: #0B1A2E; 
-    }
+    h1 { text-align: center; font-size: 24px; margin-top: 0; margin-bottom: 8px; color: #0B1A2E; }
     p.subtitle { text-align: center; font-size: 14px; color: #666; margin-bottom: 30px; }
 
     .input-group { position: relative; margin-bottom: 16px; }
-    .input-group input {
-      width: 100%; padding: 14px 44px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 14px; outline: none;
-    }
+    .input-group input { width: 100%; padding: 14px 44px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 14px; outline: none; }
     .input-group input:focus { border-color: #00A878; }
     .icon-left { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #00A878; width: 20px; }
     .icon-right { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #999; width: 20px; cursor: pointer; }
@@ -60,23 +39,32 @@
     .checkbox-group a { color: #00A878; text-decoration: none; }
 
     .btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; color: white; cursor: pointer; }
-    .btn-green { 
-      background-color: #00A878; 
-      margin-bottom: 24px; 
-    }
-
-    .divider { display: flex; align-items: center; text-align: center; margin: 24px 0; color: #999; font-size: 12px; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #E0E0E0; }
-    .divider::before { margin-right: 15px; } .divider::after { margin-left: 15px; }
-
-    .social-buttons { display: flex; gap: 16px; margin-bottom: 24px; }
-    .btn-social {
-      flex: 1; padding: 12px; border: 1px solid #E0E0E0; border-radius: 8px; background: white;
-      display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; cursor: pointer; gap: 8px;
-    }
+    .btn-green { background-color: #00A878; margin-bottom: 24px; }
 
     .footer-link { text-align: center; font-size: 14px; color: #666; }
     .footer-link a { color: #00A878; text-decoration: none; font-weight: 600; }
+
+    /* ESTILOS DE LA VENTANA EMERGENTE (MODAL) */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(11, 26, 46, 0.7); display: none; 
+      justify-content: center; align-items: center; z-index: 1000;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box {
+      background: white; width: 90%; max-width: 320px; padding: 24px;
+      border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transform: scale(0.9); transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 12px; font-weight: bold; }
+    .modal-text { font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.5; }
+    .modal-data { background: #F8F9FA; padding: 12px; border-radius: 8px; font-size: 13px; color: #333; margin-bottom: 24px; text-align: left; }
+    .modal-buttons { display: flex; gap: 12px; }
+    .btn-modal { flex: 1; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; }
+    .btn-outline { background: #F5F5F5; color: #666; }
+    .btn-primary { background: #00A878; color: white; }
   </style>
 </head>
 <body>
@@ -88,31 +76,28 @@
     <h1>Crea tu cuenta</h1>
     <p class="subtitle">Empieza a gestionar tu dinero de forma inteligente.</p>
 
-    <!-- HE AÑADIDO id="nombreCompleto" -->
     <div class="input-group">
       <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
       <input type="text" id="nombreCompleto" placeholder="Nombre completo">
     </div>
 
-    <!-- HE CAMBIADO A TEXTO Y AÑADIDO id="nombreUsuario" -->
+    <!-- ICONO DE ARROBA PARA EL USUARIO -->
     <div class="input-group">
-      <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+      <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path></svg>
       <input type="text" id="nombreUsuario" placeholder="Nombre de usuario">
     </div>
 
-    <!-- HE AÑADIDO id="passwordRegistro" -->
     <div class="input-group">
       <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-      <input type="text" id="passwordRegistro" placeholder="Contraseña">
-      <svg class="icon-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+      <input type="password" id="passwordRegistro" placeholder="Contraseña">
+      <svg class="icon-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="togglePassword('passwordRegistro')"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
     </div>
     <p class="helper-text">Mínimo 8 caracteres, con números y letras.</p>
 
-    <!-- HE AÑADIDO id="passwordConfirm" -->
     <div class="input-group">
       <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-      <input type="text" id="passwordConfirm" placeholder="Confirmar contraseña">
-      <svg class="icon-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+      <input type="password" id="passwordConfirm" placeholder="Confirmar contraseña">
+      <svg class="icon-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="togglePassword('passwordConfirm')"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
     </div>
 
     <div class="checkbox-group">
@@ -120,13 +105,21 @@
       <label for="terms">Acepto los <a href="#">Términos y condiciones</a> y la <a href="#">Política de privacidad</a>.</label>
     </div>
 
-    <!-- HE AÑADIDO id="btnCrearCuenta" -->
     <button id="btnCrearCuenta" class="btn btn-green">Crear cuenta</button>
 
     <p class="footer-link">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
   </div>
 
-  <!-- ESTO ES LO ÚNICO NUEVO: EL SCRIPT QUE GUARDA EN FIRESTORE -->
+  <!-- HTML DE LA VENTANA EMERGENTE -->
+  <div id="miModal" class="modal-overlay">
+    <div class="modal-box">
+      <div id="modalTitle" class="modal-title">Atención</div>
+      <div id="modalText" class="modal-text">Mensaje</div>
+      <!-- Aquí inyectaremos los botones con Javascript -->
+      <div id="modalButtons" class="modal-buttons"></div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -143,52 +136,102 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const btnCrear = document.getElementById('btnCrearCuenta');
+    
+    // Elementos del Modal
+    const modal = document.getElementById('miModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = document.getElementById('modalText');
+    const modalButtons = document.getElementById('modalButtons');
 
-    btnCrear.addEventListener('click', async () => {
-      // Leemos los datos de las cajas
+    // Función para mostrar una alerta simple
+    function mostrarAlerta(titulo, mensaje) {
+      modalTitle.innerText = titulo;
+      modalText.innerHTML = mensaje;
+      modalButtons.innerHTML = `<button class="btn-modal btn-primary" onclick="cerrarModal()">Aceptar</button>`;
+      modal.classList.add('active');
+    }
+
+    // Función global para cerrar el modal
+    window.cerrarModal = function() {
+      modal.classList.remove('active');
+    }
+
+    // Función global para ver/ocultar contraseñas
+    window.togglePassword = function(id) {
+      const input = document.getElementById(id);
+      if (input.type === "password") {
+        input.type = "text";
+      } else {
+        input.type = "password";
+      }
+    }
+
+    document.getElementById('btnCrearCuenta').addEventListener('click', async () => {
       const nombre = document.getElementById('nombreCompleto').value.trim();
       const usuario = document.getElementById('nombreUsuario').value.trim();
       const pass1 = document.getElementById('passwordRegistro').value;
       const pass2 = document.getElementById('passwordConfirm').value;
       const terms = document.getElementById('terms').checked;
 
-      // Comprobamos que no falte nada
       if (nombre === "" || usuario === "" || pass1 === "") {
-        alert("Por favor, rellena todos los campos.");
+        mostrarAlerta("Faltan datos", "Por favor, rellena todos los campos para continuar.");
         return; 
       }
       if (pass1 !== pass2) {
-        alert("Las contraseñas no coinciden.");
+        mostrarAlerta("Error en contraseña", "Las contraseñas no coinciden. Revísalas, por favor.");
         return; 
       }
       if (!terms) {
-        alert("Debes aceptar los términos y condiciones.");
+        mostrarAlerta("Términos y condiciones", "Debes aceptar los términos y condiciones para crear tu cuenta.");
         return;
       }
 
-      try {
-        // Buscamos si el usuario ya existe en Firestore
-        const userRef = doc(db, "usuarios", usuario);
-        const docSnap = await getDoc(userRef);
+      // Si todo está bien, mostramos la ventana de confirmación
+      modalTitle.innerText = "Confirma tus datos";
+      modalText.innerHTML = `
+        <div class="modal-data">
+          <strong>Nombre:</strong> ${nombre}<br>
+          <strong>Usuario:</strong> @${usuario}
+        </div>
+        ¿Son correctos estos datos?
+      `;
+      
+      // Creamos los botones de Atrás y Confirmar
+      modalButtons.innerHTML = `
+        <button class="btn-modal btn-outline" onclick="cerrarModal()">Atrás</button>
+        <button class="btn-modal btn-primary" id="btnConfirmarFinal">Crear cuenta</button>
+      `;
+      modal.classList.add('active');
 
-        if (docSnap.exists()) {
-          alert("Ese nombre de usuario ya existe. ¡Elige otro!");
-        } else {
-          // Guardamos los datos
-          await setDoc(userRef, {
-            nombreCompleto: nombre,
-            usuario: usuario,
-            password: pass1,
-            fechaCreacion: new Date().toISOString()
-          });
-          
-          alert("¡Cuenta creada con éxito!");
-          window.location.href = "login.html"; 
+      // Le damos la acción al botón final de Crear Cuenta
+      document.getElementById('btnConfirmarFinal').addEventListener('click', async () => {
+        // Ponemos el botón en estado de carga
+        const btnFinal = document.getElementById('btnConfirmarFinal');
+        btnFinal.innerText = "Creando...";
+        btnFinal.disabled = true;
+
+        try {
+          const userRef = doc(db, "usuarios", usuario);
+          const docSnap = await getDoc(userRef);
+
+          if (docSnap.exists()) {
+            mostrarAlerta("Usuario no disponible", "Ese nombre de usuario ya existe. ¡Elige otro!");
+          } else {
+            await setDoc(userRef, {
+              nombreCompleto: nombre,
+              usuario: usuario,
+              password: pass1,
+              fechaCreacion: new Date().toISOString(),
+              tutorialCompletado: false // Flag para que el dashboard sepa que es nuevo
+            });
+            
+            // ¡Éxito! Redirigimos al Dashboard
+            window.location.href = "dashboard.html"; 
+          }
+        } catch (error) {
+          mostrarAlerta("Error de conexión", "No se pudo conectar: " + error.message);
         }
-      } catch (error) {
-        alert("Error de conexión: " + error.message);
-      }
+      });
     });
   </script>
 </body>
