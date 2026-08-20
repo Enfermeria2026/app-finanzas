@@ -162,24 +162,28 @@
         const userRef = doc(db, "usuarios", usuario);
         const docSnap = await getDoc(userRef);
 
-        if (docSnap.exists()) {
+       if (docSnap.exists()) {
           const datosUsuario = docSnap.data();
           
           if (datosUsuario.password === pass) {
-            // Añade esta línea justo antes del window.location.href en registro y login
-localStorage.setItem('usuarioLogueado', usuario); 
+            
+            // Guardamos quién ha iniciado sesión
+            localStorage.setItem('usuarioLogueado', usuario);
+            
+            // EL PORTERO INTELIGENTE: ¿Ya hizo el tutorial?
+            if (datosUsuario.tutorialCompletado === true) {
+              // Si ya lo hizo, directo a sus cuentas
+              window.location.href = "dashboard.html"; 
+            } else {
+              // Si no lo terminó o es la primera vez, al tutorial
+              window.location.href = "tutorial.html"; 
+            }
 
-window.location.href = "tutorial.html"; // Y cambia el destino al tutorial
           } else {
-            mostrarAlerta("Datos incorrectos", "La contraseña que has introducido no es correcta.");
+            mostrarAlerta("Inicio de sesión fallido", "Usuario o contraseña es incorrecta.");
             btnLogin.innerText = "Iniciar sesión";
             btnLogin.disabled = false;
           }
-        } else {
-          mostrarAlerta("Usuario no encontrado", "Ese nombre de usuario no existe. ¿Quizás te equivocaste al escribirlo?");
-          btnLogin.innerText = "Iniciar sesión";
-          btnLogin.disabled = false;
-        }
       } catch (error) {
         mostrarAlerta("Error de conexión", "No se pudo conectar: " + error.message);
         btnLogin.innerText = "Iniciar sesión";
