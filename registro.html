@@ -174,11 +174,11 @@
       const terms = document.getElementById('terms').checked;
 
       if (nombre === "" || usuario === "" || pass1 === "") {
-        mostrarAlerta("Inicio de sesión fallido", "Usuario o contraseña son incorrectos.");
+        mostrarAlerta("Por favor, rellena todos los campos para continuar.");
         return; 
       }
       if (pass1 !== pass2) {
-        mostrarAlerta("Inicio de sesión fallido", "Usuario o contraseña son incorrectos.");
+        mostrarAlerta("Las contraseñas no coinciden. Compruébalo.");
         return; 
       }
 
