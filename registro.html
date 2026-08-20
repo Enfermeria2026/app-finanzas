@@ -236,8 +236,10 @@
               tutorialCompletado: false // Flag para que el dashboard sepa que es nuevo
             });
             
-            // ¡Éxito! Redirigimos al Dashboard
-            window.location.href = "dashboard.html"; 
+              // Añade esta línea justo antes del window.location.href en registro y login
+              localStorage.setItem('usuarioLogueado', usuario); 
+
+              window.location.href = "tutorial.html"; // Y cambia el destino al tutorial
           }
         } catch (error) {
           mostrarAlerta("Error de conexión", "No se pudo conectar: " + error.message);
