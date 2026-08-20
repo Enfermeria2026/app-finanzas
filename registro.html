@@ -184,7 +184,7 @@
 
       // --- NUEVA COMPROBACIÓN DE SEGURIDAD DE LA CONTRASEÑA ---
       // Esta fórmula comprueba: al menos 8 caracteres, al menos 1 letra y al menos 1 número.
-      const formatoValido = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+      const formatoValido = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
       
       if (!formatoValido.test(pass1)) {
         mostrarAlerta("Contraseña débil", "La contraseña debe tener un mínimo de 8 caracteres e incluir tanto letras como números.");
