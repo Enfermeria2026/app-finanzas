@@ -166,8 +166,10 @@
           const datosUsuario = docSnap.data();
           
           if (datosUsuario.password === pass) {
-            // ¡Login correcto! No mostramos alerta, vamos directos a la app
-            window.location.href = "dashboard.html"; 
+            // Añade esta línea justo antes del window.location.href en registro y login
+localStorage.setItem('usuarioLogueado', usuario); 
+
+window.location.href = "tutorial.html"; // Y cambia el destino al tutorial
           } else {
             mostrarAlerta("Datos incorrectos", "La contraseña que has introducido no es correcta.");
             btnLogin.innerText = "Iniciar sesión";
