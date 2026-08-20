@@ -162,7 +162,7 @@
         const userRef = doc(db, "usuarios", usuario);
         const docSnap = await getDoc(userRef);
 
-       if (docSnap.exists()) {
+      if (docSnap.exists()) {
           const datosUsuario = docSnap.data();
           
           if (datosUsuario.password === pass) {
@@ -180,10 +180,11 @@
             }
 
           } else {
-            mostrarAlerta("Inicio de sesión fallido", "Usuario o contraseña es incorrecta.");
+            mostrarAlerta("Datos incorrectos", "La contraseña que has introducido no es correcta.");
             btnLogin.innerText = "Iniciar sesión";
             btnLogin.disabled = false;
           }
+        
       } catch (error) {
         mostrarAlerta("Error de conexión", "No se pudo conectar: " + error.message);
         btnLogin.innerText = "Iniciar sesión";
