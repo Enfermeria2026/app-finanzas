@@ -11,43 +11,38 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-  background-color: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  display: flex; 
-  justify-content: center; 
-  align-items: center; /* Alinea el contenido en el centro verticalmente */
-  height: 100vh;       /* Fija la altura al 100% de la pantalla */
-  overflow: hidden;    /* ¡LA MAGIA! Oculta cualquier scroll general de la ventana */
-}
+      background-color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh;       
+      overflow: hidden;    
+    }
 
-.container {
-  width: 100%; 
-  max-width: 400px; 
-  padding: 24px; 
-  display: flex; 
-  flex-direction: column;
-  justify-content: center; /* Centra el contenido si la pantalla es muy alta */
-  
-  /* Permite scroll SOLO DENTRO del contenedor si la pantalla del móvil es muy pequeña,
-     pero no afecta a monitores o móviles grandes */
-  max-height: 100vh; 
-  overflow-y: auto;  
-  
-  /* Quita el padding-bottom exagerado que teníamos antes */
-  padding-bottom: 24px; 
-  animation: fadeIn 0.4s ease-out;
-}
+    .container {
+      width: 100%; 
+      max-width: 400px; 
+      padding: 24px; 
+      display: flex; 
+      flex-direction: column;
+      justify-content: center; 
+      max-height: 100vh; 
+      overflow-y: auto;  
+      padding-bottom: 24px; 
+      animation: fadeIn 0.4s ease-out;
+    }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .back-arrow { position: absolute; top: 24px; left: 24px; color: #0B1A2E; cursor: pointer; }
     
-   h1 { 
-  text-align: center; 
-  font-size: 24px; 
-  margin-top: 0; /* ¡Quitamos los 50px que empujaban todo hacia abajo! */
-  margin-bottom: 8px; 
-  color: #0B1A2E; 
-}
+    h1 { 
+      text-align: center; 
+      font-size: 24px; 
+      margin-top: 0; 
+      margin-bottom: 8px; 
+      color: #0B1A2E; 
+    }
     p.subtitle { text-align: center; font-size: 14px; color: #666; margin-bottom: 30px; }
 
     .input-group { position: relative; margin-bottom: 16px; }
@@ -65,9 +60,9 @@
     .checkbox-group a { color: #00A878; text-decoration: none; }
 
     .btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; color: white; cursor: pointer; }
-   .btn-green { 
+    .btn-green { 
       background-color: #00A878; 
-      margin-bottom: 24px; /* Añade esto */
+      margin-bottom: 24px; 
     }
 
     .divider { display: flex; align-items: center; text-align: center; margin: 24px 0; color: #999; font-size: 12px; }
@@ -86,7 +81,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- Flecha para volver a login -->
     <a href="login.html" class="back-arrow">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
     </a>
@@ -94,26 +88,30 @@
     <h1>Crea tu cuenta</h1>
     <p class="subtitle">Empieza a gestionar tu dinero de forma inteligente.</p>
 
+    <!-- HE AÑADIDO id="nombreCompleto" -->
     <div class="input-group">
       <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-      <input type="text" placeholder="Nombre completo">
+      <input type="text" id="nombreCompleto" placeholder="Nombre completo">
     </div>
 
+    <!-- HE CAMBIADO A TEXTO Y AÑADIDO id="nombreUsuario" -->
     <div class="input-group">
       <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-      <input type="email" placeholder="Correo electrónico">
+      <input type="text" id="nombreUsuario" placeholder="Nombre de usuario">
     </div>
 
+    <!-- HE AÑADIDO id="passwordRegistro" -->
     <div class="input-group">
       <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-      <input type="text" placeholder="Contraseña">
+      <input type="text" id="passwordRegistro" placeholder="Contraseña">
       <svg class="icon-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
     </div>
     <p class="helper-text">Mínimo 8 caracteres, con números y letras.</p>
 
+    <!-- HE AÑADIDO id="passwordConfirm" -->
     <div class="input-group">
       <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-      <input type="text" placeholder="Confirmar contraseña">
+      <input type="text" id="passwordConfirm" placeholder="Confirmar contraseña">
       <svg class="icon-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
     </div>
 
@@ -122,10 +120,76 @@
       <label for="terms">Acepto los <a href="#">Términos y condiciones</a> y la <a href="#">Política de privacidad</a>.</label>
     </div>
 
-    <button class="btn btn-green">Crear cuenta</button>
+    <!-- HE AÑADIDO id="btnCrearCuenta" -->
+    <button id="btnCrearCuenta" class="btn btn-green">Crear cuenta</button>
 
-    <!-- Enlace de vuelta a login -->
     <p class="footer-link">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
   </div>
+
+  <!-- ESTO ES LO ÚNICO NUEVO: EL SCRIPT QUE GUARDA EN FIRESTORE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJJsgp1RnXGqva04EuQEONEM9frfx-7I8",
+      authDomain: "budgetwise-9608f.firebaseapp.com",
+      projectId: "budgetwise-9608f",
+      storageBucket: "budgetwise-9608f.firebasestorage.app",
+      messagingSenderId: "438887897789",
+      appId: "1:438887897789:web:1075b7b21577d1b632b5d4",
+      measurementId: "G-E5XDC4BBPW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const btnCrear = document.getElementById('btnCrearCuenta');
+
+    btnCrear.addEventListener('click', async () => {
+      // Leemos los datos de las cajas
+      const nombre = document.getElementById('nombreCompleto').value.trim();
+      const usuario = document.getElementById('nombreUsuario').value.trim();
+      const pass1 = document.getElementById('passwordRegistro').value;
+      const pass2 = document.getElementById('passwordConfirm').value;
+      const terms = document.getElementById('terms').checked;
+
+      // Comprobamos que no falte nada
+      if (nombre === "" || usuario === "" || pass1 === "") {
+        alert("Por favor, rellena todos los campos.");
+        return; 
+      }
+      if (pass1 !== pass2) {
+        alert("Las contraseñas no coinciden.");
+        return; 
+      }
+      if (!terms) {
+        alert("Debes aceptar los términos y condiciones.");
+        return;
+      }
+
+      try {
+        // Buscamos si el usuario ya existe en Firestore
+        const userRef = doc(db, "usuarios", usuario);
+        const docSnap = await getDoc(userRef);
+
+        if (docSnap.exists()) {
+          alert("Ese nombre de usuario ya existe. ¡Elige otro!");
+        } else {
+          // Guardamos los datos
+          await setDoc(userRef, {
+            nombreCompleto: nombre,
+            usuario: usuario,
+            password: pass1,
+            fechaCreacion: new Date().toISOString()
+          });
+          
+          alert("¡Cuenta creada con éxito!");
+          window.location.href = "login.html"; 
+        }
+      } catch (error) {
+        alert("Error de conexión: " + error.message);
+      }
+    });
+  </script>
 </body>
 </html>
