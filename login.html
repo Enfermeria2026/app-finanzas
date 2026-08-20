@@ -7,14 +7,32 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background-color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      display: flex; justify-content: center; min-height: 100vh;
-    }
-    .container {
-      width: 100%; max-width: 400px; padding: 24px; display: flex; flex-direction: column;
-      padding-bottom: 60px; animation: fadeIn 0.4s ease-out;
-    }
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex; 
+  justify-content: center; 
+  align-items: center; /* Alinea el contenido en el centro verticalmente */
+  height: 100vh;       /* Fija la altura al 100% de la pantalla */
+  overflow: hidden;    /* ¡LA MAGIA! Oculta cualquier scroll general de la ventana */
+}
+
+.container {
+  width: 100%; 
+  max-width: 400px; 
+  padding: 24px; 
+  display: flex; 
+  flex-direction: column;
+  justify-content: center; /* Centra el contenido si la pantalla es muy alta */
+  
+  /* Permite scroll SOLO DENTRO del contenedor si la pantalla del móvil es muy pequeña,
+     pero no afecta a monitores o móviles grandes */
+  max-height: 100vh; 
+  overflow-y: auto;  
+  
+  /* Quita el padding-bottom exagerado que teníamos antes */
+  padding-bottom: 24px; 
+  animation: fadeIn 0.4s ease-out;
+}
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .logo-header { text-align: center; margin-top: 40px; margin-bottom: 30px; }
