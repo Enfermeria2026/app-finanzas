@@ -26,14 +26,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      animation: fadeIn 0.8s ease-in;
+      /* Eliminada la animación fadeIn */
     }
 
     #splash-screen img {
       width: 280px;
       max-width: 80vw;
       height: auto;
-      animation: pulse 2.2s ease-in-out infinite;
+      /* Eliminada la animación pulse */
     }
 
     /* Barra de carga */
@@ -54,15 +54,7 @@
       animation: loading 1.3s ease-in-out infinite;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.04); }
-    }
+    /* Eliminados los @keyframes de fadeIn y pulse que ya no se usan */
 
     @keyframes loading {
       0% { transform: translateX(-100%); }
