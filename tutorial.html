@@ -12,50 +12,47 @@
       display: flex; flex-direction: column; height: 100vh; overflow: hidden;
     }
 
-    /* BARRA DE PROGRESO */
-    .progress-container {
-      width: 100%; height: 6px; background-color: #E0E0E0; position: fixed; top: 0; left: 0; z-index: 10;
-    }
-    .progress-bar {
-      height: 100%; background-color: #00A878; width: 14%; transition: width 0.4s ease;
-    }
+    .progress-container { width: 100%; height: 6px; background-color: #E0E0E0; position: fixed; top: 0; left: 0; z-index: 10; }
+    .progress-bar { height: 100%; background-color: #00A878; width: 14%; transition: width 0.4s ease; }
 
     .container {
       flex: 1; width: 100%; max-width: 450px; margin: 0 auto; padding: 40px 24px 100px 24px;
       overflow-y: auto; position: relative;
     }
 
-    /* PASOS DEL TUTORIAL */
     .step { display: none; animation: fadeIn 0.4s ease; }
     .step.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     h2 { font-size: 22px; color: #0B1A2E; margin-bottom: 12px; }
-    p { font-size: 15px; color: #555; line-height: 1.5; margin-bottom: 20px; }
-    .highlight { background: #E8F5E9; color: #00A878; padding: 12px; border-radius: 8px; font-weight: 600; margin-bottom: 20px; }
+    p { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 20px; }
+    .highlight { background: #E8F5E9; color: #00A878; padding: 12px; border-radius: 8px; font-weight: 600; margin-bottom: 20px; font-size: 13px;}
 
-    /* FORMULARIOS */
-    .input-group { margin-bottom: 20px; }
+    .input-group { margin-bottom: 16px; }
     label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 8px; }
-    input { width: 100%; padding: 14px; border: 1px solid #CCC; border-radius: 8px; font-size: 16px; outline: none; }
+    input { width: 100%; padding: 14px; border: 1px solid #CCC; border-radius: 8px; font-size: 15px; outline: none; margin-bottom: 8px;}
     input:focus { border-color: #00A878; }
 
-    /* GRID DE ICONOS Y COLORES */
-    .grid-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    /* SCROLL HORIZONTAL PARA ICONOS Y COLORES */
+    .scroll-selector {
+      display: flex; overflow-x: auto; gap: 12px; padding-bottom: 12px; margin-bottom: 20px;
+      scroll-snap-type: x mandatory;
+    }
+    .scroll-selector::-webkit-scrollbar { height: 6px; }
+    .scroll-selector::-webkit-scrollbar-thumb { background: #CCC; border-radius: 10px; }
+    
     .item-select {
-      aspect-ratio: 1; border: 2px solid #E0E0E0; border-radius: 12px; display: flex; 
-      justify-content: center; align-items: center; font-size: 24px; cursor: pointer; transition: 0.2s;
-      background: white; position: relative;
+      flex-shrink: 0; width: 60px; height: 60px; border: 2px solid #E0E0E0; border-radius: 12px; 
+      display: flex; justify-content: center; align-items: center; font-size: 24px; cursor: pointer; 
+      transition: 0.2s; background: white; position: relative; scroll-snap-align: start;
     }
     .item-select.active { border-color: #00A878; background: #E8F5E9; }
     
-    /* BLOQUEADOS */
-    .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; }
+    .item-locked { opacity: 0.5; cursor: not-allowed; background: #f0f0f0; }
     .padlock { position: absolute; top: -6px; right: -6px; background: #0B1A2E; color: white; 
                font-size: 10px; padding: 4px; border-radius: 50%; width: 20px; height: 20px; 
                display: flex; justify-content: center; align-items: center; }
 
-    /* BOTONES DE NAVEGACIÓN (Fijos abajo) */
     .nav-buttons {
       position: fixed; bottom: 0; left: 0; width: 100%; background: white; 
       padding: 16px 24px; box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
@@ -66,55 +63,54 @@
     .btn-outline { background: #F5F5F5; color: #666; flex: 1; }
     .btn-primary { background: #00A878; color: white; flex: 2; }
     
-    /* COLORES */
     .c-blue { background: #2196F3; } .c-red { background: #F44336; } 
     .c-yellow { background: #FFC107; } .c-green { background: #4CAF50; } 
     .c-white { background: #FFFFFF; border: 1px solid #CCC; } .c-orange { background: #FF9800; }
     .c-purple { background: #9C27B0; } .c-pink { background: #E91E63; }
+    .c-cyan { background: #00BCD4; } .c-brown { background: #795548; } .c-teal { background: #009688; }
   </style>
 </head>
 <body>
 
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
 
   <div class="container">
-    <!-- PASO 1: BIENVENIDA -->
+    <!-- PASO 1 -->
     <div class="step active" id="step1">
       <h2>¡Bienvenido a BudgetWise! 🎉</h2>
       <p>Has dado el primer paso para tomar el control total de tu dinero.</p>
       <p>A diferencia de otras apps que solo te dicen en qué te has gastado el dinero cuando ya es tarde, BudgetWise te ayuda a <b>planificar cada moneda antes de gastarla</b>.</p>
-      <p>Vamos a configurar tu entorno en menos de 2 minutos. ¿Listo?</p>
+      <p>Vamos a configurar tu entorno. Dale a siguiente.</p>
     </div>
 
-    <!-- PASO 2: INGRESO -->
+    <!-- PASO 2 -->
     <div class="step" id="step2">
       <h2>Tu base de operaciones 💰</h2>
-      <p>Para poder repartir tu dinero y crear presupuestos, primero necesitamos saber con qué contamos.</p>
+      <p>Para poder repartir tu dinero, primero necesitamos saber con qué contamos.</p>
       <div class="input-group">
         <label>Añade un primer ingreso (Ej: Nómina, ahorros actuales)</label>
         <input type="number" id="ingresoInicial" placeholder="Ej: 1500" min="1">
       </div>
-      <p style="font-size: 13px; color: #888;">Tranquilo, podrás añadir más ingresos o modificar esto más adelante en el Dashboard.</p>
+      <p style="font-size: 12px; color: #888;">Podrás añadir más ingresos o modificar esto más adelante en el Dashboard.</p>
     </div>
 
-    <!-- PASO 3: PRIMERA CATEGORÍA -->
+    <!-- PASO 3 -->
     <div class="step" id="step3">
       <h2>Tu primera Categoría 📂</h2>
-      <p>Las categorías son sobres virtuales donde guardas dinero. <b>La suma de tus categorías nunca puede superar el dinero que tienes ingresado.</b></p>
+      <p>Una <b>Categoría</b> es como un sobre virtual para un tipo de gasto (Ej: Supermercado, Ocio, Mascotas...).</p>
+      <p>El <b>Presupuesto Máximo</b> es el límite de dinero que decides meter en ese sobre para no pasarte este mes. La suma de todas tus categorías nunca puede superar el dinero que has ingresado.</p>
       
       <div class="input-group">
-        <label>Nombre (Ej: Supermercado, Ocio...)</label>
-        <input type="text" id="catNombre" placeholder="Nombre de la categoría">
+        <label>Nombre de la categoría</label>
+        <input type="text" id="catNombre" placeholder="Ej: Supermercado">
       </div>
       <div class="input-group">
         <label>Presupuesto Máximo (€)</label>
         <input type="number" id="catPresupuesto" placeholder="Ej: 300">
       </div>
 
-      <label>Elige un Icono</label>
-      <div class="grid-selector" id="iconSelector">
+      <label>Elige un Icono (Desliza para ver más)</label>
+      <div class="scroll-selector" id="iconSelector">
         <div class="item-select active" data-val="🧺">🧺</div>
         <div class="item-select" data-val="🍔">🍔</div>
         <div class="item-select" data-val="🏠">🏠</div>
@@ -124,12 +120,15 @@
         <div class="item-select" data-val="🛍️">🛍️</div>
         <div class="item-select" data-val="🚫">🚫</div>
         <!-- Bloqueados -->
-        <div class="item-select item-locked" onclick="alert('🔒 Bloqueado. Consigue monedas en misiones para desbloquearlo.')">✈️<div class="padlock">🔒</div></div>
-        <div class="item-select item-locked" onclick="alert('🔒 Bloqueado. Consigue monedas en misiones para desbloquearlo.')">🎮<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">✈️<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">🎮<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">🎬<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">🍻<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">📚<div class="padlock">🔒</div></div>
       </div>
 
-      <label>Elige un Color</label>
-      <div class="grid-selector" id="colorSelector">
+      <label>Elige un Color (Desliza para ver más)</label>
+      <div class="scroll-selector" id="colorSelector">
         <div class="item-select c-blue active" data-val="#2196F3"></div>
         <div class="item-select c-red" data-val="#F44336"></div>
         <div class="item-select c-yellow" data-val="#FFC107"></div>
@@ -137,56 +136,71 @@
         <div class="item-select c-white" data-val="#FFFFFF"></div>
         <div class="item-select c-orange" data-val="#FF9800"></div>
         <!-- Bloqueados -->
-        <div class="item-select c-purple item-locked" onclick="alert('🔒 Color Premium.')"><div class="padlock">🔒</div></div>
-        <div class="item-select c-pink item-locked" onclick="alert('🔒 Color Premium.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-purple item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-pink item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-cyan item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-brown item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-teal item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
       </div>
+      <p style="font-size: 12px; color: #888;">Los elementos con candado 🔒 se podrán comprar más adelante usando las monedas que ganes al completar misiones en la app.</p>
     </div>
 
-    <!-- PASO 4: FONDOS RESERVADOS VS AHORRO -->
+    <!-- PASO 4 -->
     <div class="step" id="step4">
-      <h2>Reservas y Ahorros 🛡️</h2>
-      <p>No todo el dinero es para gastar este mes.</p>
+      <h2>Reservas vs Ahorros 🛡️</h2>
+      <p>Hay dinero que no está destinado al gasto diario:</p>
+      
       <div class="highlight">
-        <b>Fondo Reservado:</b> Dinero apartado para pagos futuros fijos (Ej: Seguro del coche anual). No se toca.
+        <b>Fondo Reservado:</b> Dinero que guardas obligatoriamente para un pago futuro que sabes que llegará (Ej: Seguro del coche anual).
       </div>
       <div class="input-group">
-        <input type="text" id="resNombre" placeholder="Ej: Seguro Coche (Opcional)">
-        <input type="number" id="resCantidad" placeholder="Cantidad a reservar (€)" style="margin-top: 8px;">
+        <input type="text" id="resNombre" placeholder="Concepto de Reserva (Opcional)">
+        <input type="number" id="resMeta" placeholder="Cantidad de dinero total (€) [Obligatorio]">
+        <input type="number" id="resCantidad" placeholder="Cantidad a reservar ahora (€) [Obligatorio]">
+        <input type="date" id="resFecha" placeholder="Fecha prevista de pago (Opcional)">
       </div>
       
       <div class="highlight" style="background: #E3F2FD; color: #1976D2;">
-        <b>Objetivo de Ahorro:</b> Un reto para comprar algo a largo plazo (Ej: Viaje a Japón).
+        <b>Objetivo de Ahorro:</b> Un reto personal para comprar algo que deseas, sin fecha estricta (Ej: Viaje a Japón).
       </div>
       <div class="input-group">
-        <input type="text" id="ahorroNombre" placeholder="Ej: Viaje a Japón (Opcional)">
-        <input type="number" id="ahorroCantidad" placeholder="Cantidad actual guardada (€)" style="margin-top: 8px;">
+        <input type="text" id="ahorroNombre" placeholder="Nombre del Objetivo (Opcional)">
+        <input type="number" id="ahorroMeta" placeholder="Cantidad de dinero como meta (€) [Obligatorio]">
+        <input type="number" id="ahorroCantidad" placeholder="Cantidad aportada ahora (€) [Obligatorio]">
       </div>
     </div>
 
-    <!-- PASO 5: VARIABLES -->
+    <!-- PASO 5 -->
     <div class="step" id="step5">
       <h2>Entendiendo tus números 📊</h2>
-      <p>En tu panel principal verás tres cifras clave:</p>
+      <p>En tu panel principal verás tres cifras clave para entender tu salud financiera:</p>
       <ul style="margin-left: 20px; margin-bottom: 20px; color: #555; line-height: 1.6;">
-        <li><b>Fondos Totales:</b> Todo el dinero que has metido en la app en general.</li>
-        <li><b>Fondos Retenidos:</b> La suma de lo que está escondido en tus Categorías, Reservas y Ahorros.</li>
-        <li><b>Fondos Disponibles:</b> El dinero "suelto" que aún no has asignado a nada. ¡El objetivo es que siempre asignes todo!</li>
+        <li><b>Fondos Totales:</b> La suma absoluta de todo el dinero que has metido en la app.</li>
+        <li><b>Fondos Retenidos:</b> Es el dinero intocable. Está formado <b>exclusivamente</b> por la suma de tus Reservas y tus Objetivos de Ahorro.</li>
+        <li><b>Fondos Disponibles:</b> Es el dinero "suelto" (Totales - Retenidos) del cual sale el presupuesto para tus categorías.</li>
       </ul>
     </div>
 
-    <!-- PASO 6: BALANCE -->
+    <!-- PASO 6 -->
     <div class="step" id="step6">
       <h2>Gastos y Balance ⚖️</h2>
-      <p>Cuando registres compras, estas se sumarán a tus <b>Gastos Totales</b> de este mes.</p>
-      <p>El <b>Balance</b> es tu semáforo de salud financiera: te indicará cuánto dinero del que habías presupuestado en tus categorías te sobra (positivo) o te has excedido (negativo).</p>
-      <p>Si el balance es negativo, ¡toca ajustar presupuestos!</p>
+      <p>Cuando registres compras en tus Categorías, estas se sumarán a tus <b>Gastos Totales</b> de este mes.</p>
+      <p>El <b>Balance</b> es tu semáforo: te indicará cuánto dinero del que habías presupuestado en tus categorías te sobra (positivo) o te has excedido (negativo).</p>
+      <p>Si el balance es negativo, ¡toca ajustar presupuestos o reducir gastos!</p>
     </div>
 
-    <!-- PASO 7: FINAL Y DASHBOARD -->
+    <!-- PASO 7 -->
     <div class="step" id="step7">
       <h2>¡Todo listo! 🚀</h2>
       <p>Ya vas a entrar al Dashboard principal.</p>
-      <p>Fíjate bien en el botón verde <b>AÑADIR INGRESO</b> para sumar dinero, y en el botón oscuro <b>FINALIZAR MES</b>, que usarás el día 30 para limpiar los gastos, evaluar tu balance y empezar el mes siguiente fresco.</p>
+      
+      <div class="input-group" style="background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #ddd;">
+        <label>¿Qué día sueles finalizar tu mes financiero?</label>
+        <p style="font-size: 12px; color: #666; margin-bottom: 12px;">Ese día usarás el botón "Finalizar Mes" para limpiar gastos y evaluar tu balance. Es orientativo, puedes pulsarlo cualquier otro día si lo necesitas.</p>
+        <input type="number" id="diaFinMes" placeholder="Día (1-31)" min="1" max="31">
+      </div>
+
+      <p>Fíjate bien en el botón verde <b>AÑADIR INGRESO</b> para sumar dinero, y en el oscuro <b>FINALIZAR MES</b>.</p>
       <p>¡Vamos a gestionar tu imperio!</p>
     </div>
   </div>
@@ -214,21 +228,18 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Identificar al usuario
     const usuarioLogueado = localStorage.getItem('usuarioLogueado');
     if (!usuarioLogueado) {
-      alert("Error: No se ha detectado usuario. Volviendo a Login.");
+      alert("Error: No se ha detectado usuario.");
       window.location.href = "login.html";
     }
 
-    // Lógica del Tutorial Multistep
     let currentStep = 1;
     const totalSteps = 7;
     const btnSiguiente = document.getElementById('btnSiguiente');
     const btnAtras = document.getElementById('btnAtras');
     const progressBar = document.getElementById('progressBar');
 
-    // Selectores visuales
     let iconSelected = "🧺";
     let colorSelected = "#2196F3";
 
@@ -253,41 +264,54 @@
         el.classList.toggle('active', index + 1 === currentStep);
       });
       progressBar.style.width = `${(currentStep / totalSteps) * 100}%`;
-      
       btnAtras.style.display = currentStep === 1 ? 'none' : 'block';
       btnSiguiente.innerText = currentStep === totalSteps ? 'Entrar al Dashboard' : 'Siguiente';
     }
 
-    btnAtras.addEventListener('click', () => {
-      if (currentStep > 1) { currentStep--; updateView(); }
-    });
+    btnAtras.addEventListener('click', () => { if (currentStep > 1) { currentStep--; updateView(); } });
 
     btnSiguiente.addEventListener('click', async () => {
-      // Validaciones antes de avanzar
+      
+      // Validaciones Paso 2
       if (currentStep === 2) {
         const ingreso = parseFloat(document.getElementById('ingresoInicial').value);
-        if (isNaN(ingreso) || ingreso <= 0) return alert("Por favor, introduce un ingreso válido.");
+        if (isNaN(ingreso) || ingreso <= 0) return alert("Introduce un ingreso válido.");
       }
       
+      // Validaciones Paso 3
       if (currentStep === 3) {
         const nombre = document.getElementById('catNombre').value.trim();
         const presupuesto = parseFloat(document.getElementById('catPresupuesto').value);
         const ingreso = parseFloat(document.getElementById('ingresoInicial').value);
-        
-        if (nombre === "" || isNaN(presupuesto)) return alert("Rellena el nombre y el presupuesto.");
-        if (presupuesto > ingreso) return alert(`El presupuesto (${presupuesto}€) no puede ser mayor que tu ingreso (${ingreso}€).`);
+        if (nombre === "" || isNaN(presupuesto)) return alert("Rellena el nombre y el presupuesto de la categoría.");
+        if (presupuesto > ingreso) return alert("El presupuesto no puede ser mayor que tu ingreso inicial.");
       }
 
-      // Si estamos en el último paso, guardar y redirigir
+      // Validaciones Paso 4 (Condicionales si escribe nombre)
+      if (currentStep === 4) {
+        const resNombre = document.getElementById('resNombre').value.trim();
+        const resMeta = parseFloat(document.getElementById('resMeta').value);
+        const resCant = parseFloat(document.getElementById('resCantidad').value);
+        if (resNombre !== "" && (isNaN(resMeta) || isNaN(resCant))) return alert("Si creas una reserva, debes rellenar la Meta total y la Cantidad a reservar.");
+
+        const ahoNombre = document.getElementById('ahorroNombre').value.trim();
+        const ahoMeta = parseFloat(document.getElementById('ahorroMeta').value);
+        const ahoCant = parseFloat(document.getElementById('ahorroCantidad').value);
+        if (ahoNombre !== "" && (isNaN(ahoMeta) || isNaN(ahoCant))) return alert("Si creas un objetivo de ahorro, debes rellenar la Meta y la Cantidad aportada.");
+      }
+
+      // Validaciones Paso 7 y Guardado Final
       if (currentStep === totalSteps) {
+        const diaFinMes = parseInt(document.getElementById('diaFinMes').value);
+        if (isNaN(diaFinMes) || diaFinMes < 1 || diaFinMes > 31) return alert("Introduce un día válido (1-31) para finalizar tu mes.");
+
         btnSiguiente.innerText = "Guardando...";
         btnSiguiente.disabled = true;
         
         try {
           const userRef = doc(db, "usuarios", usuarioLogueado);
-          
-          // Construir datos
           const ingreso = parseFloat(document.getElementById('ingresoInicial').value);
+          
           const cat = {
             nombre: document.getElementById('catNombre').value.trim(),
             presupuesto: parseFloat(document.getElementById('catPresupuesto').value),
@@ -298,7 +322,9 @@
           if (document.getElementById('resNombre').value.trim() !== "") {
             reservas.push({
               nombre: document.getElementById('resNombre').value.trim(),
-              cantidad: parseFloat(document.getElementById('resCantidad').value) || 0
+              meta: parseFloat(document.getElementById('resMeta').value),
+              cantidadAportada: parseFloat(document.getElementById('resCantidad').value),
+              fechaPrevista: document.getElementById('resFecha').value // Puede estar vacío
             });
           }
 
@@ -306,16 +332,17 @@
           if (document.getElementById('ahorroNombre').value.trim() !== "") {
             ahorros.push({
               nombre: document.getElementById('ahorroNombre').value.trim(),
-              cantidad: parseFloat(document.getElementById('ahorroCantidad').value) || 0
+              meta: parseFloat(document.getElementById('ahorroMeta').value),
+              cantidadAportada: parseFloat(document.getElementById('ahorroCantidad').value)
             });
           }
 
-          // Actualizamos la base de datos
           await updateDoc(userRef, {
             ingresoTotalMensual: ingreso,
             categorias: [cat],
             fondosReservados: reservas,
             objetivosAhorro: ahorros,
+            diaFinMesConfigurado: diaFinMes,
             tutorialCompletado: true
           });
 
