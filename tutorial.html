@@ -68,6 +68,26 @@
     .c-white { background: #FFFFFF; border: 1px solid #CCC; } .c-orange { background: #FF9800; }
     .c-purple { background: #9C27B0; } .c-pink { background: #E91E63; }
     .c-cyan { background: #00BCD4; } .c-brown { background: #795548; } .c-teal { background: #009688; }
+
+    /* ESTILOS DE LA VENTANA EMERGENTE (MODAL) */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(11, 26, 46, 0.7); display: none; 
+      justify-content: center; align-items: center; z-index: 1000;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box {
+      background: white; width: 90%; max-width: 320px; padding: 24px;
+      border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transform: scale(0.9); transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 12px; font-weight: bold; }
+    .modal-text { font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.5; }
+    .modal-buttons { display: flex; gap: 12px; }
+    .btn-modal { flex: 1; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; }
+    .btn-primary-modal { background: #00A878; color: white; }
   </style>
 </head>
 <body>
@@ -119,12 +139,12 @@
         <div class="item-select" data-val="👕">👕</div>
         <div class="item-select" data-val="🛍️">🛍️</div>
         <div class="item-select" data-val="🚫">🚫</div>
-        <!-- Bloqueados -->
-        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">✈️<div class="padlock">🔒</div></div>
-        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">🎮<div class="padlock">🔒</div></div>
-        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">🎬<div class="padlock">🔒</div></div>
-        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">🍻<div class="padlock">🔒</div></div>
-        <div class="item-select item-locked" onclick="alert('🔒 Se desbloquea con monedas en la tienda.')">📚<div class="padlock">🔒</div></div>
+        <!-- Bloqueados (Usando la ventana modal) -->
+        <div class="item-select item-locked" onclick="mostrarAlerta('Contenido Bloqueado', '🔒 Este icono se desbloquea comprándolo con monedas en la tienda.')">✈️<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="mostrarAlerta('Contenido Bloqueado', '🔒 Este icono se desbloquea comprándolo con monedas en la tienda.')">🎮<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="mostrarAlerta('Contenido Bloqueado', '🔒 Este icono se desbloquea comprándolo con monedas en la tienda.')">🎬<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="mostrarAlerta('Contenido Bloqueado', '🔒 Este icono se desbloquea comprándolo con monedas en la tienda.')">🍻<div class="padlock">🔒</div></div>
+        <div class="item-select item-locked" onclick="mostrarAlerta('Contenido Bloqueado', '🔒 Este icono se desbloquea comprándolo con monedas en la tienda.')">📚<div class="padlock">🔒</div></div>
       </div>
 
       <label>Elige un Color (Desliza para ver más)</label>
@@ -135,12 +155,12 @@
         <div class="item-select c-green" data-val="#4CAF50"></div>
         <div class="item-select c-white" data-val="#FFFFFF"></div>
         <div class="item-select c-orange" data-val="#FF9800"></div>
-        <!-- Bloqueados -->
-        <div class="item-select c-purple item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
-        <div class="item-select c-pink item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
-        <div class="item-select c-cyan item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
-        <div class="item-select c-brown item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
-        <div class="item-select c-teal item-locked" onclick="alert('🔒 Se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <!-- Bloqueados (Usando la ventana modal) -->
+        <div class="item-select c-purple item-locked" onclick="mostrarAlerta('Color Premium', '🔒 Este color se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-pink item-locked" onclick="mostrarAlerta('Color Premium', '🔒 Este color se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-cyan item-locked" onclick="mostrarAlerta('Color Premium', '🔒 Este color se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-brown item-locked" onclick="mostrarAlerta('Color Premium', '🔒 Este color se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
+        <div class="item-select c-teal item-locked" onclick="mostrarAlerta('Color Premium', '🔒 Este color se desbloquea con monedas.')"><div class="padlock">🔒</div></div>
       </div>
       <p style="font-size: 12px; color: #888;">Los elementos con candado 🔒 se podrán comprar más adelante usando las monedas que ganes al completar misiones en la app.</p>
     </div>
@@ -168,6 +188,10 @@
         <input type="number" id="ahorroMeta" placeholder="Cantidad de dinero como meta (€) [Obligatorio]">
         <input type="number" id="ahorroCantidad" placeholder="Cantidad aportada ahora (€) [Obligatorio]">
       </div>
+
+      <p style="font-size: 13px; color: #666; margin-top: 24px; text-align: center; border-top: 1px solid #eee; padding-top: 16px;">
+        <em>Nota: Podrás añadir más fondos reservados u objetivos de ahorro, o modificar los actuales, más adelante dentro del Dashboard.</em>
+      </p>
     </div>
 
     <!-- PASO 5 -->
@@ -212,6 +236,15 @@
     </div>
   </div>
 
+  <!-- HTML DE LA VENTANA EMERGENTE -->
+  <div id="miModal" class="modal-overlay">
+    <div class="modal-box">
+      <div id="modalTitle" class="modal-title">Atención</div>
+      <div id="modalText" class="modal-text">Mensaje</div>
+      <div id="modalButtons" class="modal-buttons"></div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -230,7 +263,7 @@
 
     const usuarioLogueado = localStorage.getItem('usuarioLogueado');
     if (!usuarioLogueado) {
-      alert("Error: No se ha detectado usuario.");
+      // Si por lo que sea no hay usuario en memoria, mandamos a login.
       window.location.href = "login.html";
     }
 
@@ -239,6 +272,24 @@
     const btnSiguiente = document.getElementById('btnSiguiente');
     const btnAtras = document.getElementById('btnAtras');
     const progressBar = document.getElementById('progressBar');
+
+    // Elementos del Modal
+    const modal = document.getElementById('miModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = document.getElementById('modalText');
+    const modalButtons = document.getElementById('modalButtons');
+
+    // Función para mostrar alerta con el Modal (disponible globalmente)
+    window.mostrarAlerta = function(titulo, mensaje) {
+      modalTitle.innerText = titulo;
+      modalText.innerHTML = mensaje;
+      modalButtons.innerHTML = `<button class="btn-modal btn-primary-modal" onclick="cerrarModal()">Aceptar</button>`;
+      modal.classList.add('active');
+    };
+
+    window.cerrarModal = function() {
+      modal.classList.remove('active');
+    };
 
     let iconSelected = "🧺";
     let colorSelected = "#2196F3";
@@ -275,7 +326,10 @@
       // Validaciones Paso 2
       if (currentStep === 2) {
         const ingreso = parseFloat(document.getElementById('ingresoInicial').value);
-        if (isNaN(ingreso) || ingreso <= 0) return alert("Introduce un ingreso válido.");
+        if (isNaN(ingreso) || ingreso <= 0) {
+          mostrarAlerta("Ingreso inválido", "Por favor, introduce un ingreso inicial válido.");
+          return;
+        }
       }
       
       // Validaciones Paso 3
@@ -283,27 +337,45 @@
         const nombre = document.getElementById('catNombre').value.trim();
         const presupuesto = parseFloat(document.getElementById('catPresupuesto').value);
         const ingreso = parseFloat(document.getElementById('ingresoInicial').value);
-        if (nombre === "" || isNaN(presupuesto)) return alert("Rellena el nombre y el presupuesto de la categoría.");
-        if (presupuesto > ingreso) return alert("El presupuesto no puede ser mayor que tu ingreso inicial.");
+        
+        if (nombre === "" || isNaN(presupuesto)) {
+          mostrarAlerta("Faltan datos", "Por favor, rellena el nombre y el presupuesto de tu categoría.");
+          return;
+        }
+        if (presupuesto > ingreso) {
+          mostrarAlerta("Presupuesto excedido", "El presupuesto no puede ser mayor que tu ingreso inicial.");
+          return;
+        }
       }
 
-      // Validaciones Paso 4 (Condicionales si escribe nombre)
+      // Validaciones Paso 4
       if (currentStep === 4) {
         const resNombre = document.getElementById('resNombre').value.trim();
         const resMeta = parseFloat(document.getElementById('resMeta').value);
         const resCant = parseFloat(document.getElementById('resCantidad').value);
-        if (resNombre !== "" && (isNaN(resMeta) || isNaN(resCant))) return alert("Si creas una reserva, debes rellenar la Meta total y la Cantidad a reservar.");
+        
+        if (resNombre !== "" && (isNaN(resMeta) || isNaN(resCant))) {
+          mostrarAlerta("Faltan datos", "Si creas una reserva, debes rellenar la Meta total y la Cantidad a reservar obligatoriamente.");
+          return;
+        }
 
         const ahoNombre = document.getElementById('ahorroNombre').value.trim();
         const ahoMeta = parseFloat(document.getElementById('ahorroMeta').value);
         const ahoCant = parseFloat(document.getElementById('ahorroCantidad').value);
-        if (ahoNombre !== "" && (isNaN(ahoMeta) || isNaN(ahoCant))) return alert("Si creas un objetivo de ahorro, debes rellenar la Meta y la Cantidad aportada.");
+        
+        if (ahoNombre !== "" && (isNaN(ahoMeta) || isNaN(ahoCant))) {
+          mostrarAlerta("Faltan datos", "Si creas un objetivo de ahorro, debes rellenar la Meta y la Cantidad aportada obligatoriamente.");
+          return;
+        }
       }
 
       // Validaciones Paso 7 y Guardado Final
       if (currentStep === totalSteps) {
         const diaFinMes = parseInt(document.getElementById('diaFinMes').value);
-        if (isNaN(diaFinMes) || diaFinMes < 1 || diaFinMes > 31) return alert("Introduce un día válido (1-31) para finalizar tu mes.");
+        if (isNaN(diaFinMes) || diaFinMes < 1 || diaFinMes > 31) {
+          mostrarAlerta("Día inválido", "Introduce un día válido (del 1 al 31) para finalizar tu mes financiero.");
+          return;
+        }
 
         btnSiguiente.innerText = "Guardando...";
         btnSiguiente.disabled = true;
@@ -348,7 +420,7 @@
 
           window.location.href = "dashboard.html";
         } catch (error) {
-          alert("Error al guardar: " + error.message);
+          mostrarAlerta("Error al guardar", error.message);
           btnSiguiente.innerText = "Entrar al Dashboard";
           btnSiguiente.disabled = false;
         }
