@@ -594,10 +594,39 @@
         document.getElementById('progresoPorcentaje').innerText = `${porcentajeProgreso}%`;
         document.getElementById('progresoGastoActual').innerText = formatMoney(gastosCategorias);
         document.getElementById('progresoPresupuestoTotal').innerText = formatMoney(presupuestoTotalCategorias);
-        document.getElementById('progressBarFill').style.width = `${porcentajeProgreso}%`;
-
+        
         const dineroRestante = Math.max(presupuestoTotalCategorias - gastosCategorias, 0);
-        document.getElementById('progressMessageText').innerText = `¡Vas por buen camino! Aún te quedan ${formatMoney(dineroRestante)} para el resto del mes.`;
+        
+        // --- NUEVA LÓGICA DE COLORES Y MENSAJES DEL SEMÁFORO ---
+        const progressBarFill = document.getElementById('progressBarFill');
+        const progressMsgContainer = document.getElementById('progressMessage');
+        const progressMsgText = document.getElementById('progressMessageText');
+        const progressIcon = progressMsgContainer.querySelector('svg');
+
+        progressBarFill.style.width = `${porcentajeProgreso}%`;
+
+        if (porcentajeProgreso < 50) {
+          // ZONA VERDE: Todo bien
+          progressBarFill.style.backgroundColor = '#00A878';
+          progressMsgContainer.style.backgroundColor = '#F9FAFB'; // Gris clarito
+          progressIcon.style.color = '#00A878';
+          progressMsgText.innerText = `¡Vas por buen camino! Aún te quedan ${formatMoney(dineroRestante)} para el resto del mes.`;
+          
+        } else if (porcentajeProgreso <= 80) {
+          // ZONA AMARILLA: Precaución
+          progressBarFill.style.backgroundColor = '#FFC107';
+          progressMsgContainer.style.backgroundColor = '#FFF8E1'; // Fondo amarillo suave
+          progressIcon.style.color = '#F57F17'; // Amarillo oscuro para el icono
+          progressMsgText.innerText = `¡Precaución! Has consumido más de la mitad de tu presupuesto. Te quedan ${formatMoney(dineroRestante)}.`;
+          
+        } else {
+          // ZONA ROJA: Alerta crítica
+          progressBarFill.style.backgroundColor = '#F44336';
+          progressMsgContainer.style.backgroundColor = '#FFEBEE'; // Fondo rojo suave
+          progressIcon.style.color = '#F44336';
+          progressMsgText.innerHTML = `<b>¡Alerta!</b> Tu presupuesto está casi agotado. Solo te quedan ${formatMoney(dineroRestante)}.`;
+        }
+        // -------------------------------------------------------
 
         const donutChart = document.getElementById('donutChart');
         const legendContainer = document.getElementById('legendContainer');
