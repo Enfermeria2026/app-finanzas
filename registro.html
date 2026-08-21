@@ -174,11 +174,11 @@
       const terms = document.getElementById('terms').checked;
 
       if (nombre === "" || usuario === "" || pass1 === "") {
-        mostrarAlerta("Por favor, rellena todos los campos para continuar.");
+        mostrarAlerta("Faltan datos", "Por favor, rellena todos los campos para continuar.");
         return; 
       }
       if (pass1 !== pass2) {
-        mostrarAlerta("Las contraseñas no coinciden. Compruébalo.");
+        mostrarAlerta("Las contraseñas no coinciden", "Por favor, revisa tu contraseña.");
         return; 
       }
 
