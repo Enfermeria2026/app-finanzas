@@ -46,10 +46,11 @@
     .metric-lbl { font-size: 9px; color: #777; font-weight: 600; white-space: nowrap; }
     .val-green { color: #4CAF50; } .val-yellow { color: #FFC107; } .val-red { color: #F44336; }
 
+    /* 4 COLUMNAS FINANCIERAS */
     .summary-row-financial { display: flex; justify-content: space-around; text-align: center; }
     .fin-col { flex: 1; }
-    .fin-lbl { font-size: 10px; color: #777; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
-    .fin-val { font-size: 13px; font-weight: 800; color: #0B1A2E; }
+    .fin-lbl { font-size: 9px; color: #777; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; }
+    .fin-val { font-size: 11px; font-weight: 800; color: #0B1A2E; }
     .fin-val.retenido { color: #FF9800; }
     .fin-val.disponible { color: #2196F3; }
 
@@ -225,7 +226,7 @@
         <p>Fondos Reservados Activos</p>
       </div>
 
-     <!-- FILA DE 5 MÉTRICAS -->
+      <!-- FILA DE 5 MÉTRICAS (COLORES INVERTIDOS) -->
       <div class="summary-row-metrics">
         <div class="metric-col"><div class="metric-val" id="mGastoCero">0</div><div class="metric-lbl">0 €</div></div>
         <div class="metric-col"><div class="metric-val val-red" id="mRojo">0</div><div class="metric-lbl">< 50%</div></div>
@@ -234,13 +235,14 @@
         <div class="metric-col"><div class="metric-val" id="mCompleto" style="color: #00A878;">0</div><div class="metric-lbl">100%</div></div>
       </div>
 
-     <!-- FILA FINANCIERA (AHORA CON 4 COLUMNAS) -->
+      <!-- FILA FINANCIERA DE 4 COLUMNAS -->
       <div class="summary-row-financial">
-        <div class="fin-col"><div class="fin-lbl" style="font-size: 9px; white-space: nowrap;">Totales</div><div class="fin-val" id="finTotales" style="font-size: 11px;">0,00 €</div></div>
-        <div class="fin-col"><div class="fin-lbl" style="font-size: 9px; white-space: nowrap;">Pagos</div><div class="fin-val" id="finPagos" style="color: #E91E63; font-size: 11px;">0,00 €</div></div>
-        <div class="fin-col"><div class="fin-lbl" style="font-size: 9px; white-space: nowrap;">Retenidos</div><div class="fin-val retenido" id="finRetenidos" style="font-size: 11px;">0,00 €</div></div>
-        <div class="fin-col"><div class="fin-lbl" style="font-size: 9px; white-space: nowrap;">Disponibles</div><div class="fin-val disponible" id="finDisponibles" style="font-size: 11px;">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Totales</div><div class="fin-val" id="finTotales">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Pagos</div><div class="fin-val" id="finPagos" style="color: #E91E63;">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Retenidos</div><div class="fin-val retenido" id="finRetenidos">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Disponibles</div><div class="fin-val disponible" id="finDisponibles">0,00 €</div></div>
       </div>
+    </div>
 
     <!-- BARRA DE BORRADO MULTIPLE -->
     <div class="action-bar" id="actionBar">
@@ -274,7 +276,7 @@
       </a>
       <a href="reservas.html" class="nav-item active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        Fondos reservados
+        Reservas
         <div class="active-dot"></div>
       </a>
       <a href="dashboard.html" class="nav-item">
@@ -283,7 +285,7 @@
       </a>
       <a href="#" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-        Objetivos ahorro
+        Ahorro
       </a>
       <a href="#" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
@@ -420,7 +422,7 @@
     </div>
   </div>
 
-  <!-- MODAL: POST-PAGO SALDO 0 (PREGUNTAR SI BORRAR O MANTENER) -->
+  <!-- MODAL: POST-PAGO SALDO 0 -->
   <div id="modalPostPagoVacio" class="modal-overlay" style="z-index: 3000;">
     <div class="modal-box" style="text-align: center;">
       <div class="modal-title" style="color: #0B1A2E;">Fondo sin saldo</div>
@@ -439,7 +441,7 @@
       <p style="font-size: 14px; color: #555; margin-bottom: 16px;">¿Seguro que deseas borrar los <b><span id="cantBorrarDisplay">0</span> fondos seleccionados</b>?<br><br>Si tienen dinero retenido, volverá automáticamente a tus <b>Fondos disponibles</b>.</p>
       <div style="display: flex; gap: 10px;">
         <button onclick="cerrarModal()" class="btn-main btn-secondary">Cancelar</button>
-        <button id="btnEjecutarBorrado" class="btn-main btn-danger">Borrar definitivamente</button>
+        <button id="btnEjecutarBorrado" class="btn-main btn-danger">Borrar</button>
       </div>
     </div>
   </div>
@@ -464,7 +466,6 @@
     const usuarioLogueado = localStorage.getItem('usuarioLogueado');
     if (!usuarioLogueado) window.location.href = 'login.html';
 
-    // CATÁLOGO SINCRONIZADO
     const baseIcons = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"];
     const premiumIcons = ["🍕", "🥤", "🍻", "🍎", "🥐", "🍣", "🍩", "🥩", "🚆", "🌍", "📍", "✈️", "🏖️", "🚢", "🗽", "🚲", "🛵", "🚜", "🚁", "👮", "👨‍🚒", "👨‍🏫", "🧑‍💻", "🧑‍🎨", "👩‍⚕️", "🧑‍🔬", "👨‍🚀", "📺", "🎬", "📚", "🎵", "🎲", "🎮", "🎫", "🎢", "📷", "🏫", "✉️", "📶", "💬", "💵", "👓", "♻️", "🎤", "❤️", "🎁", "🔍", "💡", "🌐", "▶️", "🆖", "🪟", "☁️", "☀️", "⚠️", "🐶", "🐱", "🐹", "🐦", "🐟", "🎓", "🔬", "⌚", "⭐", "🐴", "🐢", "🏛️", "💍", "🤖", "🏰", "🧠", "♊"];
     const baseColors = ["#2196F3","#F44336","#FFC107","#4CAF50","#FFFFFF","#FF9800"];
@@ -475,10 +476,10 @@
     let itemsSeleccionados = new Set();
     let currentIndex = -1;
     let fondosDisponiblesGlobal = 0;
-    let destinoTipoActual = 'fondo'; // 'fondo' | 'objetivo'
+    let destinoTipoActual = 'fondo'; 
     let fondoIdPostPago = -1;
 
-    // UI Helpers
+    // Helpers UI
     window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); };
     window.closeSideMenu = function() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); };
     window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); };
@@ -488,7 +489,7 @@
 
     document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
 
-    // CARGAR DATOS DE FIREBASE
+    // CARGAR DATOS
     async function cargarDatos() {
       try {
         const userRef = doc(db, "usuarios", usuarioLogueado);
@@ -498,7 +499,6 @@
         userDocData = docSnap.data();
         fondosList = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
 
-        // CÁLCULOS FINANCIEROS
         const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
         let totalRetenidoReservas = 0;
         fondosList.forEach(f => totalRetenidoReservas += (parseFloat(f.cantidadAportada) || 0));
@@ -510,23 +510,17 @@
 
         const totalRetenidoGlobal = totalRetenidoReservas + totalRetenidoAhorros;
 
-
         let totalGastosCat = 0;
         if (Array.isArray(userDocData.categorias)) {
           userDocData.categorias.forEach(c => totalGastosCat += (parseFloat(c.gastado) || 0));
         }
         const gastosImp = parseFloat(userDocData.gastosImprevistos) || 0;
-        
-        // Recuperamos los pagos ya efectuados desde los fondos
         const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
         const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
 
-        // Fórmula blindada: Restamos también los pagos de los fondos
+        // FÓRMULA BLINDADA
         fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - totalGastosCat - gastosImp - pagosRes - pagosAho;
-        
 
-       // ACTUALIZAR RESUMEN
-        const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
         document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
         document.getElementById('finPagos').innerText = formatMoney(pagosRes);
         document.getElementById('finRetenidos').innerText = formatMoney(totalRetenidoGlobal);
@@ -538,7 +532,7 @@
       } catch (e) { console.error(e); }
     }
 
-    // RENDER DE TARJETAS Y MÉTRICAS
+    // RENDERIZAR
     function renderTarjetas() {
       const container = document.getElementById('cardsContainer');
       const emptyState = document.getElementById('emptyState');
@@ -546,7 +540,7 @@
       itemsSeleccionados.clear();
       actualizarBarraBorrado();
 
-          let m0 = 0, mRoj = 0, mAma = 0, mVerde = 0, mComp = 0;
+      let m0 = 0, mRoj = 0, mAma = 0, mVerde = 0, mComp = 0;
 
       if (fondosList.length === 0) {
         emptyState.style.display = 'flex';
@@ -563,20 +557,17 @@
           if (obj > 0 && ret >= obj) mComp++;
 
           const pct = obj > 0 ? (ret / obj) : 0;
-          // Asignación invertida para los contadores
+          
           if (pct < 0.5) mRoj++;
           else if (pct < 0.8) mAma++;
           else mVerde++;
 
           const pctVisual = obj > 0 ? Math.min(Math.round(pct * 100), 100) : 0;
-          
-          // Lógica invertida para los colores de la barra
           let barColor;
-          if (pctVisual < 50) barColor = '#F44336'; // Rojo (Mal)
-          else if (pctVisual < 80) barColor = '#FFC107'; // Amarillo (Regular)
-          else if (pctVisual < 100) barColor = '#4CAF50'; // Verde (Bien)
-          else barColor = '#00A878'; // Verde oscuro (Completado)
-      
+          if (pctVisual < 50) barColor = '#F44336';
+          else if (pctVisual < 80) barColor = '#FFC107';
+          else if (pctVisual < 100) barColor = '#4CAF50';
+          else barColor = '#00A878';
 
           let fechaHTML = '';
           if (fondo.fechaPrevista && fondo.fechaPrevista.trim() !== '') {
@@ -681,11 +672,11 @@
       } catch (e) {
         mostrarAlerta("Error", "No se pudo borrar: " + e.message);
       } finally {
-        btn.innerText = "Borrar definitivamente"; btn.disabled = false;
+        btn.innerText = "Borrar"; btn.disabled = false;
       }
     });
 
-    // 1. AÑADIR DINERO AL FONDO (+)
+    // 1. AÑADIR DINERO (+)
     window.abrirModalAddDinero = function(index) {
       currentIndex = index;
       const fondo = fondosList[index];
@@ -758,7 +749,6 @@
         const nuevoSaldo = saldoRetenido - cant;
         fondosList[currentIndex].cantidadAportada = nuevoSaldo;
 
-        // Historial y pagosDesdeReservas
         const historial = Array.isArray(userDocData.historialGastos) ? userDocData.historialGastos : [];
         historial.push({
           concepto: concepto,
@@ -793,10 +783,7 @@
       }
     });
 
-    document.getElementById('btnMantenerFondoVacio').addEventListener('click', () => {
-      cerrarModal();
-      cargarDatos();
-    });
+    document.getElementById('btnMantenerFondoVacio').addEventListener('click', () => { cerrarModal(); cargarDatos(); });
 
     document.getElementById('btnBorrarFondoVacio').addEventListener('click', async () => {
       try {
@@ -808,7 +795,7 @@
       } catch (e) { mostrarAlerta("Error", e.message); }
     });
 
-    // 3. TRANSFERIR A OTRO FONDO U OBJETIVO
+    // 3. TRANSFERIR
     window.abrirModalTransferir = function(index) {
       currentIndex = index;
       const fondo = fondosList[index];
@@ -901,7 +888,7 @@
       }
     });
 
-    // 4. CREAR Y EDITAR FONDOS (SELECTORES DE ICONO Y COLOR)
+    // 4. CREAR Y EDITAR FONDOS
     let addIcon = "🚗", addColor = "#2196F3";
     let editIcon = "🚗", editColor = "#2196F3";
 
@@ -914,10 +901,9 @@
         const contCol = document.getElementById(`${modo}FondoColorSelector`);
         contIco.innerHTML = ''; contCol.innerHTML = '';
 
-        // 1. Iconos Básicos
-        baseIcons.forEach(ico => {
+        baseIcons.forEach((ico, idx) => {
           const div = document.createElement('div');
-          div.className = 'item-select'; div.dataset.val = ico; div.innerText = ico;
+          div.className = `item-select ${idx===0 ? 'active' : ''}`; div.dataset.val = ico; div.innerText = ico;
           div.onclick = function() {
             contIco.querySelectorAll('.item-select').forEach(i => i.classList.remove('active'));
             this.classList.add('active');
@@ -926,7 +912,6 @@
           contIco.appendChild(div);
         });
 
-        // 2. Iconos Comprados
         premiumIcons.filter(ico => iconosComprados.includes(ico)).forEach(ico => {
           const div = document.createElement('div');
           div.className = 'item-select'; div.dataset.val = ico; div.innerText = ico;
@@ -938,7 +923,6 @@
           contIco.appendChild(div);
         });
 
-        // 3. Iconos Bloqueados
         premiumIcons.filter(ico => !iconosComprados.includes(ico)).forEach(ico => {
           const div = document.createElement('div');
           div.className = 'item-select item-locked'; div.innerHTML = `${ico}<div class="padlock">🔒</div>`;
@@ -946,10 +930,9 @@
           contIco.appendChild(div);
         });
 
-        // Colores Básicos
-        baseColors.forEach(col => {
+        baseColors.forEach((col, idx) => {
           const div = document.createElement('div');
-          div.className = 'item-select'; div.dataset.val = col; div.style.background = col;
+          div.className = `item-select ${idx===0 ? 'active' : ''}`; div.dataset.val = col; div.style.background = col;
           div.onclick = function() {
             contCol.querySelectorAll('.item-select').forEach(i => i.classList.remove('active'));
             this.classList.add('active');
@@ -958,7 +941,6 @@
           contCol.appendChild(div);
         });
 
-        // Colores Comprados
         premiumColors.filter(col => coloresComprados.includes(col)).forEach(col => {
           const div = document.createElement('div');
           div.className = 'item-select'; div.dataset.val = col; div.style.background = col;
@@ -970,7 +952,6 @@
           contCol.appendChild(div);
         });
 
-        // Colores Bloqueados
         premiumColors.filter(col => !coloresComprados.includes(col)).forEach(col => {
           const div = document.createElement('div');
           div.className = 'item-select item-locked'; div.style.background = col; div.innerHTML = `<div class="padlock">🔒</div>`;
