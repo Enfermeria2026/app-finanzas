@@ -234,13 +234,13 @@
         <div class="metric-col"><div class="metric-val" id="mCompleto" style="color: #00A878;">0</div><div class="metric-lbl">100%</div></div>
       </div>
 
-      <!-- FILA FINANCIERA -->
+     <!-- FILA FINANCIERA (AHORA CON 4 COLUMNAS) -->
       <div class="summary-row-financial">
-        <div class="fin-col"><div class="fin-lbl">Fondos Totales</div><div class="fin-val" id="finTotales">0,00 €</div></div>
-        <div class="fin-col"><div class="fin-lbl">Retenidos</div><div class="fin-val retenido" id="finRetenidos">0,00 €</div></div>
-        <div class="fin-col"><div class="fin-lbl">Disponibles</div><div class="fin-val disponible" id="finDisponibles">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl" style="font-size: 9px; white-space: nowrap;">Totales</div><div class="fin-val" id="finTotales" style="font-size: 11px;">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl" style="font-size: 9px; white-space: nowrap;">Pagos</div><div class="fin-val" id="finPagos" style="color: #E91E63; font-size: 11px;">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl" style="font-size: 9px; white-space: nowrap;">Retenidos</div><div class="fin-val retenido" id="finRetenidos" style="font-size: 11px;">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl" style="font-size: 9px; white-space: nowrap;">Disponibles</div><div class="fin-val disponible" id="finDisponibles" style="font-size: 11px;">0,00 €</div></div>
       </div>
-    </div>
 
     <!-- BARRA DE BORRADO MULTIPLE -->
     <div class="action-bar" id="actionBar">
@@ -525,8 +525,10 @@
         fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - totalGastosCat - gastosImp - pagosRes - pagosAho;
         
 
-        // ACTUALIZAR RESUMEN
+       // ACTUALIZAR RESUMEN
+        const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
         document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
+        document.getElementById('finPagos').innerText = formatMoney(pagosRes);
         document.getElementById('finRetenidos').innerText = formatMoney(totalRetenidoGlobal);
         document.getElementById('finDisponibles').innerText = formatMoney(fondosDisponiblesGlobal);
 
