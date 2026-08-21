@@ -629,13 +629,14 @@
     let iconSelected = "🧺";
     let colorSelected = "#2196F3";
 
-    function generarSelectores() {
+  function generarSelectores() {
       const iconosComprados = Array.isArray(userDocData.iconosComprados) ? userDocData.iconosComprados : [];
       const coloresComprados = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados : [];
       const contIconos = document.getElementById('addIconSelector');
       const contColores = document.getElementById('addColorSelector');
       contIconos.innerHTML = ''; contColores.innerHTML = '';
 
+      // 1. ICONOS BÁSICOS
       baseIcons.forEach((ico, idx) => {
         const div = document.createElement('div');
         div.className = `item-select ${idx===0 ? 'active' : ''}`;
@@ -644,18 +645,23 @@
         contIconos.appendChild(div);
       });
 
-      premiumIcons.forEach(ico => {
+      // 2. ICONOS PREMIUM DESBLOQUEADOS
+      premiumIcons.filter(ico => iconosComprados.includes(ico)).forEach(ico => {
         const div = document.createElement('div');
-        if (iconosComprados.includes(ico)) {
-          div.className = `item-select`; div.dataset.val = ico; div.innerText = ico;
-          div.onclick = function() { contIconos.querySelectorAll('.item-select').forEach(i=>i.classList.remove('active')); this.classList.add('active'); iconSelected = ico; };
-        } else {
-          div.className = `item-select item-locked`; div.innerHTML = `${ico}<div class="padlock">🔒</div>`;
-          div.onclick = () => mostrarAlerta('Bloqueado', 'Visita la tienda para comprar este icono con tus monedas.');
-        }
+        div.className = `item-select`; div.dataset.val = ico; div.innerText = ico;
+        div.onclick = function() { contIconos.querySelectorAll('.item-select').forEach(i=>i.classList.remove('active')); this.classList.add('active'); iconSelected = ico; };
         contIconos.appendChild(div);
       });
 
+      // 3. ICONOS PREMIUM BLOQUEADOS
+      premiumIcons.filter(ico => !iconosComprados.includes(ico)).forEach(ico => {
+        const div = document.createElement('div');
+        div.className = `item-select item-locked`; div.innerHTML = `${ico}<div class="padlock">🔒</div>`;
+        div.onclick = () => mostrarAlerta('Bloqueado', 'Visita la tienda para comprar este icono con tus monedas.');
+        contIconos.appendChild(div);
+      });
+
+      // 1. COLORES BÁSICOS
       baseColors.forEach((col, idx) => {
         const div = document.createElement('div');
         div.className = `item-select ${idx===0 ? 'active' : ''}`;
@@ -664,15 +670,19 @@
         contColores.appendChild(div);
       });
 
-      premiumColors.forEach(col => {
+      // 2. COLORES PREMIUM DESBLOQUEADOS
+      premiumColors.filter(col => coloresComprados.includes(col)).forEach(col => {
         const div = document.createElement('div');
-        if (coloresComprados.includes(col)) {
-          div.className = `item-select`; div.dataset.val = col; div.style.background = col;
-          div.onclick = function() { contColores.querySelectorAll('.item-select').forEach(i=>i.classList.remove('active')); this.classList.add('active'); colorSelected = col; };
-        } else {
-          div.className = `item-select item-locked`; div.style.background = col; div.innerHTML = `<div class="padlock">🔒</div>`;
-          div.onclick = () => mostrarAlerta('Premium', 'Visita la tienda para desbloquear este color.');
-        }
+        div.className = `item-select`; div.dataset.val = col; div.style.background = col;
+        div.onclick = function() { contColores.querySelectorAll('.item-select').forEach(i=>i.classList.remove('active')); this.classList.add('active'); colorSelected = col; };
+        contColores.appendChild(div);
+      });
+
+      // 3. COLORES PREMIUM BLOQUEADOS
+      premiumColors.filter(col => !coloresComprados.includes(col)).forEach(col => {
+        const div = document.createElement('div');
+        div.className = `item-select item-locked`; div.style.background = col; div.innerHTML = `<div class="padlock">🔒</div>`;
+        div.onclick = () => mostrarAlerta('Premium', 'Visita la tienda para desbloquear este color.');
         contColores.appendChild(div);
       });
     }
