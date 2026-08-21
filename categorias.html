@@ -697,7 +697,9 @@
       categoriasActuales.forEach(cat => sumaOtrosPresupuestos += parseFloat(cat.presupuesto));
 
       if ((sumaOtrosPresupuestos + maximo) > window.limitePresupuestable) {
-         mostrarAlerta("Límite excedido", `Este presupuesto supera tu capacidad de asignación máxima (<b>${formatMoney(window.limitePresupuestable)}</b>).<br><br>Reduce el importe para continuar.`);
+         // Calculamos exactamente cuánto le queda libre
+         const margenDisponible = Math.max(0, window.limitePresupuestable - sumaOtrosPresupuestos);
+         mostrarAlerta("Límite excedido", `Te pasas del límite.<br><br>Solo te quedan <b>${formatMoney(margenDisponible)}</b> libres para repartir en nuevas categorías.<br><br>Ajusta el importe para continuar.`);
          return;
       }
 
