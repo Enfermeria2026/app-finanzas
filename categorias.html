@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Categorías - BudgetWise</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: #F5F7FA;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #0B1A2E;
+    }
+
+    .app-container {
+      width: 100%; max-width: 480px; margin: 0 auto;
+      background-color: #F5F7FA; min-height: 100vh;
+      position: relative; padding-bottom: 90px;
+    }
+
+    /* CABECERA */
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: white;
+    }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; }
+    .page-title { font-weight: 800; font-size: 18px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
+    .header-actions { display: flex; gap: 16px; }
+
+    /* RESUMEN DE CATEGORÍAS */
+    .summary-box {
+      background: white; margin: 16px 24px; padding: 20px; border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .summary-main { text-align: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #F0F0F0; }
+    .summary-main h2 { font-size: 32px; font-weight: 800; color: #00A878; line-height: 1; margin-bottom: 4px;}
+    .summary-main p { font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; }
+
+    .summary-row { display: flex; justify-content: space-around; margin-bottom: 12px; }
+    .summary-col { text-align: center; flex: 1; }
+    .summary-val { font-size: 18px; font-weight: 700; color: #0B1A2E; }
+    .summary-label { font-size: 11px; color: #777; font-weight: 500; }
+    
+    .val-green { color: #4CAF50; }
+    .val-yellow { color: #FFC107; }
+    .val-red { color: #F44336; }
+
+    /* BARRA DE ACCIÓN (BORRAR) */
+    .action-bar {
+      background: #0B1A2E; color: white; margin: 0 24px 16px 24px; padding: 12px 16px;
+      border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
+      opacity: 0; pointer-events: none; transition: 0.3s ease; height: 0; overflow: hidden; margin-bottom: 0;
+    }
+    .action-bar.active { opacity: 1; pointer-events: auto; height: auto; margin-bottom: 16px; }
+    .action-text { font-size: 14px; font-weight: 600; }
+    .btn-delete-bulk {
+      background: #F44336; color: white; border: none; padding: 8px 16px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer;
+    }
+
+    /* LISTA DE CATEGORÍAS */
+    .categories-container { padding: 0 24px 24px 24px; }
+    .cat-item {
+      background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: 0.2s;
+    }
+    .cat-item.selected { background: #F4F9F8; border: 1px solid #00A878; }
+
+    /* CHECKBOX PERSONALIZADO */
+    .custom-checkbox {
+      width: 24px; height: 24px; border: 2px solid #CCC; border-radius: 6px;
+      display: flex; justify-content: center; align-items: center; cursor: pointer;
+      transition: 0.2s; flex-shrink: 0; background: white;
+    }
+    .custom-checkbox.checked { background: #00A878; border-color: #00A878; }
+    .custom-checkbox svg { color: white; width: 16px; height: 16px; display: none; }
+    .custom-checkbox.checked svg { display: block; }
+
+    .cat-icon-box {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      display: flex; justify-content: center; align-items: center; font-size: 22px;
+    }
+    .cat-info { flex: 1; min-width: 0; }
+    .cat-name { font-size: 15px; font-weight: 700; color: #0B1A2E; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-stats { font-size: 12px; color: #666; display: flex; justify-content: space-between; }
+    
+    /* BOTÓN FLOTANTE (FAB) */
+    .fab {
+      position: fixed; bottom: 100px; right: 24px; width: 56px; height: 56px;
+      background: #00A878; color: white; border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      box-shadow: 0 4px 15px rgba(0, 168, 120, 0.4); cursor: pointer; z-index: 40; transition: 0.2s;
+    }
+    .fab:active { transform: scale(0.95); background: #008F66; }
+    .fab svg { width: 28px; height: 28px; }
+
+    /* ESTADO VACÍO */
+    .empty-state { text-align: center; padding: 40px 20px; color: #666; display: none; }
+    .empty-state svg { width: 48px; height: 48px; color: #CCC; margin-bottom: 12px; }
+
+    /* SCROLL HORIZONTAL (Formularios) */
+    .scroll-selector { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 16px; scroll-snap-type: x mandatory; }
+    .scroll-selector::-webkit-scrollbar { height: 4px; }
+    .scroll-selector::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
+    .item-select { flex-shrink: 0; width: 48px; height: 48px; border: 2px solid #E0E0E0; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; background: white; scroll-snap-align: start; transition: 0.2s;}
+    .item-select.active { border-color: #00A878; background: #E8F5E9; transform: scale(1.05); }
+    .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; position: relative; filter: grayscale(100%); }
+    .padlock { position: absolute; top: -4px; right: -4px; background: #0B1A2E; color: white; font-size: 9px; padding: 3px; border-radius: 50%; width: 16px; height: 16px; display: flex; justify-content: center; align-items: center; }
+
+    /* MODALES Y MENÚS BÁSICOS */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; padding: 20px;}
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box { background: white; width: 100%; max-width: 380px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s ease; position: relative; max-height: 90vh; overflow-y: auto;}
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .close-modal { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #999; }
+    .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 16px; font-weight: bold; text-align: center; }
+    
+    .modal-input-group { text-align: left; margin-bottom: 16px; }
+    .modal-input-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
+    .modal-input-group input, .modal-input-group select { width: 100%; padding: 14px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; background: white;}
+    .modal-input-group input:focus, .modal-input-group select:focus { border-color: #00A878; }
+    
+    .btn-main { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; color: white; background-color: #00A878; cursor: pointer; margin-top: 8px;}
+    .btn-danger { background-color: #F44336; }
+
+    /* MENÚ LATERAL (Igual que en Dashboard) */
+    .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .menu-overlay.open { opacity: 1; pointer-events: auto; }
+    .side-menu { position: fixed; top: 0; left: -100%; width: 290px; max-width: 85%; height: 100%; background: white; z-index: 2001; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; display: flex; flex-direction: column; overflow-y: auto; }
+    .side-menu.open { left: 0; }
+    .side-menu-header { padding: 24px; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; }
+    .side-menu-header .logo-container { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; color: #0B1A2E;}
+    .side-menu-content { padding: 12px 0; flex: 1; display: flex; flex-direction: column; }
+    .menu-link { display: flex; align-items: center; gap: 16px; padding: 14px 24px; color: #333; text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.2s; }
+    .menu-link.active-link { color: #00A878; background: #F4F9F8; border-right: 4px solid #00A878; }
+    .menu-link.active-link svg { color: #00A878; }
+    
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; display: flex; justify-content: space-around; padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <!-- MENÚ LATERAL -->
+  <div id="menuOverlay" class="menu-overlay"></div>
+  <div id="sideMenu" class="side-menu">
+    <div class="side-menu-header">
+      <div class="logo-container"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg> BudgetWise</div>
+      <svg onclick="closeSideMenu()" style="cursor:pointer; color:#999;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    <div class="side-menu-content">
+      <a href="dashboard.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard</a>
+      <a href="presupuestos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos</a>
+      <!-- Activo -->
+      <a href="categorias.html" class="menu-link active-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías</a>
+      <!-- ... Resto del menú omitido para mantener código limpio, pero lo puedes pegar del dashboard ... -->
+      <a href="login.html" class="menu-link" style="color:#F44336; margin-top:20px;" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="header">
+      <svg onclick="openSideMenu()" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div class="page-title">CATEGORÍAS</div>
+      <div class="header-actions">
+        <!-- ICONO DE TIENDA -->
+        <a href="tienda.html" style="color: inherit;">
+          <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- RESUMEN DE ESTADÍSTICAS -->
+    <div class="summary-box">
+      <div class="summary-main">
+        <h2 id="sumTotalCat">0</h2>
+        <p>Categorías Creadas</p>
+      </div>
+      <div class="summary-row">
+        <div class="summary-col">
+          <div class="summary-val" id="sumGastoCero">0</div>
+          <div class="summary-label">Gasto 0€</div>
+        </div>
+        <div class="summary-col">
+          <div class="summary-val" id="sumGastoMax">0</div>
+          <div class="summary-label">Al 100%</div>
+        </div>
+      </div>
+      <div class="summary-row" style="margin-bottom:0;">
+        <div class="summary-col">
+          <div class="summary-val val-green" id="sumVerde">0</div>
+          <div class="summary-label">< 50%</div>
+        </div>
+        <div class="summary-col">
+          <div class="summary-val val-yellow" id="sumAmarillo">0</div>
+          <div class="summary-label">50 - 80%</div>
+        </div>
+        <div class="summary-col">
+          <div class="summary-val val-red" id="sumRojo">0</div>
+          <div class="summary-label">> 80%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARRA OCULTA DE BORRADO -->
+    <div class="action-bar" id="actionBar">
+      <div class="action-text"><span id="selectedCount">0</span> seleccionadas</div>
+      <button class="btn-delete-bulk" id="btnPrepararBorrado">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        Borrar
+      </button>
+    </div>
+
+    <!-- LISTA DE CATEGORÍAS -->
+    <div class="categories-container" id="categoriesContainer"></div>
+
+    <!-- ESTADO VACÍO -->
+    <div class="empty-state" id="emptyState">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+      <p style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px;">Sin categorías</p>
+      <p style="font-size: 14px;">Usa el botón inferior para empezar a organizar tu dinero.</p>
+    </div>
+
+    <!-- FAB: AÑADIR CATEGORÍA -->
+    <div class="fab" id="btnAbrirAddCat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </div>
+
+    <!-- MENÚ INFERIOR -->
+    <nav class="bottom-nav">
+      <a href="presupuestos.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Presupuestos
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Reservas
+      </a>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        Ahorro
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        Misiones
+      </a>
+    </nav>
+  </div>
+
+  <!-- MODAL: CREAR CATEGORÍA -->
+  <div id="modalAddCat" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title">Nueva Categoría</div>
+      
+      <div class="modal-input-group">
+        <label>Nombre</label>
+        <input type="text" id="addCatNombre" placeholder="Ej: Mascotas">
+      </div>
+      <div class="modal-input-group">
+        <label>Presupuesto Máximo (€)</label>
+        <input type="number" id="addCatPresupuesto" placeholder="Ej: 150">
+      </div>
+
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Icono (Desliza para ver más)</label>
+      <div class="scroll-selector" id="addIconSelector"></div>
+
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Color</label>
+      <div class="scroll-selector" id="addColorSelector"></div>
+
+      <button id="btnConfirmarAddCat" class="btn-main">Crear categoría</button>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMAR BORRADO Y REDISTRIBUCIÓN -->
+  <div id="modalDeleteCat" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title" style="color: #F44336;">Borrar Categorías</div>
+      
+      <div class="modal-text" style="text-align: left; font-size: 13px;">
+        Estás a punto de borrar categorías que contienen <b>gastos ya registrados</b> por un valor de <b id="dineroHuerfanoDisplay">0,00 €</b>.<br><br>
+        Para no descuadrar tu Dashboard, debes asignar a dónde va ese dinero gastado:
+      </div>
+
+      <div class="modal-input-group">
+        <label>Reasignar gastos a:</label>
+        <select id="selectRedistribucion">
+          <optgroup label="General">
+            <option value="imprevistos">Gastos Imprevistos</option>
+            <option value="pago_reserva">Pagos desde Fondos Reservados</option>
+            <option value="pago_ahorro">Pagos desde Objetivos Ahorro</option>
+          </optgroup>
+          <optgroup label="Otras Categorías Existentes" id="optCategoriasSobrantes">
+            <!-- Se inyectan en JS -->
+          </optgroup>
+        </select>
+      </div>
+
+      <button id="btnConfirmarBorrado" class="btn-main btn-danger">Borrar definitivamente</button>
+    </div>
+  </div>
+
+  <!-- MODAL ALERTA BÁSICA -->
+  <div id="modalAlertaBasica" class="modal-overlay">
+    <div class="modal-box">
+      <div id="alertaTitulo" class="modal-title" style="justify-content: center; color: #F44336;">Atención</div>
+      <div id="alertaMensaje" class="modal-text">Mensaje</div>
+      <button onclick="document.getElementById('modalAlertaBasica').classList.remove('active')" class="btn-main" style="background: #0B1A2E;">Entendido</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyCJJsgp1RnXGqva04EuQEONEM9frfx-7I8", authDomain: "budgetwise-9608f.firebaseapp.com", projectId: "budgetwise-9608f", storageBucket: "budgetwise-9608f.firebasestorage.app", messagingSenderId: "438887897789", appId: "1:438887897789:web:1075b7b21577d1b632b5d4" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (!usuarioLogueado) window.location.href = 'login.html';
+
+    // DATOS MAESTROS DE ICONOS Y COLORES
+    const baseIcons = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"];
+    const premiumIcons = ["✈️","🚆","🎮","📺","🎬","📷","🍻","💧","🥤","🍕","📚","🏫","🎓","✉️","📶","💬","📍","💵","🚢","🌍","👓","🔬","♻️","⌚","🏛️","🎵","🎤","❤️","🎁","🔍","💡","🌐","💍","▶️","🆖","🪟","🤖","🍎","🏰","⭐","🐶","🐱","🐴","🐹","🐦","🐢","🐟","🧠","♊","☁️","☀️","⚠️","👩‍⚕️","👮","👨‍🚒","👨‍🏫","👨‍⚕️","👨‍🚀","🧑‍🔬","🛋️","📐","⚖️","💃","🚀","🖌️"];
+    const baseColors = ["#2196F3","#F44336","#FFC107","#4CAF50","#FFFFFF","#FF9800"];
+    const premiumColors = ["#9C27B0","#E91E63","#87CEEB","#00BCD4","#795548","#000000","#FF00FF","#FFB6C1","#CDDC39","#800020","#006A4E","#8A2BE2","#FA8072","#FF7F50","#DC143C"];
+
+    let categoriasActuales = [];
+    let itemsSeleccionados = new Set();
+    let userDocData = {};
+
+    window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); document.body.style.overflow = 'hidden'; }
+    window.closeSideMenu = function() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); document.body.style.overflow = ''; }
+    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; };
+    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); document.body.style.overflow = ''; };
+    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; abrirModal('modalAlertaBasica'); };
+    function formatMoney(amount) { return parseFloat(amount || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+
+    // CARGAR DATOS
+    async function cargarCategorias() {
+      try {
+        const docSnap = await getDoc(doc(db, "usuarios", usuarioLogueado));
+        if (!docSnap.exists()) return;
+        userDocData = docSnap.data();
+        categoriasActuales = Array.isArray(userDocData.categorias) ? userDocData.categorias : [];
+        
+        actualizarUI();
+        generarSelectores(); // Genera los iconos y colores para el Modal
+      } catch (error) { console.error("Error:", error); }
+    }
+
+    function actualizarUI() {
+      const container = document.getElementById('categoriesContainer');
+      const emptyState = document.getElementById('emptyState');
+      container.innerHTML = '';
+      itemsSeleccionados.clear();
+      actualizarBarraBorrado();
+
+      let gastoCero = 0, gastoMax = 0, verde = 0, amarillo = 0, rojo = 0;
+
+      if (categoriasActuales.length === 0) {
+        emptyState.style.display = 'block';
+      } else {
+        emptyState.style.display = 'none';
+        
+        categoriasActuales.forEach((cat, index) => {
+          const max = parseFloat(cat.presupuesto) || 0;
+          const gast = parseFloat(cat.gastado) || 0;
+          
+          if(gast === 0) gastoCero++;
+          if(max > 0 && gast >= max) gastoMax++;
+
+          const pct = max > 0 ? (gast / max) : 0;
+          if(pct < 0.5) verde++;
+          else if(pct < 0.8) amarillo++;
+          else rojo++;
+
+          const pctVisual = max > 0 ? Math.min(Math.round(pct * 100), 100) : 0;
+
+          // Tarjeta
+          const card = document.createElement('div');
+          card.className = 'cat-item';
+          card.id = `catCard-${index}`;
+          card.innerHTML = `
+            <div class="custom-checkbox" onclick="toggleSelection(${index})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div class="cat-icon-box" style="background-color: ${cat.color || '#E0E0E0'};">${cat.icono || ''}</div>
+            <div class="cat-info">
+              <div class="cat-name">${cat.nombre}</div>
+              <div class="cat-stats"><span>Gastado: <b>${formatMoney(gast)}</b></span><span>Max: ${formatMoney(max)}</span></div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // Actualizar Resumen
+      document.getElementById('sumTotalCat').innerText = categoriasActuales.length;
+      document.getElementById('sumGastoCero').innerText = gastoCero;
+      document.getElementById('sumGastoMax').innerText = gastoMax;
+      document.getElementById('sumVerde').innerText = verde;
+      document.getElementById('sumAmarillo').innerText = amarillo;
+      document.getElementById('sumRojo').innerText = rojo;
+    }
+
+    // GESTIÓN DE SELECCIÓN (CHECKBOXES)
+    window.toggleSelection = function(index) {
+      const card = document.getElementById(`catCard-${index}`);
+      const checkbox = card.querySelector('.custom-checkbox');
+      
+      if (itemsSeleccionados.has(index)) {
+        itemsSeleccionados.delete(index);
+        checkbox.classList.remove('checked');
+        card.classList.remove('selected');
+      } else {
+        itemsSeleccionados.add(index);
+        checkbox.classList.add('checked');
+        card.classList.add('selected');
+      }
+      actualizarBarraBorrado();
+    }
+
+    function actualizarBarraBorrado() {
+      const bar = document.getElementById('actionBar');
+      document.getElementById('selectedCount').innerText = itemsSeleccionados.size;
+      if (itemsSeleccionados.size > 0) {
+        bar.classList.add('active');
+      } else {
+        bar.classList.remove('active');
+      }
+    }
+
+    // ==========================================
+    // LOGICA BORRAR Y REDISTRIBUIR
+    // ==========================================
+    let totalDineroHuerfano = 0;
+
+    document.getElementById('btnPrepararBorrado').addEventListener('click', () => {
+      totalDineroHuerfano = 0;
+      const optCategorias = document.getElementById('optCategoriasSobrantes');
+      optCategorias.innerHTML = ''; // Limpiar select
+      
+      let hayOtrasCategorias = false;
+
+      categoriasActuales.forEach((cat, index) => {
+        if (itemsSeleccionados.has(index)) {
+          totalDineroHuerfano += (parseFloat(cat.gastado) || 0);
+        } else {
+          // Si no está seleccionada para borrar, es candidata a recibir dinero
+          hayOtrasCategorias = true;
+          const option = document.createElement('option');
+          option.value = `cat_${index}`;
+          option.innerText = cat.nombre;
+          optCategorias.appendChild(option);
+        }
+      });
+
+      document.getElementById('dineroHuerfanoDisplay').innerText = formatMoney(totalDineroHuerfano);
+      
+      // Si el gasto es 0, ocultar la advertencia y selector, porque no hay dinero que mover
+      if (totalDineroHuerfano === 0) {
+        document.querySelector('#modalDeleteCat .modal-text').innerHTML = `Estás a punto de borrar <b>${itemsSeleccionados.size} categorías</b>.<br>Como no tienen gastos, puedes borrarlas directamente.`;
+        document.querySelector('#modalDeleteCat .modal-input-group').style.display = 'none';
+      } else {
+        document.querySelector('#modalDeleteCat .modal-text').innerHTML = `Estás a punto de borrar categorías que contienen <b>gastos ya registrados</b> por un valor de <b style="color:#00A878;" id="dineroHuerfanoDisplay">${formatMoney(totalDineroHuerfano)}</b>.<br><br>Para no descuadrar tu Dashboard, debes asignar a dónde va ese dinero gastado:`;
+        document.querySelector('#modalDeleteCat .modal-input-group').style.display = 'block';
+      }
+
+      abrirModal('modalDeleteCat');
+    });
+
+    document.getElementById('btnConfirmarBorrado').addEventListener('click', async () => {
+      const btn = document.getElementById('btnConfirmarBorrado');
+      btn.innerText = "Borrando..."; btn.disabled = true;
+
+      try {
+        let nuevasCategorias = [];
+        let redistribucionDestino = document.getElementById('selectRedistribucion').value;
+        
+        let nuevosGastosImprevistos = parseFloat(userDocData.gastosImprevistos) || 0;
+        let nuevosPagosReservas = parseFloat(userDocData.pagosDesdeReservas) || 0;
+        let nuevosPagosAhorros = parseFloat(userDocData.pagosDesdeAhorros) || 0;
+
+        // Si destinamos a una categoría existente
+        let indexCatDestino = -1;
+        if (redistribucionDestino.startsWith('cat_') && totalDineroHuerfano > 0) {
+          indexCatDestino = parseInt(redistribucionDestino.split('_')[1]);
+        }
+
+        // Construimos el nuevo array descartando las borradas y sumando dinero si procede
+        categoriasActuales.forEach((cat, index) => {
+          if (!itemsSeleccionados.has(index)) {
+            // Se queda
+            if (index === indexCatDestino) {
+              cat.gastado = (parseFloat(cat.gastado) || 0) + totalDineroHuerfano;
+            }
+            nuevasCategorias.push(cat);
+          }
+        });
+
+        // Si el destino era general
+        if (totalDineroHuerfano > 0) {
+          if (redistribucionDestino === 'imprevistos') nuevosGastosImprevistos += totalDineroHuerfano;
+          if (redistribucionDestino === 'pago_reserva') nuevosPagosReservas += totalDineroHuerfano;
+          if (redistribucionDestino === 'pago_ahorro') nuevosPagosAhorros += totalDineroHuerfano;
+        }
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, {
+          categorias: nuevasCategorias,
+          gastosImprevistos: nuevosGastosImprevistos,
+          pagosDesdeReservas: nuevosPagosReservas,
+          pagosDesdeAhorros: nuevosPagosAhorros
+        });
+
+        cerrarModal();
+        btn.innerText = "Borrar definitivamente"; btn.disabled = false;
+        cargarCategorias(); // Recargar todo
+
+      } catch (error) {
+        mostrarAlerta("Error", "No se pudo borrar: " + error.message);
+        btn.innerText = "Borrar definitivamente"; btn.disabled = false;
+      }
+    });
+
+    // ==========================================
+    // LOGICA CREAR CATEGORÍA
+    // ==========================================
+    let iconSelected = "🧺";
+    let colorSelected = "#2196F3";
+
+    function generarSelectores() {
+      // Comprobar compras del usuario (arrays en Firestore)
+      const iconosComprados = Array.isArray(userDocData.iconosComprados) ? userDocData.iconosComprados : [];
+      const coloresComprados = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados : [];
+
+      const contIconos = document.getElementById('addIconSelector');
+      const contColores = document.getElementById('addColorSelector');
+      contIconos.innerHTML = ''; contColores.innerHTML = '';
+
+      // Renderizar Iconos Base
+      baseIcons.forEach((ico, idx) => {
+        const div = document.createElement('div');
+        div.className = `item-select ${idx===0 ? 'active' : ''}`;
+        div.dataset.val = ico; div.innerText = ico;
+        div.onclick = function() {
+          contIconos.querySelectorAll('.item-select').forEach(i=>i.classList.remove('active'));
+          this.classList.add('active'); iconSelected = ico;
+        };
+        contIconos.appendChild(div);
+      });
+
+      // Renderizar Iconos Premium
+      premiumIcons.forEach(ico => {
+        const div = document.createElement('div');
+        if (iconosComprados.includes(ico)) {
+          div.className = `item-select`; div.dataset.val = ico; div.innerText = ico;
+          div.onclick = function() {
+            contIconos.querySelectorAll('.item-select').forEach(i=>i.classList.remove('active'));
+            this.classList.add('active'); iconSelected = ico;
+          };
+        } else {
+          div.className = `item-select item-locked`; div.innerHTML = `${ico}<div class="padlock">🔒</div>`;
+          div.onclick = () => mostrarAlerta('Bloqueado', 'Visita la tienda para comprar este icono con tus monedas.');
+        }
+        contIconos.appendChild(div);
+      });
+
+      // Renderizar Colores Base
+      baseColors.forEach((col, idx) => {
+        const div = document.createElement('div');
+        div.className = `item-select ${idx===0 ? 'active' : ''}`;
+        div.dataset.val = col; div.style.background = col;
+        div.onclick = function() {
+          contColores.querySelectorAll('.item-select').forEach(i=>i.classList.remove('active'));
+          this.classList.add('active'); colorSelected = col;
+        };
+        contColores.appendChild(div);
+      });
+
+      // Renderizar Colores Premium
+      premiumColors.forEach(col => {
+        const div = document.createElement('div');
+        if (coloresComprados.includes(col)) {
+          div.className = `item-select`; div.dataset.val = col; div.style.background = col;
+          div.onclick = function() {
+            contColores.querySelectorAll('.item-select').forEach(i=>i.classList.remove('active'));
+            this.classList.add('active'); colorSelected = col;
+          };
+        } else {
+          div.className = `item-select item-locked`; div.style.background = col; div.innerHTML = `<div class="padlock">🔒</div>`;
+          div.onclick = () => mostrarAlerta('Premium', 'Visita la tienda para desbloquear este color.');
+        }
+        contColores.appendChild(div);
+      });
+    }
+
+    document.getElementById('btnAbrirAddCat').addEventListener('click', () => {
+      document.getElementById('addCatNombre').value = "";
+      document.getElementById('addCatPresupuesto').value = "";
+      abrirModal('modalAddCat');
+    });
+
+    document.getElementById('btnConfirmarAddCat').addEventListener('click', async () => {
+      const nombre = document.getElementById('addCatNombre').value.trim();
+      const maximo = parseFloat(document.getElementById('addCatPresupuesto').value);
+
+      if(nombre === "") return mostrarAlerta("Faltan datos", "Escribe un nombre para la categoría.");
+      if(isNaN(maximo) || maximo <= 0) return mostrarAlerta("Importe no válido", "El presupuesto máximo debe ser mayor que 0.");
+
+      const btn = document.getElementById('btnConfirmarAddCat');
+      btn.innerText = "Guardando..."; btn.disabled = true;
+
+      try {
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        const nuevaCat = {
+          nombre: nombre,
+          presupuesto: maximo,
+          gastado: 0,
+          icono: iconSelected,
+          color: colorSelected
+        };
+        
+        categoriasActuales.push(nuevaCat);
+        await updateDoc(userRef, { categorias: categoriasActuales });
+        
+        cerrarModal();
+        btn.innerText = "Crear categoría"; btn.disabled = false;
+        cargarCategorias();
+
+      } catch (error) {
+        mostrarAlerta("Error", error.message);
+        btn.innerText = "Crear categoría"; btn.disabled = false;
+      }
+    });
+
+    // Iniciar
+    cargarCategorias();
+  </script>
+</body>
+</html>
