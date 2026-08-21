@@ -328,7 +328,11 @@
 
     window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; };
     window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); document.body.style.overflow = ''; };
-    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerText = mensaje; abrirModal('modalAlertaBasica'); };
+   window.mostrarAlerta = function(titulo, mensaje) { 
+      document.getElementById('alertaTitulo').innerText = titulo; 
+      document.getElementById('alertaMensaje').innerHTML = mensaje; // <-- ESTO ES CLAVE
+      abrirModal('modalAlertaBasica'); 
+    };
 
     function formatMoney(amount) { return parseFloat(amount || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
 
@@ -447,7 +451,7 @@
       
       // REGLA DE ORO: No pasarse del presupuesto
       if ((yaGastado + cantidad) > maximo) {
-        mostrarAlerta("Presupuesto excedido", "No es posible registrar este gasto.<br><br>Superas el máximo de <b>${formatMoney(maximo)}</b> para esta categoría.<br><br>Reduce el gasto o edita la categoría para aumentar el presupuesto máximo.");
+        mostrarAlerta("Presupuesto excedido",'No es posible registrar este gasto.<br><br>Superas el máximo de <b>${formatMoney(maximo)}</b> para esta categoría.<br><br>Reduce el gasto o edita la categoría para aumentar el presupuesto máximo.');
         return;
       }
 
