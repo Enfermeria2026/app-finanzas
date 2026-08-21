@@ -591,21 +591,28 @@
           const concepto = document.getElementById('conceptoRepartirImp').value.trim();
           const hayRepartir = (document.getElementById('selectCatRepartir').options.length > 0);
           
-          if (impImp > 0 && concepto === "") return mostrarAlerta('Falta Concepto', 'Has introducido importe en Imprevistos, pero te falta escribir el Concepto.');
+          if (impImp > 0 && concepto === "") {
+             return mostrarAlerta('Falta Concepto', 'Has introducido importe en Imprevistos, pero te falta escribir el Concepto.');
+          }
           
+          // 1. Verificamos que la categoría elegida tiene capacidad para recibir esa cantidad exacta
           if (impCat > 0) {
              if (!hayRepartir) return mostrarAlerta('Acción no permitida', 'No hay categorías con espacio libre disponible.');
              const idxRep = parseInt(document.getElementById('selectCatRepartir').value);
-             const margen = parseFloat(categoriasActuales[idxRep].presupuesto) - parseFloat(categoriasActuales[idxRep].gastado);
-             if (impCat > margen) return mostrarAlerta('Límite excedido', `Intentas mandar <b>${formatMoney(impCat)}</b> a una categoría que solo tiene <b>${formatMoney(margen)}</b> libres.`);
+             const margen = (parseFloat(categoriasActuales[idxRep].presupuesto) || 0) - (parseFloat(categoriasActuales[idxRep].gastado) || 0);
+             if (impCat > margen) {
+                 return mostrarAlerta('Límite excedido', `Intentas transferir <b>${formatMoney(impCat)}</b> a una categoría que solo tiene <b>${formatMoney(margen)}</b> de espacio libre.`);
+             }
           }
           
+          // 2. Verificamos que la suma de ambas casillas es EXACTAMENTE IGUAL al dinero huérfano
           const totalRepartido = impImp + impCat;
-          if (totalRepartido > totalDineroHuerfano) {
-            return mostrarAlerta('Descuadre', `Intentas repartir <b>${formatMoney(totalRepartido)}</b>, pero el dinero a reasignar es de <b>${formatMoney(totalDineroHuerfano)}</b>.`);
+          
+          // Usamos .toFixed(2) para evitar errores de decimales internos de Javascript
+          if (totalRepartido.toFixed(2) !== totalDineroHuerfano.toFixed(2)) {
+            return mostrarAlerta('Descuadre', `Debes repartir EXACTAMENTE <b>${formatMoney(totalDineroHuerfano)}</b>.<br><br>Actualmente, la suma que has indicado da <b>${formatMoney(totalRepartido)}</b>. Por favor, ajusta los importes para que coincidan.`);
           }
         }
-      }
 
       btn.innerText = "Borrando..."; btn.disabled = true;
 
