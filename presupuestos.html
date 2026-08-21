@@ -451,7 +451,7 @@
       
       // REGLA DE ORO: No pasarse del presupuesto
       if ((yaGastado + cantidad) > maximo) {
-        mostrarAlerta("Presupuesto excedido",'No es posible registrar este gasto.<br><br>Superas el máximo de <b>${formatMoney(maximo)}</b> para esta categoría.<br><br>Reduce el gasto o edita la categoría para aumentar el presupuesto máximo.');
+        mostrarAlerta("Presupuesto excedido", `No es posible registrar este gasto.<br><br>Superas el máximo de <b>${formatMoney(maximo)}</b> para esta categoría.<br><br>Reduce el gasto o edita la categoría para aumentar el presupuesto máximo.`);
         return;
       }
 
