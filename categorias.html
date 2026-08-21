@@ -125,40 +125,102 @@
     .btn-main { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; color: white; background-color: #00A878; cursor: pointer; margin-top: 8px;}
     .btn-danger { background-color: #F44336; }
 
-    /* MENÚ LATERAL (Igual que en Dashboard) */
+    /* ESTILOS EXACTOS DEL MENÚ LATERAL Y NAVEGACIÓN INFERIOR (Copiados del Dashboard) */
     .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .menu-overlay.open { opacity: 1; pointer-events: auto; }
     .side-menu { position: fixed; top: 0; left: -100%; width: 290px; max-width: 85%; height: 100%; background: white; z-index: 2001; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; display: flex; flex-direction: column; overflow-y: auto; }
     .side-menu.open { left: 0; }
     .side-menu-header { padding: 24px; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; }
     .side-menu-header .logo-container { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; color: #0B1A2E;}
+    .close-menu { color: #999; cursor: pointer; }
     .side-menu-content { padding: 12px 0; flex: 1; display: flex; flex-direction: column; }
+    
     .menu-link { display: flex; align-items: center; gap: 16px; padding: 14px 24px; color: #333; text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.2s; }
-    .menu-link svg { width: 20px; height: 20px; color: #666; flex-shrink: 0; } /* ESTA ES LA LÍNEA QUE FALTABA */
+    .menu-link:active { background: #F5F7FA; color: #00A878; }
+    .menu-link svg { width: 20px; height: 20px; color: #666; flex-shrink: 0; }
     .menu-link.active-link { color: #00A878; background: #F4F9F8; border-right: 4px solid #00A878; }
+    .menu-link.active-link svg { color: #00A878; }
+    
+    .badge-nuevo { background: #00A878; color: white; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 12px; margin-left: auto; text-transform: uppercase; letter-spacing: 0.5px; }
+    .menu-divider { height: 1px; background: #F0F0F0; margin: 8px 24px; }
+    .menu-logout { color: #F44336; margin-top: 12px; }
+    .menu-logout svg { color: #F44336; }
+    .menu-logout:active { background: #FFEBEE; color: #F44336; }
     
     .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; display: flex; justify-content: space-around; padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
     .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-item.active { color: #00A878; }
+    .nav-item svg { width: 22px; height: 22px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
   </style>
 </head>
 <body>
 
-  <!-- MENÚ LATERAL -->
+  <!-- ==================== MENÚ LATERAL (IDÉNTICO AL DASHBOARD) ==================== -->
   <div id="menuOverlay" class="menu-overlay"></div>
   <div id="sideMenu" class="side-menu">
     <div class="side-menu-header">
-      <div class="logo-container"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg> BudgetWise</div>
-      <svg onclick="closeSideMenu()" style="cursor:pointer; color:#999;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="logo-container">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
+        BudgetWise
+      </div>
+      <svg id="btnCloseMenu" onclick="closeSideMenu()" class="close-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </div>
+    
     <div class="side-menu-content">
-      <a href="dashboard.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard</a>
-      <a href="presupuestos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos</a>
-      <!-- Activo -->
-      <a href="categorias.html" class="menu-link active-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías</a>
-      <!-- ... Resto del menú omitido para mantener código limpio, pero lo puedes pegar del dashboard ... -->
-      <a href="login.html" class="menu-link" style="color:#F44336; margin-top:20px;" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
+      <a href="dashboard.html" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Dashboard
+      </a>
+      <a href="presupuestos.html" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>
+        Presupuestos
+      </a>
+      <a href="categorias.html" class="menu-link active-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+        Categorías
+      </a>
+      <a href="#" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Fondos reservados
+      </a>
+      <a href="#" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        Objetivos de ahorro
+      </a>
+      <a href="#" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Estadísticas
+      </a>
+      <a href="#" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.59.81 3.14 1.5 4.5.77.76 1.24 1.52 1.42 2.5"></path></svg>
+        Asesor financiero
+        <span class="badge-nuevo">Nuevo</span>
+      </a>
+      <a href="#" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        Misiones
+      </a>
+      <a href="#" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Historial mensual
+      </a>
+      <div class="menu-divider"></div>
+      <a href="#" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Ajustes
+      </a>
+      <a href="#" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        Ayuda y soporte
+      </a>
+      <a href="#" class="menu-link menu-logout" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Cerrar sesión
+      </a>
     </div>
   </div>
+  <!-- ========================================================================= -->
 
   <div class="app-container">
     
@@ -230,7 +292,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
     </div>
 
-    <!-- MENÚ INFERIOR -->
+    <!-- ==================== MENÚ INFERIOR (IDÉNTICO AL DASHBOARD) ==================== -->
     <nav class="bottom-nav">
       <a href="presupuestos.html" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -238,7 +300,7 @@
       </a>
       <a href="#" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        Reservas
+        Fondos reservados
       </a>
       <a href="dashboard.html" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg>
@@ -246,13 +308,14 @@
       </a>
       <a href="#" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-        Ahorro
+        Objetivos ahorro
       </a>
       <a href="#" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
         Misiones
       </a>
     </nav>
+    <!-- =============================================================================== -->
   </div>
 
   <!-- MODAL: CREAR CATEGORÍA -->
@@ -345,6 +408,12 @@
     window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); document.body.style.overflow = ''; };
     window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; abrirModal('modalAlertaBasica'); };
     function formatMoney(amount) { return parseFloat(amount || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+
+    // CERRAR SESIÓN
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      localStorage.removeItem('usuarioLogueado');
+      window.location.href = 'login.html';
+    });
 
     // CARGAR DATOS
     async function cargarCategorias() {
@@ -457,7 +526,6 @@
         if (itemsSeleccionados.has(index)) {
           totalDineroHuerfano += (parseFloat(cat.gastado) || 0);
         } else {
-          // Si no está seleccionada para borrar, es candidata a recibir dinero
           hayOtrasCategorias = true;
           const option = document.createElement('option');
           option.value = `cat_${index}`;
@@ -468,7 +536,6 @@
 
       document.getElementById('dineroHuerfanoDisplay').innerText = formatMoney(totalDineroHuerfano);
       
-      // Si el gasto es 0, ocultar la advertencia y selector, porque no hay dinero que mover
       if (totalDineroHuerfano === 0) {
         document.querySelector('#modalDeleteCat .modal-text').innerHTML = `Estás a punto de borrar <b>${itemsSeleccionados.size} categorías</b>.<br>Como no tienen gastos, puedes borrarlas directamente.`;
         document.querySelector('#modalDeleteCat .modal-input-group').style.display = 'none';
@@ -492,16 +559,13 @@
         let nuevosPagosReservas = parseFloat(userDocData.pagosDesdeReservas) || 0;
         let nuevosPagosAhorros = parseFloat(userDocData.pagosDesdeAhorros) || 0;
 
-        // Si destinamos a una categoría existente
         let indexCatDestino = -1;
         if (redistribucionDestino.startsWith('cat_') && totalDineroHuerfano > 0) {
           indexCatDestino = parseInt(redistribucionDestino.split('_')[1]);
         }
 
-        // Construimos el nuevo array descartando las borradas y sumando dinero si procede
         categoriasActuales.forEach((cat, index) => {
           if (!itemsSeleccionados.has(index)) {
-            // Se queda
             if (index === indexCatDestino) {
               cat.gastado = (parseFloat(cat.gastado) || 0) + totalDineroHuerfano;
             }
@@ -509,7 +573,6 @@
           }
         });
 
-        // Si el destino era general
         if (totalDineroHuerfano > 0) {
           if (redistribucionDestino === 'imprevistos') nuevosGastosImprevistos += totalDineroHuerfano;
           if (redistribucionDestino === 'pago_reserva') nuevosPagosReservas += totalDineroHuerfano;
@@ -526,7 +589,7 @@
 
         cerrarModal();
         btn.innerText = "Borrar definitivamente"; btn.disabled = false;
-        cargarCategorias(); // Recargar todo
+        cargarCategorias();
 
       } catch (error) {
         mostrarAlerta("Error", "No se pudo borrar: " + error.message);
@@ -541,7 +604,6 @@
     let colorSelected = "#2196F3";
 
     function generarSelectores() {
-      // Comprobar compras del usuario (arrays en Firestore)
       const iconosComprados = Array.isArray(userDocData.iconosComprados) ? userDocData.iconosComprados : [];
       const coloresComprados = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados : [];
 
@@ -549,7 +611,6 @@
       const contColores = document.getElementById('addColorSelector');
       contIconos.innerHTML = ''; contColores.innerHTML = '';
 
-      // Renderizar Iconos Base
       baseIcons.forEach((ico, idx) => {
         const div = document.createElement('div');
         div.className = `item-select ${idx===0 ? 'active' : ''}`;
@@ -561,7 +622,6 @@
         contIconos.appendChild(div);
       });
 
-      // Renderizar Iconos Premium
       premiumIcons.forEach(ico => {
         const div = document.createElement('div');
         if (iconosComprados.includes(ico)) {
@@ -577,7 +637,6 @@
         contIconos.appendChild(div);
       });
 
-      // Renderizar Colores Base
       baseColors.forEach((col, idx) => {
         const div = document.createElement('div');
         div.className = `item-select ${idx===0 ? 'active' : ''}`;
@@ -589,7 +648,6 @@
         contColores.appendChild(div);
       });
 
-      // Renderizar Colores Premium
       premiumColors.forEach(col => {
         const div = document.createElement('div');
         if (coloresComprados.includes(col)) {
