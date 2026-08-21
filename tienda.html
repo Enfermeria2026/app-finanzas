@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tienda - BudgetWise</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; background-color: #F5F7FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0B1A2E; }
+    
+    .app-container { width: 100%; max-width: 480px; margin: 0 auto; background-color: #F5F7FA; height: 100%; display: flex; flex-direction: column; position: relative; padding-bottom: 80px; }
+
+    /* CABECERA */
+    .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.02); z-index: 10; }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; }
+    .page-title { font-weight: 800; font-size: 18px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
+    .coin-badge { background: #FFF8E1; border: 1px solid #FFE082; color: #F57F17; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 4px; }
+    
+    /* ZONA SCROLLABLE CENTRAL */
+    .store-content { flex: 1; overflow-y: auto; padding: 16px 24px; }
+    .store-content::-webkit-scrollbar { display: none; }
+
+    /* OFERTAS DIARIAS */
+    .section-title { font-size: 14px; font-weight: 800; color: #0B1A2E; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .offers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .offer-card { background: white; border-radius: 16px; padding: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 2px solid transparent; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 110px;}
+    .offer-card.selected { border-color: #00A878; background: #F4F9F8; }
+    .offer-badge { position: absolute; top: 0; left: 0; width: 100%; background: #F44336; color: white; font-size: 10px; font-weight: 800; padding: 4px 0; text-transform: uppercase; }
+    .offer-content { font-size: 32px; margin-top: 12px; margin-bottom: 8px; }
+    .offer-price { font-size: 14px; font-weight: 800; color: #F57F17; display: flex; justify-content: center; align-items: center; gap: 4px;}
+    .offer-price-old { font-size: 11px; color: #999; text-decoration: line-through; margin-right: 4px;}
+    
+    .btn-free { background: #E8F5E9; border: 1px solid #A5D6A7; }
+    .btn-free:active { transform: scale(0.95); }
+    .btn-free.disabled { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+
+    /* PESTAÑAS (TABS) */
+    .tabs { display: flex; background: #E0E0E0; border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+    .tab { flex: 1; text-align: center; padding: 10px; font-size: 14px; font-weight: 700; color: #666; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+    .tab.active { background: white; color: #0B1A2E; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+    /* DESPLEGABLES (ACCORDIONS) */
+    details { background: white; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); overflow: hidden; }
+    summary { padding: 16px; font-weight: 700; font-size: 15px; color: #0B1A2E; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '▼'; font-size: 12px; color: #999; transition: transform 0.3s; }
+    details[open] summary::after { transform: rotate(180deg); }
+    .details-content { padding: 0 16px 16px 16px; max-height: 240px; overflow-y: auto; }
+
+    /* GRID DE TIENDA (ICONOS/COLORES) */
+    .store-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .item-card { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; position: relative; }
+    .item-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 28px; transition: 0.2s; position: relative; border: 2px solid transparent;}
+    .item-price { font-size: 11px; font-weight: 700; color: #555; display: flex; align-items: center; gap: 2px;}
+    
+    /* COLORES DE RAREZA */
+    .bg-common { background-color: #E3F2FD; } /* Azul claro */
+    .bg-rare { background-color: #E8F5E9; }   /* Verde claro */
+    .bg-unique { background-color: #FFEBEE; } /* Rojo claro */
+    .bg-color { border: 2px solid #E0E0E0; }
+
+    /* ESTADOS SELECCIONADOS / COMPRADOS */
+    .item-card.selected .item-circle { opacity: 0.6; border-color: #00A878; transform: scale(0.95); }
+    .item-card.selected::after { content: '✓'; position: absolute; top: 12px; right: 8px; background: #00A878; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; justify-content: center; align-items: center; font-weight: bold; z-index: 2;}
+    .item-card.owned { opacity: 0.4; pointer-events: none; filter: grayscale(100%); }
+    .item-card.owned .item-price { display: none; }
+    .item-card.owned::after { content: 'Mío'; position: absolute; bottom: 0; font-size: 9px; font-weight: 800; color: white; background: #0B1A2E; padding: 2px 6px; border-radius: 8px;}
+
+    /* CARRITO INFERIOR (FIJO) */
+    .cart-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); z-index: 50; }
+    .cart-total { display: flex; flex-direction: column; }
+    .cart-total span { font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; }
+    .cart-total strong { font-size: 20px; font-weight: 800; color: #0B1A2E; display: flex; align-items: center; gap: 4px; }
+    .btn-checkout { background: #00A878; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; position: relative; }
+    .btn-checkout:active { transform: scale(0.98); }
+    .cart-badge { position: absolute; top: -6px; right: -6px; background: #F44336; color: white; font-size: 10px; font-weight: 800; width: 20px; height: 20px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white;}
+
+    /* MODALES */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: 0.3s; padding: 20px;}
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box { background: white; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; transform: scale(0.9); transition: 0.3s; max-height: 90vh; display: flex; flex-direction: column;}
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    
+    .receipt-area { flex: 1; overflow-y: auto; margin-bottom: 16px; background: #F9FAFB; padding: 16px; border-radius: 12px; font-family: 'Courier New', Courier, monospace; font-size: 14px; }
+    .receipt-item { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #E0E0E0; padding-bottom: 4px;}
+    .receipt-summary { margin-top: 16px; border-top: 2px solid #333; padding-top: 8px; font-weight: bold; }
+    .receipt-line { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    
+    .coupon-area { display: flex; gap: 8px; margin-bottom: 16px; }
+    .coupon-area input { flex: 1; padding: 12px; border: 1px solid #CCC; border-radius: 8px; text-transform: uppercase; font-weight: bold; outline: none;}
+    .btn-apply { background: #0B1A2E; color: white; border: none; padding: 0 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    
+    .modal-actions { display: flex; gap: 12px; }
+    .btn-main { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; color: white; background: #00A878; cursor: pointer; }
+    .btn-secondary { flex: 1; padding: 14px; border: 1px solid #CCC; border-radius: 8px; font-size: 14px; font-weight: bold; color: #555; background: white; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- CABECERA -->
+    <header class="header">
+      <a href="categorias.html" style="color: inherit;">
+        <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </a>
+      <div class="page-title">TIENDA</div>
+      <div class="coin-badge">
+        <span id="uiMonedas">0</span> 🪙
+      </div>
+    </header>
+
+    <!-- ZONA CENTRAL DE TIENDA -->
+    <div class="store-content">
+      
+      <div class="section-title">Ofertas Diarias</div>
+      <div class="offers-grid" id="offersGrid">
+        <!-- Generadas por JS -->
+      </div>
+
+      <!-- PESTAÑAS -->
+      <div class="tabs">
+        <div class="tab active" id="tabIconos" onclick="switchTab('iconos')">Iconos</div>
+        <div class="tab" id="tabColores" onclick="switchTab('colores')">Colores</div>
+      </div>
+
+      <!-- CONTENEDOR ICONOS -->
+      <div id="viewIconos" style="display: block;">
+        <!-- Se inyectan los <details> desde JS -->
+      </div>
+
+      <!-- CONTENEDOR COLORES -->
+      <div id="viewColores" style="display: none; background: white; padding: 16px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div class="store-grid" id="colorsGrid">
+          <!-- Se inyectan colores desde JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BARRA INFERIOR DEL CARRITO -->
+    <div class="cart-bar">
+      <div class="cart-total">
+        <span>Total Acumulado</span>
+        <strong><span id="uiCartTotal">0</span> 🪙</strong>
+      </div>
+      <button class="btn-checkout" onclick="abrirCarrito()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        Revisar
+        <div class="cart-badge" id="uiCartBadge" style="display: none;">0</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: CARRITO Y TICKETS -->
+  <div id="modalCart" class="modal-overlay">
+    <div class="modal-box">
+      <div style="font-weight: 900; font-size: 18px; text-align: center; margin-bottom: 16px;">MI CARRITO</div>
+      
+      <div class="receipt-area" id="receiptArea">
+        <!-- Items inyectados aquí -->
+      </div>
+
+      <div class="coupon-area">
+        <input type="text" id="inputCupon" placeholder="CÓDIGO CUPÓN">
+        <button class="btn-apply" onclick="aplicarCupon()">APLICAR</button>
+      </div>
+      <p id="msgCupon" style="font-size: 12px; margin-bottom: 16px; text-align: center; font-weight: 600;"></p>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModal()">Seguir comprando</button>
+        <button class="btn-main" id="btnFinalizarCompra">Finalizar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL BÁSICO ALERTAS -->
+  <div id="modalAlertaBasica" class="modal-overlay">
+    <div class="modal-box" style="align-items: center; text-align: center; padding: 32px 24px;">
+      <div id="alertaTitulo" style="font-size: 18px; font-weight: bold; color: #0B1A2E; margin-bottom: 12px;">Atención</div>
+      <div id="alertaMensaje" style="font-size: 14px; color: #555; margin-bottom: 24px;">Mensaje</div>
+      <button onclick="cerrarModal()" style="background: #0B1A2E; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; width: 100%;">Entendido</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyCJJsgp1RnXGqva04EuQEONEM9frfx-7I8", authDomain: "budgetwise-9608f.firebaseapp.com", projectId: "budgetwise-9608f", storageBucket: "budgetwise-9608f.firebasestorage.app", messagingSenderId: "438887897789", appId: "1:438887897789:web:1075b7b21577d1b632b5d4" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (!usuarioLogueado) window.location.href = 'login.html';
+
+    // ==========================================
+    // BASE DE DATOS DE LA TIENDA
+    // ==========================================
+    const PRECIOS = { common: 120, rare: 160, unique: 200, color: 60 };
+    const BASE_ICONS = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"]; // El usuario los tiene de serie
+    const BASE_COLORS = ["#2196F3","#F44336","#FFC107","#4CAF50","#FFFFFF","#FF9800"];
+
+    const CUPONES_VALIDOS = {
+      "PROMO80953": 0.10, "PROMO61552": 0.15, "PROMO45468": 0.20, "PROMO72859": 0.25,
+      "PROMO60249": 0.30, "PROMO52045": 0.35, "PROMO33761": 0.40
+    };
+
+    const CATALOGO_ICONOS = {
+      "Comida": [
+        {id: "🍕", r: "common"}, {id: "🥤", r: "common"}, {id: "🍻", r: "common"}, {id: "🍎", r: "common"}, {id: "🥐", r: "common"},
+        {id: "🍣", r: "rare"}, {id: "🍩", r: "rare"}, {id: "🥩", r: "unique"}
+      ],
+      "Viajes": [
+        {id: "🚆", r: "common"}, {id: "🌍", r: "common"}, {id: "📍", r: "common"},
+        {id: "✈️", r: "rare"}, {id: "🏖️", r: "rare"}, {id: "🚢", r: "unique"}, {id: "🗽", r: "unique"}
+      ],
+      "Transporte": [
+        {id: "🚲", r: "common"}, {id: "🛵", r: "rare"}, {id: "🚜", r: "rare"}, {id: "🚁", r: "unique"}
+      ],
+      "Profesiones": [
+        {id: "👮", r: "common"}, {id: "👨‍🚒", r: "common"}, {id: "👨‍🏫", r: "common"}, {id: "🧑‍💻", r: "common"}, {id: "🧑‍🎨", r: "common"},
+        {id: "👩‍⚕️", r: "rare"}, {id: "🧑‍🔬", r: "rare"}, {id: "👨‍🚀", r: "unique"}
+      ],
+      "Ocio": [
+        {id: "📺", r: "common"}, {id: "🎬", r: "common"}, {id: "📚", r: "common"}, {id: "🎵", r: "common"}, {id: "🎲", r: "common"},
+        {id: "🎮", r: "rare"}, {id: "🎫", r: "rare"}, {id: "🎢", r: "unique"}
+      ],
+      "Otros": [
+        {id: "📷", r: "common"}, {id: "🏫", r: "common"}, {id: "✉️", r: "common"}, {id: "📶", r: "common"}, {id: "💬", r: "common"}, {id: "💵", r: "common"}, {id: "👓", r: "common"}, {id: "♻️", r: "common"}, {id: "🎤", r: "common"}, {id: "❤️", r: "common"}, {id: "🎁", r: "common"}, {id: "🔍", r: "common"}, {id: "💡", r: "common"}, {id: "🌐", r: "common"}, {id: "▶️", r: "common"}, {id: "🆖", r: "common"}, {id: "🪟", r: "common"}, {id: "☁️", r: "common"}, {id: "☀️", r: "common"}, {id: "⚠️", r: "common"}, {id: "🐶", r: "common"}, {id: "🐱", r: "common"}, {id: "🐹", r: "common"}, {id: "🐦", r: "common"}, {id: "🐟", r: "common"},
+        {id: "🎓", r: "rare"}, {id: "🔬", r: "rare"}, {id: "⌚", r: "rare"}, {id: "⭐", r: "rare"}, {id: "🐴", r: "rare"}, {id: "🐢", r: "rare"},
+        {id: "🏛️", r: "unique"}, {id: "💍", r: "unique"}, {id: "🤖", r: "unique"}, {id: "🏰", r: "unique"}, {id: "🧠", r: "unique"}, {id: "♊", r: "unique"}
+      ]
+    };
+
+    const CATALOGO_COLORES = [
+      "#9C27B0","#E91E63","#87CEEB","#00BCD4","#795548","#000000","#FF00FF","#FFB6C1","#CDDC39",
+      "#800020","#006A4E","#8A2BE2","#FA8072","#FF7F50","#DC143C", "#8B4513", "#2E8B57", "#008080"
+    ];
+
+    // ==========================================
+    // ESTADOS Y VARIABLES
+    // ==========================================
+    let userDocData = {};
+    let misMonedas = 0;
+    let misIconos = [];
+    let misColores = [];
+    let misCuponesUsados = [];
+    let tiendaDiaria = {};
+    
+    let carrito = []; // { id: str, tipo: 'icono'|'color'|'caja', precio: num, ref: DOMid, rarity: str }
+    let cuponAplicado = null; // {codigo: str, descuento: num}
+
+    // UTILS
+    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
+    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; document.getElementById('modalAlertaBasica').classList.add('active'); };
+    window.switchTab = function(tab) {
+      document.getElementById('tabIconos').classList.remove('active');
+      document.getElementById('tabColores').classList.remove('active');
+      document.getElementById('viewIconos').style.display = 'none';
+      document.getElementById('viewColores').style.display = 'none';
+      if(tab === 'iconos') { document.getElementById('tabIconos').classList.add('active'); document.getElementById('viewIconos').style.display = 'block'; }
+      else { document.getElementById('tabColores').classList.add('active'); document.getElementById('viewColores').style.display = 'block'; }
+    }
+
+    // ==========================================
+    // INICIALIZACIÓN
+    // ==========================================
+    async function initTienda() {
+      try {
+        const docSnap = await getDoc(doc(db, "usuarios", usuarioLogueado));
+        if (!docSnap.exists()) return;
+        userDocData = docSnap.data();
+        
+        misMonedas = parseFloat(userDocData.monedas) || 0;
+        misIconos = Array.isArray(userDocData.iconosComprados) ? userDocData.iconosComprados.concat(BASE_ICONS) : BASE_ICONS;
+        misColores = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados.concat(BASE_COLORS) : BASE_COLORS;
+        misCuponesUsados = Array.isArray(userDocData.cuponesUsados) ? userDocData.cuponesUsados : [];
+        tiendaDiaria = userDocData.tiendaDiaria || {};
+
+        document.getElementById('uiMonedas').innerText = misMonedas;
+        
+        await gestionarOfertasDiarias();
+        renderStore();
+        
+      } catch (e) { console.error(e); }
+    }
+
+    // ==========================================
+    // LÓGICA DE OFERTAS DIARIAS Y CAJA MISTERIOSA
+    // ==========================================
+    async function gestionarOfertasDiarias() {
+      const hoy = new Date().toLocaleDateString('es-ES'); // ej: "21/8/2026"
+      
+      if (tiendaDiaria.fecha !== hoy) {
+        // GENERAR NUEVAS OFERTAS
+        const unownedIconsObj = [];
+        for (let cat in CATALOGO_ICONOS) {
+          CATALOGO_ICONOS[cat].forEach(i => { if(!misIconos.includes(i.id)) unownedIconsObj.push(i); });
+        }
+        const unownedColors = CATALOGO_COLORES.filter(c => !misColores.includes(c));
+
+        let ofertaIco = null, ofertaCol = null, ofertaCaja = null;
+
+        // 1. Random Icon (30% off)
+        if (unownedIconsObj.length > 0) {
+          const rand = unownedIconsObj[Math.floor(Math.random() * unownedIconsObj.length)];
+          ofertaIco = { id: rand.id, r: rand.r, precio: Math.round(PRECIOS[rand.r] * 0.7) };
+        }
+        
+        // 2. Random Color (30% off)
+        if (unownedColors.length > 0) {
+          ofertaCol = { id: unownedColors[Math.floor(Math.random() * unownedColors.length)], precio: Math.round(PRECIOS.color * 0.7) };
+        }
+
+        // 3. Caja Misteriosa (Decidimos contenido ahora pero el usuario no lo sabe)
+        // 50/50 Icono o Color (si hay disponibles)
+        let cajaSeraIcono = Math.random() > 0.5;
+        if (unownedIconsObj.length === 0) cajaSeraIcono = false;
+        if (unownedColors.length === 0) cajaSeraIcono = true;
+        
+        if (unownedIconsObj.length > 0 || unownedColors.length > 0) {
+          if (cajaSeraIcono) {
+            let winIcon = sortearIcono(unownedIconsObj);
+            ofertaCaja = { tipo: 'icono', contenido: winIcon.id, precio: 100 };
+          } else {
+            let winCol = unownedColors[Math.floor(Math.random() * unownedColors.length)];
+            ofertaCaja = { tipo: 'color', contenido: winCol, precio: 35 };
+          }
+        }
+
+        tiendaDiaria = { fecha: hoy, ofertaIcono: ofertaIco, ofertaColor: ofertaCol, ofertaCaja: ofertaCaja, comprados: { icono: false, color: false, caja: false, gratis: false } };
+        
+        // Guardar en Firebase
+        await updateDoc(doc(db, "usuarios", usuarioLogueado), { tiendaDiaria: tiendaDiaria });
+      }
+
+      renderOfertasUI();
+    }
+
+    function sortearIcono(unownedList) {
+      const commons = unownedList.filter(i => i.r === 'common');
+      const rares = unownedList.filter(i => i.r === 'rare');
+      const uniques = unownedList.filter(i => i.r === 'unique');
+      
+      let pC = commons.length > 0 ? 0.60 : 0;
+      let pR = rares.length > 0 ? 0.30 : 0;
+      let pU = uniques.length > 0 ? 0.10 : 0;
+
+      // Rebalanceo si faltan
+      if (pC===0 && pR>0 && pU>0) { pR=0.80; pU=0.20; }
+      else if (pR===0 && pC>0 && pU>0) { pC=0.90; pU=0.10; }
+      else if (pU===0 && pC>0 && pR>0) { pC=0.70; pR=0.30; }
+      else if (pC===0 && pR===0 && pU>0) { pU=1; }
+      else if (pC===0 && pU===0 && pR>0) { pR=1; }
+      else if (pR===0 && pU===0 && pC>0) { pC=1; }
+
+      const random = Math.random();
+      if (random < pC) return commons[Math.floor(Math.random() * commons.length)];
+      if (random < pC + pR) return rares[Math.floor(Math.random() * rares.length)];
+      return uniques[Math.floor(Math.random() * uniques.length)];
+    }
+
+    function renderOfertasUI() {
+      const container = document.getElementById('offersGrid');
+      container.innerHTML = '';
+      const t = tiendaDiaria;
+
+      // 1. Icono Oferta
+      if (t.ofertaIcono && !t.comprados.icono && !misIconos.includes(t.ofertaIcono.id)) {
+        const oId = 'off-ico';
+        container.innerHTML += `<div class="offer-card" id="${oId}" onclick="toggleCart('${oId}', 'icono', '${t.ofertaIcono.id}', ${t.ofertaIcono.precio})"><div class="offer-badge">-30%</div><div class="offer-content">${t.ofertaIcono.id}</div><div class="offer-price"><span class="offer-price-old">${PRECIOS[t.ofertaIcono.r]}</span> ${t.ofertaIcono.precio} 🪙</div></div>`;
+      }
+
+      // 2. Color Oferta
+      if (t.ofertaColor && !t.comprados.color && !misColores.includes(t.ofertaColor.id)) {
+        const oId = 'off-col';
+        container.innerHTML += `<div class="offer-card" id="${oId}" onclick="toggleCart('${oId}', 'color', '${t.ofertaColor.id}', ${t.ofertaColor.precio})"><div class="offer-badge">-30%</div><div class="offer-content"><div style="width:32px; height:32px; border-radius:50%; background:${t.ofertaColor.id}; border:2px solid #EEE;"></div></div><div class="offer-price"><span class="offer-price-old">60</span> ${t.ofertaColor.precio} 🪙</div></div>`;
+      }
+
+      // 3. Caja Sorpresa
+      if (t.ofertaCaja && !t.comprados.caja) {
+        const oId = 'off-box';
+        container.innerHTML += `<div class="offer-card" id="${oId}" onclick="toggleCart('${oId}', 'caja', 'Caja Sorpresa', ${t.ofertaCaja.precio})"><div class="offer-badge" style="background:#9C27B0;">MISTERIO</div><div class="offer-content">🎁</div><div class="offer-price">${t.ofertaCaja.precio} 🪙</div></div>`;
+      }
+
+      // 4. Gratis
+      if (t.comprados.gratis) {
+        container.innerHTML += `<div class="offer-card btn-free disabled"><div class="offer-content" style="font-size:20px;">✓</div><div class="offer-price" style="color:#4CAF50;">Recogido</div></div>`;
+      } else {
+        container.innerHTML += `<div class="offer-card btn-free" onclick="reclamarGratis()"><div class="offer-badge" style="background:#4CAF50;">¡10 GRATIS!</div><div class="offer-content">🪙</div><div class="offer-price" style="color:#4CAF50;">Recoger</div></div>`;
+      }
+    }
+
+    window.reclamarGratis = async function() {
+      tiendaDiaria.comprados.gratis = true;
+      misMonedas += 10;
+      document.getElementById('uiMonedas').innerText = misMonedas;
+      
+      const userRef = doc(db, "usuarios", usuarioLogueado);
+      await updateDoc(userRef, { monedas: misMonedas, tiendaDiaria: tiendaDiaria });
+      renderOfertasUI();
+      mostrarAlerta("¡Recompensa Diaria!", "Has obtenido 10 monedas gratis. Vuelve mañana a por más.");
+    }
+
+    // ==========================================
+    // RENDERIZAR TIENDA PRINCIPAL
+    // ==========================================
+    function renderStore() {
+      // RENDER ICONOS
+      const contIconos = document.getElementById('viewIconos');
+      contIconos.innerHTML = '';
+      
+      for (let cat in CATALOGO_ICONOS) {
+        const details = document.createElement('details');
+        const summary = document.createElement('summary');
+        summary.innerText = cat;
+        details.appendChild(summary);
+        
+        const grid = document.createElement('div');
+        grid.className = 'store-grid details-content';
+        
+        CATALOGO_ICONOS[cat].forEach(ico => {
+          const isOwned = misIconos.includes(ico.id);
+          const bgClass = ico.r === 'unique' ? 'bg-unique' : (ico.r === 'rare' ? 'bg-rare' : 'bg-common');
+          const domId = `cat-ico-${ico.id}`;
+          
+          const card = document.createElement('div');
+          card.className = `item-card ${isOwned ? 'owned' : ''}`;
+          card.id = domId;
+          if (!isOwned) card.onclick = () => toggleCart(domId, 'icono', ico.id, PRECIOS[ico.r]);
+          
+          card.innerHTML = `<div class="item-circle ${bgClass}">${ico.id}</div><div class="item-price">${PRECIOS[ico.r]} 🪙</div>`;
+          grid.appendChild(card);
+        });
+        
+        details.appendChild(grid);
+        contIconos.appendChild(details);
+      }
+
+      // RENDER COLORES
+      const contColores = document.getElementById('colorsGrid');
+      contColores.innerHTML = '';
+      CATALOGO_COLORES.forEach(col => {
+        const isOwned = misColores.includes(col);
+        const domId = `cat-col-${col.replace('#','')}`;
+        
+        const card = document.createElement('div');
+        card.className = `item-card ${isOwned ? 'owned' : ''}`;
+        card.id = domId;
+        if (!isOwned) card.onclick = () => toggleCart(domId, 'color', col, PRECIOS.color);
+        
+        card.innerHTML = `<div class="item-circle bg-color" style="background:${col};"></div><div class="item-price">${PRECIOS.color} 🪙</div>`;
+        contColores.appendChild(card);
+      });
+    }
+
+    // ==========================================
+    // SISTEMA DE CARRITO Y COMPRA
+    // ==========================================
+    window.toggleCart = function(domId, tipo, itemId, precio) {
+      const index = carrito.findIndex(c => c.ref === domId);
+      const el = document.getElementById(domId);
+
+      if (index > -1) {
+        carrito.splice(index, 1);
+        el.classList.remove('selected');
+      } else {
+        carrito.push({ ref: domId, tipo: tipo, id: itemId, precio: precio });
+        el.classList.add('selected');
+      }
+      actualizarUIcarrito();
+    }
+
+    function actualizarUIcarrito() {
+      let total = 0;
+      carrito.forEach(c => total += c.precio);
+      document.getElementById('uiCartTotal').innerText = total;
+      
+      const badge = document.getElementById('uiCartBadge');
+      if (carrito.length > 0) { badge.style.display = 'flex'; badge.innerText = carrito.length; }
+      else { badge.style.display = 'none'; }
+    }
+
+    window.abrirCarrito = function() {
+      if (carrito.length === 0) return mostrarAlerta("Carrito vacío", "Selecciona algún artículo de la tienda primero.");
+      
+      cuponAplicado = null;
+      document.getElementById('inputCupon').value = '';
+      document.getElementById('msgCupon').innerText = '';
+      
+      renderRecibo();
+      document.getElementById('modalCart').classList.add('active');
+    }
+
+    function renderRecibo() {
+      const area = document.getElementById('receiptArea');
+      let html = '';
+      let sum = 0;
+
+      carrito.forEach(item => {
+        sum += item.precio;
+        let nombre = item.tipo === 'color' ? `Color ${item.id}` : `Icono ${item.id}`;
+        if(item.tipo === 'caja') nombre = "🎁 Caja Sorpresa";
+        if(item.ref.startsWith('off-')) nombre += " (Oferta)";
+        
+        html += `<div class="receipt-item"><span>1x ${nombre}</span><span>${item.precio} 🪙</span></div>`;
+      });
+
+      html += `<div class="receipt-summary">`;
+      html += `<div class="receipt-line"><span>Subtotal:</span><span>${sum} 🪙</span></div>`;
+      
+      let descuento = 0;
+      if (cuponAplicado) {
+        descuento = Math.round(sum * cuponAplicado.descuento);
+        html += `<div class="receipt-line" style="color: #4CAF50;"><span>Desc. (${cuponAplicado.codigo}):</span><span>-${descuento} 🪙</span></div>`;
+      } else {
+        html += `<div class="receipt-line" style="color: #999;"><span>Descuento:</span><span>NO</span></div>`;
+      }
+      
+      const final = sum - descuento;
+      html += `<div class="receipt-line" style="margin-top:8px; font-size:16px;"><span><b>TOTAL:</b></span><span><b>${final} 🪙</b></span></div>`;
+      html += `</div>`;
+      
+      area.innerHTML = html;
+      window.costeFinalCarrito = final;
+    }
+
+    window.aplicarCupon = function() {
+      const code = document.getElementById('inputCupon').value.trim().toUpperCase();
+      const msg = document.getElementById('msgCupon');
+
+      if (code === "") { msg.style.color = "red"; msg.innerText = "Escribe un código."; return; }
+      if (misCuponesUsados.includes(code)) { msg.style.color = "red"; msg.innerText = "Cupón ya utilizado."; return; }
+      if (!CUPONES_VALIDOS[code]) { msg.style.color = "red"; msg.innerText = "Cupón inválido."; return; }
+
+      cuponAplicado = { codigo: code, descuento: CUPONES_VALIDOS[code] };
+      msg.style.color = "#4CAF50"; msg.innerText = `¡Cupón de descuento aplicado!`;
+      renderRecibo();
+    }
+
+    document.getElementById('btnFinalizarCompra').addEventListener('click', async () => {
+      if (misMonedas < window.costeFinalCarrito) {
+        return mostrarAlerta("Fondos insuficientes", `Necesitas <b>${window.costeFinalCarrito}</b> monedas pero solo tienes <b>${misMonedas}</b>.`);
+      }
+
+      const btn = document.getElementById('btnFinalizarCompra');
+      btn.innerText = "Procesando..."; btn.disabled = true;
+
+      try {
+        misMonedas -= window.costeFinalCarrito;
+        let nuevosIconos = [...misIconos];
+        let nuevosColores = [...misColores];
+        let mensajeCaja = "";
+
+        carrito.forEach(item => {
+          if (item.tipo === 'icono' && !item.ref.includes('off-box')) nuevosIconos.push(item.id);
+          if (item.tipo === 'color' && !item.ref.includes('off-box')) nuevosColores.push(item.id);
+          
+          if (item.ref === 'off-ico') tiendaDiaria.comprados.icono = true;
+          if (item.ref === 'off-col') tiendaDiaria.comprados.color = true;
+          if (item.ref === 'off-box') {
+            tiendaDiaria.comprados.caja = true;
+            if (tiendaDiaria.ofertaCaja.tipo === 'icono') {
+              nuevosIconos.push(tiendaDiaria.ofertaCaja.contenido);
+              mensajeCaja = `🎁 ¡La caja misteriosa contenía el icono <b>${tiendaDiaria.ofertaCaja.contenido}</b>!`;
+            } else {
+              nuevosColores.push(tiendaDiaria.ofertaCaja.contenido);
+              mensajeCaja = `🎁 ¡La caja misteriosa contenía un <b>Color Especial</b>!`;
+            }
+          }
+        });
+
+        if (cuponAplicado) misCuponesUsados.push(cuponAplicado.codigo);
+
+        // Limpiar arrays de duplicados por si acaso
+        misIconos = [...new Set(nuevosIconos)];
+        misColores = [...new Set(nuevosColores)];
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, {
+          monedas: misMonedas,
+          iconosComprados: misIconos.filter(i => !BASE_ICONS.includes(i)),
+          coloresComprados: misColores.filter(c => !BASE_COLORS.includes(c)),
+          cuponesUsados: misCuponesUsados,
+          tiendaDiaria: tiendaDiaria
+        });
+
+        carrito = [];
+        actualizarUIcarrito();
+        document.getElementById('uiMonedas').innerText = misMonedas;
+        renderOfertasUI();
+        renderStore();
+        cerrarModal();
+        
+        btn.innerText = "Finalizar"; btn.disabled = false;
+        
+        let msjExito = "¡Compra realizada con éxito! Los elementos ya están disponibles en tu creador de categorías.";
+        if (mensajeCaja !== "") msjExito += "<br><br>" + mensajeCaja;
+        mostrarAlerta("¡Gracias por tu compra!", msjExito);
+
+      } catch (error) {
+        mostrarAlerta("Error", error.message);
+        btn.innerText = "Finalizar"; btn.disabled = false;
+      }
+    });
+
+    initTienda();
+  </script>
+</body>
+</html>
