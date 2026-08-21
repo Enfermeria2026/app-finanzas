@@ -600,13 +600,16 @@
         return;
       }
 
+      // Validar si el NUEVO máximo supera el límite presupuestable
       let sumaOtrosPresupuestos = 0;
       categoriasCache.forEach((cat, index) => {
         if (index !== currentIndex) sumaOtrosPresupuestos += parseFloat(cat.presupuesto);
       });
       
-     if ((sumaOtrosPresupuestos + nuevoMax) > window.limitePresupuestable) {
-         mostrarAlerta("Fondos insuficientes", `La suma de tus límites supera tu capacidad de asignación (<b>${formatMoney(window.limitePresupuestable)}</b>).<br><br>Reduce el límite de esta u otras categorías.`);
+      if ((sumaOtrosPresupuestos + nuevoMax) > window.limitePresupuestable) {
+         // Calculamos exactamente cuánto puede darle como máximo a esta categoría
+         const margenDisponibleEdit = Math.max(0, window.limitePresupuestable - sumaOtrosPresupuestos);
+         mostrarAlerta("Fondos insuficientes", `Límite global excedido.<br><br>El máximo que puedes asignarle a esta categoría es de <b>${formatMoney(margenDisponibleEdit)}</b>.<br><br>Reduce este límite o quítale presupuesto a otras categorías.`);
          return;
       }
 
