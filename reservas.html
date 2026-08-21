@@ -154,7 +154,7 @@
     .nav-item svg { width: 22px; height: 22px; }
     .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
 
-    /* MODALES */
+    /* MODALES Y ELEMENTOS BASE */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: 0.3s; padding: 20px; }
     .modal-overlay.active { display: flex; opacity: 1; }
     .modal-box { background: white; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: 0.3s; position: relative; max-height: 90vh; overflow-y: auto; }
@@ -169,7 +169,6 @@
     .btn-danger { background-color: #F44336; }
     .btn-secondary { background: white; border: 1px solid #CCC; color: #555; }
 
-    /* SELECTOR HORIZONTAL DE ICONOS Y COLORES */
     .scroll-selector { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; margin-bottom: 14px; }
     .scroll-selector::-webkit-scrollbar { height: 4px; }
     .scroll-selector::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
@@ -178,10 +177,13 @@
     .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; filter: grayscale(100%); }
     .padlock { position: absolute; top: -4px; right: -4px; background: #0B1A2E; color: white; font-size: 8px; border-radius: 50%; width: 14px; height: 14px; display: flex; justify-content: center; align-items: center; }
 
-    /* BOTONES DE TIPO DE DESTINO (TRANSFERIR) */
     .dest-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
     .btn-dest { flex: 1; padding: 10px; border: 2px solid #E0E0E0; border-radius: 8px; background: white; font-size: 12px; font-weight: 700; color: #666; cursor: pointer; text-align: center; }
     .btn-dest.active { border-color: #00A878; color: #00A878; background: #E8F5E9; }
+
+    /* ESTILO SECCIONES BORRADO REDISTRIBUCIÓN */
+    .repartir-box { background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 12px; }
+    .repartir-title { font-size: 12px; font-weight: 700; color: #0B1A2E; margin-bottom: 8px; border-bottom: 1px solid #E0E0E0; padding-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -238,7 +240,7 @@
       <!-- FILA FINANCIERA DE 4 COLUMNAS -->
       <div class="summary-row-financial">
         <div class="fin-col"><div class="fin-lbl">Totales</div><div class="fin-val" id="finTotales">0,00 €</div></div>
-        <div class="fin-col"><div class="fin-lbl">Gastos</div><div class="fin-val" id="finPagos" style="color: #E91E63;">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Pagos</div><div class="fin-val" id="finPagos" style="color: #E91E63;">0,00 €</div></div>
         <div class="fin-col"><div class="fin-lbl">Retenidos</div><div class="fin-val retenido" id="finRetenidos">0,00 €</div></div>
         <div class="fin-col"><div class="fin-lbl">Disponibles</div><div class="fin-val disponible" id="finDisponibles">0,00 €</div></div>
       </div>
@@ -271,25 +273,20 @@
     <!-- MENÚ INFERIOR FIJO -->
     <nav class="bottom-nav">
       <a href="presupuestos.html" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        Presupuestos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Presupuestos
       </a>
       <a href="reservas.html" class="nav-item active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        Reservas
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Reservas
         <div class="active-dot"></div>
       </a>
       <a href="dashboard.html" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg>
-        Dashboard
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg> Dashboard
       </a>
       <a href="ahorro.html" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-        Ahorros
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Ahorro
       </a>
       <a href="#" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        Misiones
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones
       </a>
     </nav>
   </div>
@@ -410,7 +407,7 @@
       <div class="modal-input-group">
         <label>Selecciona el destino</label>
         <select id="selectDestino"></select>
-        <p id="msgSinDestino" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay destinos disponibles en esta opción.</p>
+        <p id="msgSinDestino" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay destinos disponibles con capacidad libre.</p>
       </div>
 
       <div class="modal-input-group">
@@ -434,15 +431,56 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMAR BORRADO MÚLTIPLE -->
-  <div id="modalConfirmDelete" class="modal-overlay">
-    <div class="modal-box" style="text-align: center;">
+  <!-- MODAL: BORRAR Y REDISTRIBUIR (LA GRAN LÓGICA) -->
+  <div id="modalDelete" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       <div class="modal-title" style="color: #F44336;">Borrar Fondos</div>
-      <p style="font-size: 14px; color: #555; margin-bottom: 16px;">¿Seguro que deseas borrar los <b><span id="cantBorrarDisplay">0</span> fondos seleccionados</b>?<br><br>Si tienen dinero retenido, volverá automáticamente a tus <b>Fondos disponibles</b>.</p>
-      <div style="display: flex; gap: 10px;">
-        <button onclick="cerrarModal()" class="btn-main btn-secondary">Cancelar</button>
-        <button id="btnEjecutarBorrado" class="btn-main btn-danger">Borrar</button>
+      <div id="textoBorradoInfo" style="font-size: 13px; color: #555; margin-bottom: 16px;"></div>
+
+      <div id="bloqueRedistribucion" style="display: none;">
+        <div class="modal-input-group">
+          <label>¿Qué hacer con el dinero retenido?</label>
+          <select id="selectDeleteAccion">
+            <option value="disponibles">Devolver a Fondos Disponibles</option>
+            <option value="fondo">Transferir a otro Fondo</option>
+            <option value="objetivo">Transferir a Objetivo de Ahorro</option>
+            <option value="repartir">Repartir el dinero</option>
+          </select>
+        </div>
+
+        <!-- OPCIONES DESTINO ÚNICO -->
+        <div id="secDelFondo" style="display:none;" class="modal-input-group">
+          <label>Selecciona el Fondo destino</label>
+          <select id="delSelectFondo"></select>
+        </div>
+        <div id="secDelObj" style="display:none;" class="modal-input-group">
+          <label>Selecciona el Objetivo destino</label>
+          <select id="delSelectObj"></select>
+        </div>
+        
+        <p id="msgSinEspacioUnico" style="display: none; color: #F44336; font-size: 12px; margin-bottom: 12px; font-weight: 600;">No hay opciones con capacidad suficiente para recibir todo el importe. Elige "Devolver a Disponibles" o "Repartir".</p>
+
+        <!-- REPARTIR -->
+        <div id="secDelRepartir" style="display:none; background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+          <div class="repartir-box">
+            <div class="repartir-title">A Fondos Disponibles</div>
+            <input type="number" id="repDispAmt" placeholder="Importe (€)" class="modal-input-group" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:0;">
+          </div>
+          <div class="repartir-box">
+            <div class="repartir-title">A Fondo de Reserva</div>
+            <select id="repFondoSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+            <input type="number" id="repFondoAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
+          </div>
+          <div class="repartir-box">
+            <div class="repartir-title">A Objetivo de Ahorro</div>
+            <select id="repObjSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+            <input type="number" id="repObjAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
+          </div>
+        </div>
       </div>
+
+      <button id="btnConfirmarDelete" class="btn-main btn-danger">Borrar definitivamente</button>
     </div>
   </div>
 
@@ -518,10 +556,8 @@
         const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
         const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
 
-       // FÓRMULA BLINDADA
+        // FÓRMULA BLINDADA
         fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - totalGastosCat - gastosImp - pagosRes - pagosAho;
-
-        // Calculamos TODOS los gastos reales que han salido de tu cuenta
         const pagosTotales = totalGastosCat + gastosImp + pagosRes + pagosAho;
 
         document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
@@ -652,32 +688,169 @@
       else bar.classList.remove('active');
     }
 
-    document.getElementById('btnPrepararBorrado').addEventListener('click', () => {
-      document.getElementById('cantBorrarDisplay').innerText = itemsSeleccionados.size;
-      abrirModal('modalConfirmDelete');
+    // ==========================================
+    // LOGICA DE BORRADO Y REDISTRIBUCIÓN EXACTA
+    // ==========================================
+    let totalDineroHuerfano = 0;
+    const selectDelAccion = document.getElementById('selectDeleteAccion');
+
+    selectDelAccion.addEventListener('change', (e) => {
+      document.getElementById('secDelFondo').style.display = 'none';
+      document.getElementById('secDelObj').style.display = 'none';
+      document.getElementById('secDelRepartir').style.display = 'none';
+      
+      if (e.target.value === 'fondo') document.getElementById('secDelFondo').style.display = 'block';
+      else if (e.target.value === 'objetivo') document.getElementById('secDelObj').style.display = 'block';
+      else if (e.target.value === 'repartir') document.getElementById('secDelRepartir').style.display = 'block';
     });
 
-    document.getElementById('btnEjecutarBorrado').addEventListener('click', async () => {
-      const btn = document.getElementById('btnEjecutarBorrado');
+    document.getElementById('btnPrepararBorrado').addEventListener('click', () => {
+      totalDineroHuerfano = 0;
+      fondosList.forEach((f, idx) => {
+        if (itemsSeleccionados.has(idx)) totalDineroHuerfano += (parseFloat(f.cantidadAportada) || 0);
+      });
+
+      const sFondo = document.getElementById('delSelectFondo');
+      const sObj = document.getElementById('delSelectObj');
+      const rFondo = document.getElementById('repFondoSel');
+      const rObj = document.getElementById('repObjSel');
+      sFondo.innerHTML = ''; sObj.innerHTML = ''; rFondo.innerHTML = ''; rObj.innerHTML = '';
+      
+      let htmlFondoCompleto = '', htmlObjCompleto = '';
+      let htmlFondoParcial = '', htmlObjParcial = '';
+
+      fondosList.forEach((f, idx) => {
+        if (!itemsSeleccionados.has(idx)) {
+          let libre = (parseFloat(f.objetivo) || 0) - (parseFloat(f.cantidadAportada) || 0);
+          if (libre > 0) {
+            if (libre >= totalDineroHuerfano) htmlFondoCompleto += `<option value="${idx}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
+            htmlFondoParcial += `<option value="${idx}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
+          }
+        }
+      });
+
+      const objetivosAhorro = Array.isArray(userDocData.objetivosAhorro) ? userDocData.objetivosAhorro : [];
+      objetivosAhorro.forEach((o, idx) => {
+        let libre = (parseFloat(o.objetivo) || 0) - (parseFloat(o.cantidadAportada) || 0);
+        if (libre > 0) {
+          if (libre >= totalDineroHuerfano) htmlObjCompleto += `<option value="${idx}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
+          htmlObjParcial += `<option value="${idx}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
+        }
+      });
+
+      document.getElementById('msgSinEspacioUnico').style.display = 'none';
+
+      Array.from(selectDelAccion.options).forEach(opt => {
+         if (opt.value === 'fondo') opt.disabled = (htmlFondoCompleto === '');
+         if (opt.value === 'objetivo') opt.disabled = (htmlObjCompleto === '');
+      });
+
+      if (htmlFondoCompleto !== '') sFondo.innerHTML = htmlFondoCompleto;
+      if (htmlObjCompleto !== '') sObj.innerHTML = htmlObjCompleto;
+      if (htmlFondoParcial !== '') rFondo.innerHTML = htmlFondoParcial;
+      if (htmlObjParcial !== '') rObj.innerHTML = htmlObjParcial;
+
+      if (totalDineroHuerfano === 0) {
+        document.getElementById('textoBorradoInfo').innerHTML = `Vas a borrar <b>${itemsSeleccionados.size} fondos</b>.<br><br>Al no tener fondos retenidos, puedes borrarlos directamente.`;
+        document.getElementById('bloqueRedistribucion').style.display = 'none';
+      } else {
+        document.getElementById('textoBorradoInfo').innerHTML = `Estás a punto de borrar fondos que contienen reservas por valor de <b style="color:#00A878;">${formatMoney(totalDineroHuerfano)}</b>.`;
+        document.getElementById('bloqueRedistribucion').style.display = 'block';
+        
+        selectDelAccion.value = 'disponibles';
+        selectDelAccion.dispatchEvent(new Event('change'));
+        document.getElementById('repDispAmt').value = '';
+        document.getElementById('repFondoAmt').value = '';
+        document.getElementById('repObjAmt').value = '';
+      }
+
+      abrirModal('modalDelete');
+    });
+
+    document.getElementById('btnConfirmarDelete').addEventListener('click', async () => {
+      const btn = document.getElementById('btnConfirmarDelete');
+      const opcion = selectDelAccion.value;
+      const objetivosRes = Array.isArray(userDocData.objetivosAhorro) ? userDocData.objetivosAhorro : [];
+
+      if (totalDineroHuerfano > 0) {
+        if (opcion === 'fondo') {
+          if (document.getElementById('delSelectFondo').options.length === 0) return mostrarAlerta('Error', 'No hay fondos disponibles.');
+        } else if (opcion === 'objetivo') {
+          if (document.getElementById('delSelectObj').options.length === 0) return mostrarAlerta('Error', 'No hay objetivos disponibles.');
+        } else if (opcion === 'repartir') {
+          const iDisp = parseFloat(document.getElementById('repDispAmt').value) || 0;
+          const iFondo = parseFloat(document.getElementById('repFondoAmt').value) || 0;
+          const iObj = parseFloat(document.getElementById('repObjAmt').value) || 0;
+
+          if (iFondo > 0) {
+            if (document.getElementById('repFondoSel').options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay fondos con espacio libre.');
+            const idx = parseInt(document.getElementById('repFondoSel').value);
+            const libre = (parseFloat(fondosList[idx].objetivo) || 0) - (parseFloat(fondosList[idx].cantidadAportada) || 0);
+            if (iFondo > libre) return mostrarAlerta('Límite excedido', `El fondo solo admite ${formatMoney(libre)}.`);
+          }
+          if (iObj > 0) {
+            if (document.getElementById('repObjSel').options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay objetivos con espacio libre.');
+            const idx = parseInt(document.getElementById('repObjSel').value);
+            const libre = (parseFloat(objetivosRes[idx].objetivo) || 0) - (parseFloat(objetivosRes[idx].cantidadAportada) || 0);
+            if (iObj > libre) return mostrarAlerta('Límite excedido', `El objetivo solo admite ${formatMoney(libre)}.`);
+          }
+
+          const sum = iDisp + iFondo + iObj;
+          if (sum.toFixed(2) !== totalDineroHuerfano.toFixed(2)) {
+            return mostrarAlerta('Descuadre', `Debes repartir EXACTAMENTE <b>${formatMoney(totalDineroHuerfano)}</b>. La suma actual da <b>${formatMoney(sum)}</b>.`);
+          }
+        }
+      }
+
       btn.innerText = "Borrando..."; btn.disabled = true;
 
       try {
         let nuevosFondos = [];
+        let indexFondoUnico = opcion === 'fondo' && totalDineroHuerfano > 0 ? parseInt(document.getElementById('delSelectFondo').value) : -1;
+        let indexObjUnico = opcion === 'objetivo' && totalDineroHuerfano > 0 ? parseInt(document.getElementById('delSelectObj').value) : -1;
+
         fondosList.forEach((f, idx) => {
-          if (!itemsSeleccionados.has(idx)) nuevosFondos.push(f);
+          if (!itemsSeleccionados.has(idx)) {
+            let fLimpio = { ...f };
+            if (totalDineroHuerfano > 0 && opcion === 'fondo' && idx === indexFondoUnico) {
+              fLimpio.cantidadAportada = (parseFloat(fLimpio.cantidadAportada) || 0) + totalDineroHuerfano;
+            }
+            if (totalDineroHuerfano > 0 && opcion === 'repartir') {
+              const rIdx = parseInt(document.getElementById('repFondoSel').value);
+              const iFondo = parseFloat(document.getElementById('repFondoAmt').value) || 0;
+              if (iFondo > 0 && idx === rIdx) fLimpio.cantidadAportada = (parseFloat(fLimpio.cantidadAportada) || 0) + iFondo;
+            }
+            nuevosFondos.push(fLimpio);
+          }
         });
 
+        if (totalDineroHuerfano > 0) {
+          if (opcion === 'objetivo') {
+             objetivosRes[indexObjUnico].cantidadAportada = (parseFloat(objetivosRes[indexObjUnico].cantidadAportada) || 0) + totalDineroHuerfano;
+          } else if (opcion === 'repartir') {
+             const iObj = parseFloat(document.getElementById('repObjAmt').value) || 0;
+             if (iObj > 0) {
+                const rIdxO = parseInt(document.getElementById('repObjSel').value);
+                objetivosRes[rIdxO].cantidadAportada = (parseFloat(objetivosRes[rIdxO].cantidadAportada) || 0) + iObj;
+             }
+          }
+        }
+
         const userRef = doc(db, "usuarios", usuarioLogueado);
-        await updateDoc(userRef, { fondosReservados: nuevosFondos });
+        await updateDoc(userRef, { fondosReservados: nuevosFondos, objetivosAhorro: objetivosRes });
 
         cerrarModal();
         cargarDatos();
       } catch (e) {
-        mostrarAlerta("Error", "No se pudo borrar: " + e.message);
+        mostrarAlerta("Error", e.message);
       } finally {
-        btn.innerText = "Borrar"; btn.disabled = false;
+        btn.innerText = "Borrar definitivamente"; btn.disabled = false;
       }
     });
+
+    // ==========================================
+    // ACCIONES DE TARJETA (+, Pagar, Transferir)
+    // ==========================================
 
     // 1. AÑADIR DINERO (+)
     window.abrirModalAddDinero = function(index) {
@@ -697,11 +870,17 @@
         return mostrarAlerta("Fondos insuficientes", `No puedes retener <b>${formatMoney(cant)}</b> porque tus fondos disponibles reales son de <b>${formatMoney(fondosDisponiblesGlobal)}</b>.`);
       }
 
+      const meta = parseFloat(fondosList[currentIndex].objetivo) || 0;
+      const retenido = parseFloat(fondosList[currentIndex].cantidadAportada) || 0;
+      const libre = meta - retenido;
+
+      if (cant > libre) return mostrarAlerta("Meta excedida", `Para alcanzar tu meta solo necesitas <b>${formatMoney(libre)}</b>.`);
+
       const btn = document.getElementById('btnConfirmarAddDinero');
       btn.innerText = "Guardando..."; btn.disabled = true;
 
       try {
-        fondosList[currentIndex].cantidadAportada = (parseFloat(fondosList[currentIndex].cantidadAportada) || 0) + cant;
+        fondosList[currentIndex].cantidadAportada = retenido + cant;
         const userRef = doc(db, "usuarios", usuarioLogueado);
         await updateDoc(userRef, { fondosReservados: fondosList });
 
@@ -798,7 +977,7 @@
       } catch (e) { mostrarAlerta("Error", e.message); }
     });
 
-    // 3. TRANSFERIR
+    // 3. TRANSFERIR A OTRO FONDO U OBJETIVO
     window.abrirModalTransferir = function(index) {
       currentIndex = index;
       const fondo = fondosList[index];
@@ -826,11 +1005,17 @@
       let opciones = [];
       if (destinoTipoActual === 'fondo') {
         fondosList.forEach((f, idx) => {
-          if (idx !== currentIndex) opciones.push({ id: idx, nombre: f.nombre });
+          if (idx !== currentIndex) {
+             const libre = parseFloat(f.objetivo) - parseFloat(f.cantidadAportada);
+             if(libre > 0) opciones.push({ id: idx, nombre: f.nombre + ` (Libre: ${formatMoney(libre)})`, libre: libre });
+          }
         });
       } else {
         const objetivos = Array.isArray(userDocData.objetivosAhorro) ? userDocData.objetivosAhorro : [];
-        objetivos.forEach((o, idx) => opciones.push({ id: idx, nombre: o.nombre }));
+        objetivos.forEach((o, idx) => {
+           const libre = parseFloat(o.objetivo) - parseFloat(o.cantidadAportada);
+           if(libre > 0) opciones.push({ id: idx, nombre: o.nombre + ` (Libre: ${formatMoney(libre)})`, libre: libre });
+        });
       }
 
       if (opciones.length === 0) {
@@ -841,8 +1026,7 @@
         msgSin.style.display = 'none';
         opciones.forEach(op => {
           const opt = document.createElement('option');
-          opt.value = op.id;
-          opt.innerText = op.nombre;
+          opt.value = op.id; opt.dataset.libre = op.libre; opt.innerText = op.nombre;
           select.appendChild(opt);
         });
       }
@@ -851,15 +1035,17 @@
     document.getElementById('btnConfirmarTransferencia').addEventListener('click', async () => {
       const select = document.getElementById('selectDestino');
       if (select.style.display === 'none' || select.options.length === 0) {
-        return mostrarAlerta("Sin destino", "No hay ningún destino disponible para transferir.");
+        return mostrarAlerta("Sin destino", "No hay ningún destino con capacidad para transferir.");
       }
 
       const cant = parseFloat(document.getElementById('transfImporte').value);
       const saldoOrigen = parseFloat(fondosList[currentIndex].cantidadAportada) || 0;
       const destIndex = parseInt(select.value);
+      const destLibre = parseFloat(select.options[select.selectedIndex].dataset.libre);
 
       if (isNaN(cant) || cant <= 0) return mostrarAlerta("Importe no válido", "Introduce una cantidad mayor a 0.");
       if (cant > saldoOrigen) return mostrarAlerta("Saldo insuficiente", `No puedes transferir <b>${formatMoney(cant)}</b> porque este fondo solo tiene <b>${formatMoney(saldoOrigen)}</b>.`);
+      if (cant > destLibre) return mostrarAlerta("Destino lleno", `El destino solo admite <b>${formatMoney(destLibre)}</b>.`);
 
       const btn = document.getElementById('btnConfirmarTransferencia');
       btn.innerText = "Transfiriendo..."; btn.disabled = true;
@@ -891,7 +1077,7 @@
       }
     });
 
-    // 4. CREAR Y EDITAR FONDOS
+    // 4. CREAR Y EDITAR FONDOS (SELECTORES DE ICONO Y COLOR)
     let addIcon = "🚗", addColor = "#2196F3";
     let editIcon = "🚗", editColor = "#2196F3";
 
