@@ -518,11 +518,14 @@
         const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
         const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
 
-        // FÓRMULA BLINDADA
+       // FÓRMULA BLINDADA
         fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - totalGastosCat - gastosImp - pagosRes - pagosAho;
 
+        // Calculamos TODOS los gastos reales que han salido de tu cuenta
+        const pagosTotales = totalGastosCat + gastosImp + pagosRes + pagosAho;
+
         document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
-        document.getElementById('finPagos').innerText = formatMoney(pagosRes);
+        document.getElementById('finPagos').innerText = formatMoney(pagosTotales);
         document.getElementById('finRetenidos').innerText = formatMoney(totalRetenidoGlobal);
         document.getElementById('finDisponibles').innerText = formatMoney(fondosDisponiblesGlobal);
 
