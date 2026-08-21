@@ -184,6 +184,13 @@
             btnLogin.innerText = "Iniciar sesión";
             btnLogin.disabled = false;
           }
+
+        } else {
+          // ¡ESTO FALTABA! El aviso si el usuario no existe en la base de datos
+          mostrarAlerta("Usuario no encontrado", "Ese nombre de usuario no existe.");
+          btnLogin.innerText = "Iniciar sesión";
+          btnLogin.disabled = false;
+        } // <- Esta llave cierra el if (docSnap.exists())
         
       } catch (error) {
         mostrarAlerta("Error de conexión", "No se pudo conectar: " + error.message);
