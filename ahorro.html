@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Objetivos de Ahorro - BudgetWise</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; background-color: #F5F7FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0B1A2E; }
+    .app-container { width: 100%; max-width: 480px; margin: 0 auto; background-color: #F5F7FA; height: 100%; display: flex; flex-direction: column; position: relative; padding-bottom: 75px; }
+
+    /* CABECERA FIJA */
+    .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; z-index: 10; }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; }
+    .page-title { font-weight: 800; font-size: 17px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* CUADRO RESUMEN FIJO */
+    .summary-box { flex-shrink: 0; background: white; margin: 12px 20px 10px 20px; padding: 16px 18px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    .summary-main { text-align: center; margin-bottom: 10px; }
+    .summary-main h2 { font-size: 28px; font-weight: 800; color: #00A878; line-height: 1; margin-bottom: 2px; }
+    .summary-main p { font-size: 11px; color: #666; font-weight: 600; text-transform: uppercase; }
+
+    .summary-row-metrics { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid #F0F0F0; border-bottom: 1px solid #F0F0F0; margin-bottom: 10px; }
+    .metric-col { text-align: center; flex: 1; }
+    .metric-val { font-size: 14px; font-weight: 800; color: #0B1A2E; }
+    .metric-lbl { font-size: 9px; color: #777; font-weight: 600; white-space: nowrap; }
+    .val-green { color: #4CAF50; } .val-yellow { color: #FFC107; } .val-red { color: #F44336; }
+
+    .summary-row-financial { display: flex; justify-content: space-around; text-align: center; }
+    .fin-col { flex: 1; }
+    .fin-lbl { font-size: 9px; color: #777; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; }
+    .fin-val { font-size: 11px; font-weight: 800; color: #0B1A2E; }
+    .fin-val.retenido { color: #FF9800; } .fin-val.disponible { color: #2196F3; }
+
+    /* BARRA DE BORRADO */
+    .action-bar { flex-shrink: 0; background: #0B1A2E; color: white; margin: 0 20px 10px 20px; padding: 10px 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s ease; height: 0; overflow: hidden; }
+    .action-bar.active { opacity: 1; pointer-events: auto; height: auto; margin-bottom: 10px; }
+    .action-text { font-size: 13px; font-weight: 600; }
+    .btn-delete-bulk { background: #F44336; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+    /* CONTENEDOR DE TARJETAS */
+    .cards-container { flex: 1; overflow-y: auto; padding: 0 20px 10px 20px; }
+    .cards-container::-webkit-scrollbar { display: none; }
+
+    .fondo-card { background: white; border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px; transition: 0.2s; position: relative; }
+    .fondo-card.selected { border: 1px solid #00A878; background: #F4F9F8; }
+
+    .card-top-row { display: flex; align-items: center; gap: 12px; }
+    .custom-checkbox { width: 22px; height: 22px; border: 2px solid #CCC; border-radius: 6px; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; background: white; transition: 0.2s; }
+    .custom-checkbox.checked { background: #00A878; border-color: #00A878; }
+    .custom-checkbox svg { color: white; width: 14px; height: 14px; display: none; }
+    .custom-checkbox.checked svg { display: block; }
+
+    .fondo-icon-box { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 22px; }
+    .fondo-info { flex: 1; min-width: 0; }
+    .fondo-name { font-size: 15px; font-weight: 700; color: #0B1A2E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+    .fondo-amounts { font-size: 12px; color: #666; }
+    .fondo-amounts strong { color: #0B1A2E; font-weight: 700; }
+
+    .card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .btn-card-action { width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; background: #F5F7FA; color: #555; transition: 0.2s; }
+    .btn-card-action:active { transform: scale(0.92); }
+    .btn-card-action.add { color: #00A878; background: #E8F5E9; }
+    .btn-card-action.pay { color: #E91E63; background: #FCE4EC; }
+    .btn-card-action.transfer { color: #2196F3; background: #E3F2FD; }
+
+    .card-progress-wrapper { display: flex; align-items: center; gap: 10px; padding-left: 34px; }
+    .card-progress-bg { flex: 1; height: 6px; background: #F0F0F0; border-radius: 3px; overflow: hidden; }
+    .card-progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background-color 0.4s ease; }
+    .card-pct-text { font-size: 11px; font-weight: 700; width: 34px; text-align: right; }
+
+    /* ESTADO VACÍO Y FAB */
+    .empty-state { flex: 1; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; color: #666; text-align: center; }
+    .empty-state svg { width: 48px; height: 48px; color: #CCC; margin-bottom: 12px; }
+    .fab { position: absolute; bottom: 85px; right: 20px; width: 56px; height: 56px; background: #00A878; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0, 168, 120, 0.4); cursor: pointer; z-index: 40; transition: 0.2s; }
+    .fab:active { transform: scale(0.95); background: #008F66; }
+
+    /* NAVEGACIÓN Y MODALES */
+    .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .menu-overlay.open { opacity: 1; pointer-events: auto; }
+    .side-menu { position: fixed; top: 0; left: -100%; width: 290px; max-width: 85%; height: 100%; background: white; z-index: 2001; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; display: flex; flex-direction: column; overflow-y: auto; }
+    .side-menu.open { left: 0; }
+    .side-menu-header { padding: 24px; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; }
+    .side-menu-header .logo-container { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; color: #0B1A2E; }
+    .side-menu-content { padding: 12px 0; flex: 1; display: flex; flex-direction: column; }
+    .menu-link { display: flex; align-items: center; gap: 16px; padding: 14px 24px; color: #333; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .menu-link svg { width: 20px; height: 20px; color: #666; flex-shrink: 0; }
+    .menu-link.active-link { color: #00A878; background: #F4F9F8; border-right: 4px solid #00A878; }
+    .menu-link.active-link svg { color: #00A878; }
+
+    .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-item.active { color: #00A878; }
+    .nav-item svg { width: 22px; height: 22px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: 0.3s; padding: 20px; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box { background: white; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: 0.3s; position: relative; max-height: 90vh; overflow-y: auto; }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .close-modal { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #999; }
+    .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 16px; font-weight: bold; text-align: center; }
+    .modal-input-group { text-align: left; margin-bottom: 14px; }
+    .modal-input-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
+    .modal-input-group input, .modal-input-group select { width: 100%; padding: 12px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 14px; outline: none; background: white; }
+    .modal-input-group input:focus, .modal-input-group select:focus { border-color: #00A878; }
+    .btn-main { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; color: white; background-color: #00A878; cursor: pointer; margin-top: 6px; }
+    .btn-danger { background-color: #F44336; }
+    .btn-secondary { background: white; border: 1px solid #CCC; color: #555; }
+
+    .scroll-selector { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; margin-bottom: 14px; }
+    .scroll-selector::-webkit-scrollbar { height: 4px; }
+    .scroll-selector::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
+    .item-select { flex-shrink: 0; width: 44px; height: 44px; border: 2px solid #E0E0E0; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; background: white; position: relative; }
+    .item-select.active { border-color: #00A878; background: #E8F5E9; transform: scale(1.05); }
+    .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; filter: grayscale(100%); }
+    .padlock { position: absolute; top: -4px; right: -4px; background: #0B1A2E; color: white; font-size: 8px; border-radius: 50%; width: 14px; height: 14px; display: flex; justify-content: center; align-items: center; }
+
+    .dest-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+    .btn-dest { flex: 1; padding: 10px; border: 2px solid #E0E0E0; border-radius: 8px; background: white; font-size: 12px; font-weight: 700; color: #666; cursor: pointer; text-align: center; transition: 0.2s; }
+    .btn-dest.active { border-color: #00A878; color: #00A878; background: #E8F5E9; }
+
+    /* ESTILO SECCIONES BORRADO REDISTRIBUCIÓN */
+    .repartir-box { background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 12px; }
+    .repartir-title { font-size: 12px; font-weight: 700; color: #0B1A2E; margin-bottom: 8px; border-bottom: 1px solid #E0E0E0; padding-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+  <!-- MENÚ LATERAL -->
+  <div id="menuOverlay" class="menu-overlay"></div>
+  <div id="sideMenu" class="side-menu">
+    <div class="side-menu-header">
+      <div class="logo-container"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg> BudgetWise</div>
+      <svg id="btnCloseMenu" onclick="closeSideMenu()" style="cursor:pointer; color:#999;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    <div class="side-menu-content">
+      <a href="dashboard.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard</a>
+      <a href="presupuestos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos</a>
+      <a href="categorias.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías</a>
+      <a href="reservas.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Fondos reservados</a>
+      <a href="ahorro.html" class="menu-link active-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Objetivos de ahorro</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Estadísticas</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.59.81 3.14 1.5 4.5.77.76 1.24 1.52 1.42 2.5"></path></svg> Asesor financiero <span class="badge-nuevo">Nuevo</span></a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
+      <div class="menu-divider"></div>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
+      <a href="#" class="menu-link menu-logout" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="header">
+      <svg onclick="openSideMenu()" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div class="page-title">OBJETIVOS DE AHORRO</div>
+      <div style="width: 24px;"></div>
+    </header>
+
+    <!-- CUADRO RESUMEN -->
+    <div class="summary-box">
+      <div class="summary-main">
+        <h2 id="sumTotalAhorros">0</h2>
+        <p>Objetivos Activos</p>
+      </div>
+      <div class="summary-row-metrics">
+        <div class="metric-col"><div class="metric-val" id="mGastoCero">0</div><div class="metric-lbl">0 €</div></div>
+        <div class="metric-col"><div class="metric-val val-red" id="mRojo">0</div><div class="metric-lbl">< 50%</div></div>
+        <div class="metric-col"><div class="metric-val val-yellow" id="mAmarillo">0</div><div class="metric-lbl">50-80%</div></div>
+        <div class="metric-col"><div class="metric-val val-green" id="mVerde">0</div><div class="metric-lbl">> 80%</div></div>
+        <div class="metric-col"><div class="metric-val" id="mCompleto" style="color: #00A878;">0</div><div class="metric-lbl">100%</div></div>
+      </div>
+      <div class="summary-row-financial">
+        <div class="fin-col"><div class="fin-lbl">Ingresos</div><div class="fin-val" id="finTotales">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Gastos</div><div class="fin-val" id="finPagos" style="color: #E91E63;">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Retenidos</div><div class="fin-val retenido" id="finRetenidos">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Disponibles</div><div class="fin-val disponible" id="finDisponibles">0,00 €</div></div>
+      </div>
+    </div>
+
+    <!-- BARRA DE BORRADO -->
+    <div class="action-bar" id="actionBar">
+      <div class="action-text"><span id="selectedCount">0</span> seleccionados</div>
+      <button class="btn-delete-bulk" id="btnPrepararBorrado">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        Borrar
+      </button>
+    </div>
+
+    <!-- LISTA DE OBJETIVOS -->
+    <div class="cards-container" id="cardsContainer"></div>
+
+    <!-- ESTADO VACÍO -->
+    <div class="empty-state" id="emptyState">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+      <p style="font-size: 15px; font-weight: 700; color: #333; margin-bottom: 6px;">No tienes objetivos de ahorro</p>
+      <p style="font-size: 13px;">Pulsa el botón (+) para crear tu primera meta financiera.</p>
+    </div>
+
+    <!-- BOTÓN (+) -->
+    <div class="fab" id="btnAbrirAdd">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </div>
+
+    <!-- MENÚ INFERIOR FIJO -->
+    <nav class="bottom-nav">
+      <a href="presupuestos.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Presupuestos
+      </a>
+      <a href="reservas.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Reservas
+      </a>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg> Dashboard
+      </a>
+      <a href="ahorro.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Ahorro
+        <div class="active-dot"></div>
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones
+      </a>
+    </nav>
+  </div>
+
+  <!-- MODAL: CREAR OBJETIVO -->
+  <div id="modalAdd" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title">Nuevo Objetivo de Ahorro</div>
+      <div class="modal-input-group">
+        <label>Nombre del objetivo</label>
+        <input type="text" id="addNombre" placeholder="Ej: Viaje a Japón, Consola...">
+      </div>
+      <div class="modal-input-group">
+        <label>Meta a alcanzar (€)</label>
+        <input type="number" id="addMeta" placeholder="Ej: 1500">
+      </div>
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Icono</label>
+      <div class="scroll-selector" id="addIconSelector"></div>
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Color</label>
+      <div class="scroll-selector" id="addColorSelector"></div>
+      <button id="btnConfirmarAdd" class="btn-main">Crear objetivo</button>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR OBJETIVO -->
+  <div id="modalEdit" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title">Editar Objetivo de Ahorro</div>
+      <div class="modal-input-group">
+        <label>Nombre del objetivo</label>
+        <input type="text" id="editNombre">
+      </div>
+      <div class="modal-input-group">
+        <label>Meta a alcanzar (€)</label>
+        <input type="number" id="editMeta">
+      </div>
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Icono</label>
+      <div class="scroll-selector" id="editIconSelector"></div>
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Color</label>
+      <div class="scroll-selector" id="editColorSelector"></div>
+      <button id="btnConfirmarEdit" class="btn-main">Guardar cambios</button>
+    </div>
+  </div>
+
+  <!-- MODAL: AÑADIR DINERO -->
+  <div id="modalAddDinero" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title">Añadir Dinero</div>
+      <div id="addDineroName" style="font-size: 14px; font-weight: 700; color: #00A878; text-align: center; margin-bottom: 12px;"></div>
+      <div class="modal-input-group">
+        <label>Importe a ingresar (€)</label>
+        <input type="number" id="inputImporteRetener" placeholder="Ej: 50.00">
+      </div>
+      <p style="font-size: 12px; color: #666; margin-bottom: 14px;">Fondos disponibles: <strong id="dispInfoRetener" style="color: #2196F3;">0,00 €</strong></p>
+      <button id="btnConfirmarAddDinero" class="btn-main">Ingresar ahorros</button>
+    </div>
+  </div>
+
+  <!-- MODAL: PAGAR -->
+  <div id="modalPagar" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title" style="color: #E91E63;">Efectuar Pago</div>
+      <div id="pagarName" style="font-size: 14px; font-weight: 700; color: #0B1A2E; text-align: center; margin-bottom: 8px;"></div>
+      <p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 14px;">Ahorro actual: <strong id="pagarSaldoRetenido" style="color: #FF9800;">0,00 €</strong></p>
+      <div class="modal-input-group">
+        <label>Concepto del pago (Obligatorio)</label>
+        <input type="text" id="pagarConcepto" placeholder="Ej: Billetes de avión">
+      </div>
+      <div class="modal-input-group">
+        <label>Importe a pagar (€)</label>
+        <input type="number" id="pagarImporte" placeholder="0.00">
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <input type="checkbox" id="checkPagarTodo" style="width: 18px; height: 18px; cursor: pointer;">
+        <label for="checkPagarTodo" style="font-size: 13px; font-weight: 600; cursor: pointer; color: #333;">Pagar usando todo el ahorro</label>
+      </div>
+      <button id="btnConfirmarPago" class="btn-main" style="background: #E91E63;">Confirmar pago</button>
+    </div>
+  </div>
+
+  <!-- MODAL: TRANSFERIR -->
+  <div id="modalTransferir" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title" style="color: #2196F3;">Transferir Dinero</div>
+      <p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 12px;">Saldo en este objetivo: <strong id="transfSaldoOrigen" style="color: #FF9800;">0,00 €</strong></p>
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Destino de la transferencia</label>
+      <div class="dest-toggle">
+        <div class="btn-dest active" id="btnDestFondo" onclick="cambiarTipoDestino('fondo')">Fondo de reserva</div>
+        <div class="btn-dest" id="btnDestObjetivo" onclick="cambiarTipoDestino('objetivo')">Objetivo de ahorro</div>
+      </div>
+      <div class="modal-input-group">
+        <label>Selecciona el destino</label>
+        <select id="selectDestino"></select>
+        <p id="msgSinDestino" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay destinos disponibles con capacidad libre.</p>
+      </div>
+      <div class="modal-input-group">
+        <label>Importe a transferir (€)</label>
+        <input type="number" id="transfImporte" placeholder="Ej: 50.00">
+      </div>
+      <button id="btnConfirmarTransferencia" class="btn-main" style="background: #2196F3;">Completar transferencia</button>
+    </div>
+  </div>
+
+  <!-- MODAL: POST-PAGO SALDO 0 -->
+  <div id="modalPostPagoVacio" class="modal-overlay" style="z-index: 3000;">
+    <div class="modal-box" style="text-align: center;">
+      <div class="modal-title" style="color: #0B1A2E;">Objetivo sin saldo</div>
+      <p style="font-size: 14px; color: #555; margin-bottom: 20px;">Has utilizado la totalidad del dinero ahorrado en este objetivo.<br><br>¿Deseas <b>eliminarlo</b> o prefieres <b>mantenerlo</b> para seguir ahorrando?</p>
+      <div style="display: flex; gap: 10px;">
+        <button id="btnMantenerVacio" class="btn-main btn-secondary">Mantener</button>
+        <button id="btnBorrarVacio" class="btn-main btn-danger">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BORRAR Y REDISTRIBUIR (LA GRAN LÓGICA) -->
+  <div id="modalDelete" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title" style="color: #F44336;">Borrar Objetivos</div>
+      <div id="textoBorradoInfo" style="font-size: 13px; color: #555; margin-bottom: 16px;"></div>
+
+      <div id="bloqueRedistribucion" style="display: none;">
+        <div class="modal-input-group">
+          <label>¿Qué hacer con el dinero retenido?</label>
+          <select id="selectDeleteAccion">
+            <option value="disponibles">Devolver a Fondos Disponibles</option>
+            <option value="fondo">Transferir a Fondo de Reserva</option>
+            <option value="objetivo">Transferir a otro Objetivo</option>
+            <option value="repartir">Repartir el dinero</option>
+          </select>
+        </div>
+
+        <!-- OPCIONES DESTINO ÚNICO -->
+        <div id="secDelFondo" style="display:none;" class="modal-input-group">
+          <label>Selecciona el Fondo destino</label>
+          <select id="delSelectFondo"></select>
+        </div>
+        <div id="secDelObj" style="display:none;" class="modal-input-group">
+          <label>Selecciona el Objetivo destino</label>
+          <select id="delSelectObj"></select>
+        </div>
+        
+        <p id="msgSinEspacioUnico" style="display: none; color: #F44336; font-size: 12px; margin-bottom: 12px; font-weight: 600;">No hay opciones con capacidad suficiente para recibir todo el importe. Elige "Devolver a Disponibles" o "Repartir".</p>
+
+        <!-- REPARTIR -->
+        <div id="secDelRepartir" style="display:none; background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+          <div class="repartir-box">
+            <div class="repartir-title">A Fondos Disponibles</div>
+            <input type="number" id="repDispAmt" placeholder="Importe (€)" class="modal-input-group" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:0;">
+          </div>
+          <div class="repartir-box">
+            <div class="repartir-title">A Fondo de Reserva</div>
+            <select id="repFondoSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+            <input type="number" id="repFondoAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
+          </div>
+          <div class="repartir-box">
+            <div class="repartir-title">A Objetivo de Ahorro</div>
+            <select id="repObjSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+            <input type="number" id="repObjAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
+          </div>
+        </div>
+      </div>
+
+      <button id="btnConfirmarDelete" class="btn-main btn-danger">Borrar definitivamente</button>
+    </div>
+  </div>
+
+  <!-- MODAL ALERTA BÁSICA -->
+  <div id="modalAlertaBasica" class="modal-overlay" style="z-index: 3500;">
+    <div class="modal-box" style="text-align: center; padding: 28px 20px;">
+      <div id="alertaTitulo" class="modal-title" style="color: #F44336;">Atención</div>
+      <div id="alertaMensaje" style="font-size: 14px; color: #555; margin-bottom: 20px;">Mensaje</div>
+      <button onclick="document.getElementById('modalAlertaBasica').classList.remove('active')" class="btn-main" style="background: #0B1A2E;">Entendido</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyCJJsgp1RnXGqva04EuQEONEM9frfx-7I8", authDomain: "budgetwise-9608f.firebaseapp.com", projectId: "budgetwise-9608f", storageBucket: "budgetwise-9608f.firebasestorage.app", messagingSenderId: "438887897789", appId: "1:438887897789:web:1075b7b21577d1b632b5d4" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (!usuarioLogueado) window.location.href = 'login.html';
+
+    const baseIcons = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"];
+    const premiumIcons = ["🍕", "🥤", "🍻", "🍎", "🥐", "🍣", "🍩", "🥩", "🚆", "🌍", "📍", "✈️", "🏖️", "🚢", "🗽", "🚲", "🛵", "🚜", "🚁", "👮", "👨‍🚒", "👨‍🏫", "🧑‍💻", "🧑‍🎨", "👩‍⚕️", "🧑‍🔬", "👨‍🚀", "📺", "🎬", "📚", "🎵", "🎲", "🎮", "🎫", "🎢", "📷", "🏫", "✉️", "📶", "💬", "💵", "👓", "♻️", "🎤", "❤️", "🎁", "🔍", "💡", "🌐", "▶️", "🆖", "🪟", "☁️", "☀️", "⚠️", "🐶", "🐱", "🐹", "🐦", "🐟", "🎓", "🔬", "⌚", "⭐", "🐴", "🐢", "🏛️", "💍", "🤖", "🏰", "🧠", "♊"];
+    const baseColors = ["#2196F3","#F44336","#FFC107","#4CAF50","#FFFFFF","#FF9800"];
+    const premiumColors = ["#9C27B0","#E91E63","#87CEEB","#00BCD4","#795548","#000000","#FF00FF","#FFB6C1","#CDDC39", "#800020","#006A4E","#8A2BE2","#FA8072","#FF7F50","#DC143C", "#8B4513", "#2E8B57", "#008080"];
+
+    let userDocData = {};
+    let objetivosList = [];
+    let itemsSeleccionados = new Set();
+    let currentIndex = -1;
+    let fondosDisponiblesGlobal = 0;
+    let destinoTipoActual = 'fondo'; 
+    let objIdPostPago = -1;
+
+    // Helpers UI
+    window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); };
+    window.closeSideMenu = function() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); };
+    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); };
+    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
+    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; abrirModal('modalAlertaBasica'); };
+    function formatMoney(amount) { return parseFloat(amount || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+
+    document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
+
+    // CARGAR DATOS
+    async function cargarDatos() {
+      try {
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        const docSnap = await getDoc(userRef);
+        if (!docSnap.exists()) return;
+        
+        userDocData = docSnap.data();
+        objetivosList = Array.isArray(userDocData.objetivosAhorro) ? userDocData.objetivosAhorro : [];
+
+        const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
+        let totalRetenidoReservas = 0;
+        if (Array.isArray(userDocData.fondosReservados)) {
+          userDocData.fondosReservados.forEach(f => totalRetenidoReservas += (parseFloat(f.cantidadAportada) || 0));
+        }
+
+        let totalRetenidoAhorros = 0;
+        objetivosList.forEach(a => totalRetenidoAhorros += (parseFloat(a.cantidadAportada) || 0));
+
+        const totalRetenidoGlobal = totalRetenidoReservas + totalRetenidoAhorros;
+
+        let totalGastosCat = 0;
+        if (Array.isArray(userDocData.categorias)) {
+          userDocData.categorias.forEach(c => totalGastosCat += (parseFloat(c.gastado) || 0));
+        }
+        const gastosImp = parseFloat(userDocData.gastosImprevistos) || 0;
+        const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
+        const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
+
+        const pagosTotales = totalGastosCat + gastosImp + pagosRes + pagosAho;
+        fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - pagosTotales;
+
+        document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
+        document.getElementById('finPagos').innerText = formatMoney(pagosTotales);
+        document.getElementById('finRetenidos').innerText = formatMoney(totalRetenidoGlobal);
+        document.getElementById('finDisponibles').innerText = formatMoney(fondosDisponiblesGlobal);
+
+        renderTarjetas();
+        generarSelectoresUI();
+
+      } catch (e) { console.error(e); }
+    }
+
+    // RENDERIZAR
+    function renderTarjetas() {
+      const container = document.getElementById('cardsContainer');
+      const emptyState = document.getElementById('emptyState');
+      container.innerHTML = '';
+      itemsSeleccionados.clear();
+      actualizarBarraBorrado();
+
+      let m0 = 0, mRoj = 0, mAma = 0, mVerde = 0, mComp = 0;
+
+      if (objetivosList.length === 0) {
+        emptyState.style.display = 'flex';
+        container.style.display = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        container.style.display = 'block';
+
+        objetivosList.forEach((obj, index) => {
+          const ret = parseFloat(obj.cantidadAportada) || 0;
+          const meta = parseFloat(obj.objetivo) || 0;
+
+          if (ret === 0) m0++;
+          if (meta > 0 && ret >= meta) mComp++;
+
+          const pct = meta > 0 ? (ret / meta) : 0;
+          
+          if (pct < 0.5) mRoj++;
+          else if (pct < 0.8) mAma++;
+          else mVerde++;
+
+          const pctVisual = meta > 0 ? Math.min(Math.round(pct * 100), 100) : 0;
+          let barColor;
+          if (pctVisual < 50) barColor = '#F44336';
+          else if (pctVisual < 80) barColor = '#FFC107';
+          else if (pctVisual < 100) barColor = '#4CAF50';
+          else barColor = '#00A878';
+
+          const card = document.createElement('div');
+          card.className = 'fondo-card';
+          card.id = `objCard-${index}`;
+          card.innerHTML = `
+            <div class="card-top-row">
+              <div class="custom-checkbox" onclick="toggleSelection(${index})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="fondo-icon-box" style="background-color: ${obj.color || '#E0E0E0'};">
+                ${obj.icono || '🎯'}
+              </div>
+              <div class="fondo-info">
+                <div class="fondo-name">${obj.nombre}</div>
+                <div class="fondo-amounts"><strong>${formatMoney(ret)}</strong> / ${formatMoney(meta)}</div>
+              </div>
+              <div class="card-actions">
+                <button class="btn-card-action add" title="Ingresar dinero" onclick="abrirModalAddDinero(${index})">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                <button class="btn-card-action pay" title="Pagar" onclick="abrirModalPagar(${index})">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                </button>
+                <button class="btn-card-action transfer" title="Transferir" onclick="abrirModalTransferir(${index})">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                </button>
+                <button class="btn-card-action" title="Editar" onclick="abrirModalEdit(${index})">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                </button>
+              </div>
+            </div>
+            <div class="card-progress-wrapper">
+              <div class="card-progress-bg">
+                <div class="card-progress-fill" style="width: ${pctVisual}%; background-color: ${barColor};"></div>
+              </div>
+              <div class="card-pct-text">${pctVisual}%</div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      document.getElementById('sumTotalAhorros').innerText = objetivosList.length;
+      document.getElementById('mGastoCero').innerText = m0;
+      document.getElementById('mRojo').innerText = mRoj;
+      document.getElementById('mAmarillo').innerText = mAma;
+      document.getElementById('mVerde').innerText = mVerde;
+      document.getElementById('mCompleto').innerText = mComp;
+    }
+
+    // CHECKBOXES
+    window.toggleSelection = function(index) {
+      const card = document.getElementById(`objCard-${index}`);
+      const checkbox = card.querySelector('.custom-checkbox');
+      if (itemsSeleccionados.has(index)) {
+        itemsSeleccionados.delete(index);
+        checkbox.classList.remove('checked');
+        card.classList.remove('selected');
+      } else {
+        itemsSeleccionados.add(index);
+        checkbox.classList.add('checked');
+        card.classList.add('selected');
+      }
+      actualizarBarraBorrado();
+    };
+
+    function actualizarBarraBorrado() {
+      const bar = document.getElementById('actionBar');
+      document.getElementById('selectedCount').innerText = itemsSeleccionados.size;
+      if (itemsSeleccionados.size > 0) bar.classList.add('active');
+      else bar.classList.remove('active');
+    }
+
+    // ==========================================
+    // LOGICA DE BORRADO Y REDISTRIBUCIÓN EXACTA
+    // ==========================================
+    let totalDineroHuerfano = 0;
+    const selectDelAccion = document.getElementById('selectDeleteAccion');
+
+    selectDelAccion.addEventListener('change', (e) => {
+      document.getElementById('secDelFondo').style.display = 'none';
+      document.getElementById('secDelObj').style.display = 'none';
+      document.getElementById('secDelRepartir').style.display = 'none';
+      
+      if (e.target.value === 'fondo') document.getElementById('secDelFondo').style.display = 'block';
+      else if (e.target.value === 'objetivo') document.getElementById('secDelObj').style.display = 'block';
+      else if (e.target.value === 'repartir') document.getElementById('secDelRepartir').style.display = 'block';
+    });
+
+    document.getElementById('btnPrepararBorrado').addEventListener('click', () => {
+      totalDineroHuerfano = 0;
+      objetivosList.forEach((obj, idx) => {
+        if (itemsSeleccionados.has(idx)) totalDineroHuerfano += (parseFloat(obj.cantidadAportada) || 0);
+      });
+
+      // Llenar selects verificando capacidad
+      const sFondo = document.getElementById('delSelectFondo');
+      const sObj = document.getElementById('delSelectObj');
+      const rFondo = document.getElementById('repFondoSel');
+      const rObj = document.getElementById('repObjSel');
+      sFondo.innerHTML = ''; sObj.innerHTML = ''; rFondo.innerHTML = ''; rObj.innerHTML = '';
+      
+      let htmlFondoCompleto = '', htmlObjCompleto = '';
+      let htmlFondoParcial = '', htmlObjParcial = '';
+
+      const fondosReservados = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
+      fondosReservados.forEach((f, idx) => {
+        let libre = (parseFloat(f.objetivo) || 0) - (parseFloat(f.cantidadAportada) || 0);
+        if (libre > 0) {
+          if (libre >= totalDineroHuerfano) htmlFondoCompleto += `<option value="${idx}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
+          htmlFondoParcial += `<option value="${idx}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
+        }
+      });
+
+      objetivosList.forEach((o, idx) => {
+        if (!itemsSeleccionados.has(idx)) {
+          let libre = (parseFloat(o.objetivo) || 0) - (parseFloat(o.cantidadAportada) || 0);
+          if (libre > 0) {
+            if (libre >= totalDineroHuerfano) htmlObjCompleto += `<option value="${idx}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
+            htmlObjParcial += `<option value="${idx}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
+          }
+        }
+      });
+
+      document.getElementById('msgSinEspacioUnico').style.display = 'none';
+
+      // Ocultar opciones del SELECT principal si no hay capacidad
+      Array.from(selectDelAccion.options).forEach(opt => {
+         if (opt.value === 'fondo') opt.disabled = (htmlFondoCompleto === '');
+         if (opt.value === 'objetivo') opt.disabled = (htmlObjCompleto === '');
+      });
+
+      if (htmlFondoCompleto !== '') sFondo.innerHTML = htmlFondoCompleto;
+      if (htmlObjCompleto !== '') sObj.innerHTML = htmlObjCompleto;
+      if (htmlFondoParcial !== '') rFondo.innerHTML = htmlFondoParcial;
+      if (htmlObjParcial !== '') rObj.innerHTML = htmlObjParcial;
+
+      if (totalDineroHuerfano === 0) {
+        document.getElementById('textoBorradoInfo').innerHTML = `Vas a borrar <b>${itemsSeleccionados.size} objetivos</b>.<br><br>Al no tener fondos retenidos, puedes borrarlos directamente.`;
+        document.getElementById('bloqueRedistribucion').style.display = 'none';
+      } else {
+        document.getElementById('textoBorradoInfo').innerHTML = `Estás a punto de borrar objetivos que contienen ahorros por valor de <b style="color:#00A878;">${formatMoney(totalDineroHuerfano)}</b>.`;
+        document.getElementById('bloqueRedistribucion').style.display = 'block';
+        
+        selectDelAccion.value = 'disponibles';
+        selectDelAccion.dispatchEvent(new Event('change'));
+        document.getElementById('repDispAmt').value = '';
+        document.getElementById('repFondoAmt').value = '';
+        document.getElementById('repObjAmt').value = '';
+      }
+
+      abrirModal('modalDelete');
+    });
+
+    document.getElementById('btnConfirmarDelete').addEventListener('click', async () => {
+      const btn = document.getElementById('btnConfirmarDelete');
+      const opcion = selectDelAccion.value;
+      const fondosRes = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
+
+      if (totalDineroHuerfano > 0) {
+        if (opcion === 'fondo') {
+          if (document.getElementById('delSelectFondo').options.length === 0) return mostrarAlerta('Error', 'No hay fondos disponibles.');
+        } else if (opcion === 'objetivo') {
+          if (document.getElementById('delSelectObj').options.length === 0) return mostrarAlerta('Error', 'No hay objetivos disponibles.');
+        } else if (opcion === 'repartir') {
+          const iDisp = parseFloat(document.getElementById('repDispAmt').value) || 0;
+          const iFondo = parseFloat(document.getElementById('repFondoAmt').value) || 0;
+          const iObj = parseFloat(document.getElementById('repObjAmt').value) || 0;
+
+          if (iFondo > 0) {
+            if (document.getElementById('repFondoSel').options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay fondos con espacio libre.');
+            const idx = parseInt(document.getElementById('repFondoSel').value);
+            const libre = (parseFloat(fondosRes[idx].objetivo) || 0) - (parseFloat(fondosRes[idx].cantidadAportada) || 0);
+            if (iFondo > libre) return mostrarAlerta('Límite excedido', `El fondo solo admite ${formatMoney(libre)}.`);
+          }
+          if (iObj > 0) {
+            if (document.getElementById('repObjSel').options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay objetivos con espacio libre.');
+            const idx = parseInt(document.getElementById('repObjSel').value);
+            const libre = (parseFloat(objetivosList[idx].objetivo) || 0) - (parseFloat(objetivosList[idx].cantidadAportada) || 0);
+            if (iObj > libre) return mostrarAlerta('Límite excedido', `El objetivo solo admite ${formatMoney(libre)}.`);
+          }
+
+          const sum = iDisp + iFondo + iObj;
+          if (sum.toFixed(2) !== totalDineroHuerfano.toFixed(2)) {
+            return mostrarAlerta('Descuadre', `Debes repartir EXACTAMENTE <b>${formatMoney(totalDineroHuerfano)}</b>. La suma actual da <b>${formatMoney(sum)}</b>.`);
+          }
+        }
+      }
+
+      btn.innerText = "Borrando..."; btn.disabled = true;
+
+      try {
+        let nuevosAhorros = [];
+        let indexFondoUnico = opcion === 'fondo' && totalDineroHuerfano > 0 ? parseInt(document.getElementById('delSelectFondo').value) : -1;
+        let indexObjUnico = opcion === 'objetivo' && totalDineroHuerfano > 0 ? parseInt(document.getElementById('delSelectObj').value) : -1;
+
+        objetivosList.forEach((o, idx) => {
+          if (!itemsSeleccionados.has(idx)) {
+            let objLimpio = { ...o };
+            if (totalDineroHuerfano > 0 && opcion === 'objetivo' && idx === indexObjUnico) {
+              objLimpio.cantidadAportada = (parseFloat(objLimpio.cantidadAportada) || 0) + totalDineroHuerfano;
+            }
+            if (totalDineroHuerfano > 0 && opcion === 'repartir') {
+              const rIdx = parseInt(document.getElementById('repObjSel').value);
+              const iObj = parseFloat(document.getElementById('repObjAmt').value) || 0;
+              if (iObj > 0 && idx === rIdx) objLimpio.cantidadAportada = (parseFloat(objLimpio.cantidadAportada) || 0) + iObj;
+            }
+            nuevosAhorros.push(objLimpio);
+          }
+        });
+
+        if (totalDineroHuerfano > 0) {
+          if (opcion === 'fondo') {
+             fondosRes[indexFondoUnico].cantidadAportada = (parseFloat(fondosRes[indexFondoUnico].cantidadAportada) || 0) + totalDineroHuerfano;
+          } else if (opcion === 'repartir') {
+             const iFondo = parseFloat(document.getElementById('repFondoAmt').value) || 0;
+             if (iFondo > 0) {
+                const rIdxF = parseInt(document.getElementById('repFondoSel').value);
+                fondosRes[rIdxF].cantidadAportada = (parseFloat(fondosRes[rIdxF].cantidadAportada) || 0) + iFondo;
+             }
+          }
+        }
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: nuevosAhorros, fondosReservados: fondosRes });
+
+        cerrarModal();
+        cargarDatos();
+      } catch (e) {
+        mostrarAlerta("Error", e.message);
+      } finally {
+        btn.innerText = "Borrar definitivamente"; btn.disabled = false;
+      }
+    });
+
+    // ==========================================
+    // ACCIONES DE TARJETA (+, Pagar, Transferir)
+    // ==========================================
+    window.abrirModalAddDinero = function(index) {
+      currentIndex = index;
+      const obj = objetivosList[index];
+      document.getElementById('addDineroName').innerText = obj.nombre;
+      document.getElementById('inputImporteRetener').value = "";
+      document.getElementById('dispInfoRetener').innerText = formatMoney(fondosDisponiblesGlobal);
+      abrirModal('modalAddDinero');
+    };
+
+    document.getElementById('btnConfirmarAddDinero').addEventListener('click', async () => {
+      const cant = parseFloat(document.getElementById('inputImporteRetener').value);
+      if (isNaN(cant) || cant <= 0) return mostrarAlerta("Importe no válido", "Introduce una cantidad mayor a 0.");
+      if (cant > fondosDisponiblesGlobal) return mostrarAlerta("Fondos insuficientes", `Tus fondos disponibles reales son de <b>${formatMoney(fondosDisponiblesGlobal)}</b>.`);
+
+      const meta = parseFloat(objetivosList[currentIndex].objetivo) || 0;
+      const retenido = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
+      const libre = meta - retenido;
+
+      if (cant > libre) return mostrarAlerta("Meta excedida", `Para alcanzar tu meta solo necesitas <b>${formatMoney(libre)}</b>.`);
+
+      const btn = document.getElementById('btnConfirmarAddDinero');
+      btn.innerText = "Guardando..."; btn.disabled = true;
+
+      try {
+        objetivosList[currentIndex].cantidadAportada = retenido + cant;
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList });
+        cerrarModal(); cargarDatos();
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Ingresar ahorros"; btn.disabled = false; }
+    });
+
+    window.abrirModalPagar = function(index) {
+      currentIndex = index;
+      const obj = objetivosList[index];
+      const ret = parseFloat(obj.cantidadAportada) || 0;
+
+      document.getElementById('pagarName').innerText = obj.nombre;
+      document.getElementById('pagarSaldoRetenido').innerText = formatMoney(ret);
+      document.getElementById('pagarConcepto').value = "";
+      document.getElementById('pagarImporte').value = "";
+      document.getElementById('checkPagarTodo').checked = false;
+
+      document.getElementById('checkPagarTodo').onchange = function() {
+        document.getElementById('pagarImporte').value = this.checked ? ret : "";
+      };
+      abrirModal('modalPagar');
+    };
+
+    document.getElementById('btnConfirmarPago').addEventListener('click', async () => {
+      const concepto = document.getElementById('pagarConcepto').value.trim();
+      const cant = parseFloat(document.getElementById('pagarImporte').value);
+      const saldoRetenido = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
+
+      if (concepto === "") return mostrarAlerta("Falta concepto", "Debes especificar el concepto.");
+      if (isNaN(cant) || cant <= 0) return mostrarAlerta("Importe no válido", "Introduce una cantidad válida.");
+      if (cant > saldoRetenido) return mostrarAlerta("Saldo insuficiente", `El ahorro actual es de <b>${formatMoney(saldoRetenido)}</b>.`);
+
+      const btn = document.getElementById('btnConfirmarPago');
+      btn.innerText = "Procesando..."; btn.disabled = true;
+
+      try {
+        const nuevoSaldo = saldoRetenido - cant;
+        objetivosList[currentIndex].cantidadAportada = nuevoSaldo;
+
+        const historial = Array.isArray(userDocData.historialGastos) ? userDocData.historialGastos : [];
+        historial.push({ concepto: concepto, cantidad: cant, categoria: `Pago Ahorro: ${objetivosList[currentIndex].nombre}`, fecha: new Date().toISOString() });
+        const nuevoPagos = (parseFloat(userDocData.pagosDesdeAhorros) || 0) + cant;
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList, pagosDesdeAhorros: nuevoPagos, historialGastos: historial });
+
+        cerrarModal();
+
+        if (nuevoSaldo === 0) {
+          objIdPostPago = currentIndex;
+          abrirModal('modalPostPagoVacio');
+        } else {
+          cargarDatos(); mostrarAlerta("Pago efectuado", `Se ha descontado <b>${formatMoney(cant)}</b> del objetivo.`);
+        }
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Confirmar pago"; btn.disabled = false; }
+    });
+
+    document.getElementById('btnMantenerVacio').addEventListener('click', () => { cerrarModal(); cargarDatos(); });
+    document.getElementById('btnBorrarVacio').addEventListener('click', async () => {
+      try {
+        objetivosList.splice(objIdPostPago, 1);
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList });
+        cerrarModal(); cargarDatos();
+      } catch (e) { mostrarAlerta("Error", e.message); }
+    });
+
+    window.abrirModalTransferir = function(index) {
+      currentIndex = index;
+      const obj = objetivosList[index];
+      const ret = parseFloat(obj.cantidadAportada) || 0;
+
+      document.getElementById('transfSaldoOrigen').innerText = formatMoney(ret);
+      document.getElementById('transfImporte').value = "";
+      destinoTipoActual = 'fondo';
+      actualizarDestinosUI();
+      abrirModal('modalTransferir');
+    };
+
+    window.cambiarTipoDestino = function(tipo) {
+      destinoTipoActual = tipo;
+      document.getElementById('btnDestFondo').classList.toggle('active', tipo === 'fondo');
+      document.getElementById('btnDestObjetivo').classList.toggle('active', tipo === 'objetivo');
+      actualizarDestinosUI();
+    };
+
+    function actualizarDestinosUI() {
+      const select = document.getElementById('selectDestino');
+      const msgSin = document.getElementById('msgSinDestino');
+      select.innerHTML = '';
+
+      let opciones = [];
+      if (destinoTipoActual === 'fondo') {
+        const fondos = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
+        fondos.forEach((f, idx) => {
+           const libre = parseFloat(f.objetivo) - parseFloat(f.cantidadAportada);
+           if(libre > 0) opciones.push({ id: idx, nombre: f.nombre + ` (Libre: ${formatMoney(libre)})`, libre: libre });
+        });
+      } else {
+        objetivosList.forEach((o, idx) => {
+          if (idx !== currentIndex) {
+             const libre = parseFloat(o.objetivo) - parseFloat(o.cantidadAportada);
+             if(libre > 0) opciones.push({ id: idx, nombre: o.nombre + ` (Libre: ${formatMoney(libre)})`, libre: libre });
+          }
+        });
+      }
+
+      if (opciones.length === 0) {
+        select.style.display = 'none'; msgSin.style.display = 'block';
+      } else {
+        select.style.display = 'block'; msgSin.style.display = 'none';
+        opciones.forEach(op => {
+          const opt = document.createElement('option');
+          opt.value = op.id; opt.dataset.libre = op.libre; opt.innerText = op.nombre;
+          select.appendChild(opt);
+        });
+      }
+    }
+
+    document.getElementById('btnConfirmarTransferencia').addEventListener('click', async () => {
+      const select = document.getElementById('selectDestino');
+      if (select.style.display === 'none' || select.options.length === 0) return mostrarAlerta("Sin destino", "No hay ningún destino con capacidad.");
+
+      const cant = parseFloat(document.getElementById('transfImporte').value);
+      const saldoOrigen = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
+      const destIndex = parseInt(select.value);
+      const destLibre = parseFloat(select.options[select.selectedIndex].dataset.libre);
+
+      if (isNaN(cant) || cant <= 0) return mostrarAlerta("Importe no válido", "Introduce una cantidad válida.");
+      if (cant > saldoOrigen) return mostrarAlerta("Saldo insuficiente", `El objetivo solo tiene <b>${formatMoney(saldoOrigen)}</b>.`);
+      if (cant > destLibre) return mostrarAlerta("Destino lleno", `El destino solo admite <b>${formatMoney(destLibre)}</b>.`);
+
+      const btn = document.getElementById('btnConfirmarTransferencia');
+      btn.innerText = "Transfiriendo..."; btn.disabled = true;
+
+      try {
+        objetivosList[currentIndex].cantidadAportada = saldoOrigen - cant;
+        let fondosActualizados = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
+
+        if (destinoTipoActual === 'fondo') fondosActualizados[destIndex].cantidadAportada = (parseFloat(fondosActualizados[destIndex].cantidadAportada) || 0) + cant;
+        else objetivosList[destIndex].cantidadAportada = (parseFloat(objetivosList[destIndex].cantidadAportada) || 0) + cant;
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList, fondosReservados: fondosActualizados });
+
+        cerrarModal(); cargarDatos();
+        mostrarAlerta("Transferencia completada", `Se han movido <b>${formatMoney(cant)}</b> con éxito.`);
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Completar transferencia"; btn.disabled = false; }
+    });
+
+    // ==========================================
+    // CREAR Y EDITAR OBJETIVOS (SIN FECHA)
+    // ==========================================
+    let addIcon = "🎯", addColor = "#4CAF50";
+    let editIcon = "🎯", editColor = "#4CAF50";
+
+    function generarSelectoresUI() {
+      const iconosComprados = Array.isArray(userDocData.iconosComprados) ? userDocData.iconosComprados : [];
+      const coloresComprados = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados : [];
+
+      ['add', 'edit'].forEach(modo => {
+        const contIco = document.getElementById(`${modo}IconSelector`);
+        const contCol = document.getElementById(`${modo}ColorSelector`);
+        contIco.innerHTML = ''; contCol.innerHTML = '';
+
+        baseIcons.forEach(ico => {
+          const div = document.createElement('div');
+          div.className = 'item-select'; div.dataset.val = ico; div.innerText = ico;
+          div.onclick = function() { contIco.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addIcon = ico; else editIcon = ico; };
+          contIco.appendChild(div);
+        });
+
+        premiumIcons.filter(ico => iconosComprados.includes(ico)).forEach(ico => {
+          const div = document.createElement('div');
+          div.className = 'item-select'; div.dataset.val = ico; div.innerText = ico;
+          div.onclick = function() { contIco.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addIcon = ico; else editIcon = ico; };
+          contIco.appendChild(div);
+        });
+
+        premiumIcons.filter(ico => !iconosComprados.includes(ico)).forEach(ico => {
+          const div = document.createElement('div');
+          div.className = 'item-select item-locked'; div.innerHTML = `${ico}<div class="padlock">🔒</div>`;
+          div.onclick = () => mostrarAlerta('Bloqueado', 'Visita la tienda para desbloquear este icono.');
+          contIco.appendChild(div);
+        });
+
+        baseColors.forEach(col => {
+          const div = document.createElement('div');
+          div.className = 'item-select'; div.dataset.val = col; div.style.background = col;
+          div.onclick = function() { contCol.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addColor = col; else editColor = col; };
+          contCol.appendChild(div);
+        });
+
+        premiumColors.filter(col => coloresComprados.includes(col)).forEach(col => {
+          const div = document.createElement('div');
+          div.className = 'item-select'; div.dataset.val = col; div.style.background = col;
+          div.onclick = function() { contCol.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addColor = col; else editColor = col; };
+          contCol.appendChild(div);
+        });
+
+        premiumColors.filter(col => !coloresComprados.includes(col)).forEach(col => {
+          const div = document.createElement('div');
+          div.className = 'item-select item-locked'; div.style.background = col; div.innerHTML = `<div class="padlock">🔒</div>`;
+          div.onclick = () => mostrarAlerta('Premium', 'Visita la tienda para desbloquear este color.');
+          contCol.appendChild(div);
+        });
+      });
+    }
+
+    document.getElementById('btnAbrirAdd').addEventListener('click', () => {
+      document.getElementById('addNombre').value = '';
+      document.getElementById('addMeta').value = '';
+      addIcon = '🎯'; addColor = '#4CAF50';
+      abrirModal('modalAdd');
+    });
+
+    document.getElementById('btnConfirmarAdd').addEventListener('click', async () => {
+      const nombre = document.getElementById('addNombre').value.trim();
+      const meta = parseFloat(document.getElementById('addMeta').value);
+
+      if (nombre === "") return mostrarAlerta("Faltan datos", "Escribe un nombre.");
+      if (isNaN(meta) || meta <= 0) return mostrarAlerta("Meta inválida", "La meta debe ser mayor a 0.");
+
+      const btn = document.getElementById('btnConfirmarAdd');
+      btn.innerText = "Guardando..."; btn.disabled = true;
+
+      try {
+        objetivosList.push({ nombre: nombre, objetivo: meta, cantidadAportada: 0, icono: addIcon, color: addColor });
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList });
+        cerrarModal(); cargarDatos();
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Crear objetivo"; btn.disabled = false; }
+    });
+
+    window.abrirModalEdit = function(index) {
+      currentIndex = index;
+      const obj = objetivosList[index];
+      document.getElementById('editNombre').value = obj.nombre;
+      document.getElementById('editMeta').value = obj.objetivo;
+      editIcon = obj.icono || '🎯'; editColor = obj.color || '#4CAF50';
+      abrirModal('modalEdit');
+    };
+
+    document.getElementById('btnConfirmarEdit').addEventListener('click', async () => {
+      const nombre = document.getElementById('editNombre').value.trim();
+      const meta = parseFloat(document.getElementById('editMeta').value);
+      const yaRetenido = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
+
+      if (nombre === "") return mostrarAlerta("Faltan datos", "El objetivo debe tener un nombre.");
+      if (isNaN(meta) || meta <= 0) return mostrarAlerta("Meta inválida", "La meta debe ser mayor a 0.");
+      if (meta < yaRetenido) return mostrarAlerta("Límite inválido", `La meta no puede ser inferior al dinero ahorrado (<b>${formatMoney(yaRetenido)}</b>).`);
+
+      const btn = document.getElementById('btnConfirmarEdit');
+      btn.innerText = "Guardando..."; btn.disabled = true;
+
+      try {
+        objetivosList[currentIndex].nombre = nombre;
+        objetivosList[currentIndex].objetivo = meta;
+        objetivosList[currentIndex].icono = editIcon;
+        objetivosList[currentIndex].color = editColor;
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList });
+        cerrarModal(); cargarDatos();
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Guardar cambios"; btn.disabled = false; }
+    });
+
+    cargarDatos();
+  </script>
+</body>
+</html>
