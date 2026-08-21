@@ -520,13 +520,15 @@
     const sideMenu = document.getElementById('sideMenu');
     const menuOverlay = document.getElementById('menuOverlay');
 
-    function openSideMenu() {
+   function openSideMenu() {
       sideMenu.classList.add('open');
       menuOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden'; // <- Bloquea el scroll del fondo
     }
     function closeSideMenu() {
       sideMenu.classList.remove('open');
       menuOverlay.classList.remove('open');
+      document.body.style.overflow = ''; // <- Devuelve el scroll al fondo
     }
 
     btnOpenMenu.addEventListener('click', openSideMenu);
@@ -651,8 +653,14 @@
       } catch (error) { console.error("Error:", error); }
     }
 
-    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); };
-    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.remove('active')); };
+    window.abrirModal = function(id) { 
+      document.getElementById(id).classList.add('active'); 
+      document.body.style.overflow = 'hidden'; // <- Bloquea el scroll
+    };
+    window.cerrarModal = function() { 
+      document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.remove('active')); 
+      document.body.style.overflow = ''; // <- Devuelve el scroll
+    };
     window.mostrarAlerta = function(titulo, mensaje) {
       document.getElementById('alertaTitulo').innerText = titulo;
       document.getElementById('alertaMensaje').innerText = mensaje;
