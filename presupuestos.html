@@ -473,6 +473,12 @@
         return;
       }
 
+      // REGLA DE LÍQUIDEZ (La que tú has deducido)
+      if (cantidad > dineroDisponibleGeneral) {
+        mostrarAlerta("Fondos insuficientes", `No puedes registrar este gasto.<br><br>Intentas anotar <b>${formatMoney(cantidad)}</b>, pero tus fondos reales disponibles son de solo <b>${formatMoney(dineroDisponibleGeneral)}</b>.`);
+        return;
+      }
+
       const btn = document.getElementById('btnConfirmarGasto');
       btn.innerText = "Añadiendo..."; btn.disabled = true;
 
