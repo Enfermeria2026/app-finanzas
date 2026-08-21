@@ -225,12 +225,12 @@
         <p>Fondos Reservados Activos</p>
       </div>
 
-      <!-- FILA DE 5 MÉTRICAS -->
+     <!-- FILA DE 5 MÉTRICAS -->
       <div class="summary-row-metrics">
         <div class="metric-col"><div class="metric-val" id="mGastoCero">0</div><div class="metric-lbl">0 €</div></div>
-        <div class="metric-col"><div class="metric-val val-green" id="mVerde">0</div><div class="metric-lbl">< 50%</div></div>
+        <div class="metric-col"><div class="metric-val val-red" id="mRojo">0</div><div class="metric-lbl">< 50%</div></div>
         <div class="metric-col"><div class="metric-val val-yellow" id="mAmarillo">0</div><div class="metric-lbl">50-80%</div></div>
-        <div class="metric-col"><div class="metric-val val-red" id="mRojo">0</div><div class="metric-lbl">> 80%</div></div>
+        <div class="metric-col"><div class="metric-val val-green" id="mVerde">0</div><div class="metric-lbl">> 80%</div></div>
         <div class="metric-col"><div class="metric-val" id="mCompleto" style="color: #00A878;">0</div><div class="metric-lbl">100%</div></div>
       </div>
 
@@ -544,7 +544,7 @@
       itemsSeleccionados.clear();
       actualizarBarraBorrado();
 
-      let m0 = 0, mVerde = 0, mAma = 0, mRoj = 0, mComp = 0;
+          let m0 = 0, mRoj = 0, mAma = 0, mVerde = 0, mComp = 0;
 
       if (fondosList.length === 0) {
         emptyState.style.display = 'flex';
@@ -561,12 +561,20 @@
           if (obj > 0 && ret >= obj) mComp++;
 
           const pct = obj > 0 ? (ret / obj) : 0;
-          if (pct < 0.5) mVerde++;
+          // Asignación invertida para los contadores
+          if (pct < 0.5) mRoj++;
           else if (pct < 0.8) mAma++;
-          else mRoj++;
+          else mVerde++;
 
           const pctVisual = obj > 0 ? Math.min(Math.round(pct * 100), 100) : 0;
-          const barColor = pctVisual <= 50 ? '#4CAF50' : (pctVisual <= 80 ? '#FFC107' : (pctVisual >= 100 ? '#00A878' : '#F44336'));
+          
+          // Lógica invertida para los colores de la barra
+          let barColor;
+          if (pctVisual < 50) barColor = '#F44336'; // Rojo (Mal)
+          else if (pctVisual < 80) barColor = '#FFC107'; // Amarillo (Regular)
+          else if (pctVisual < 100) barColor = '#4CAF50'; // Verde (Bien)
+          else barColor = '#00A878'; // Verde oscuro (Completado)
+      
 
           let fechaHTML = '';
           if (fondo.fechaPrevista && fondo.fechaPrevista.trim() !== '') {
@@ -619,9 +627,9 @@
 
       document.getElementById('sumTotalFondos').innerText = fondosList.length;
       document.getElementById('mGastoCero').innerText = m0;
-      document.getElementById('mVerde').innerText = mVerde;
-      document.getElementById('mAmarillo').innerText = mAma;
       document.getElementById('mRojo').innerText = mRoj;
+      document.getElementById('mAmarillo').innerText = mAma;
+      document.getElementById('mVerde').innerText = mVerde;
       document.getElementById('mCompleto').innerText = mComp;
     }
 
