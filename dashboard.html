@@ -576,8 +576,8 @@
         const gastosOtros = gastosImprevistos + pagosReservas + pagosAhorros;
         const gastosTotales = gastosCategorias + gastosOtros;
 
-        // LA NUEVA FÓRMULA MÁGICA LÍQUIDA:
-        const fondosDisponibles = ingresoTotal - fondosRetenidos - gastosCategorias - gastosImprevistos;
+       // LA NUEVA FÓRMULA MÁGICA LÍQUIDA BLINDADA:
+        const fondosDisponibles = ingresoTotal - fondosRetenidos - gastosCategorias - gastosImprevistos - pagosReservas - pagosAhorros;
 
         document.getElementById('valIngresos').innerText = formatMoney(ingresoTotal);
         document.getElementById('valGastos').innerText = formatMoney(gastosTotales);
