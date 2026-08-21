@@ -510,13 +510,20 @@
 
         const totalRetenidoGlobal = totalRetenidoReservas + totalRetenidoAhorros;
 
+
         let totalGastosCat = 0;
         if (Array.isArray(userDocData.categorias)) {
           userDocData.categorias.forEach(c => totalGastosCat += (parseFloat(c.gastado) || 0));
         }
         const gastosImp = parseFloat(userDocData.gastosImprevistos) || 0;
+        
+        // Recuperamos los pagos ya efectuados desde los fondos
+        const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
+        const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
 
-        fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - totalGastosCat - gastosImp;
+        // Fórmula blindada: Restamos también los pagos de los fondos
+        fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - totalGastosCat - gastosImp - pagosRes - pagosAho;
+        
 
         // ACTUALIZAR RESUMEN
         document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
