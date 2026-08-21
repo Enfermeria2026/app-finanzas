@@ -361,16 +361,18 @@
         userDocData = docSnap.data();
         categoriasCache = Array.isArray(userDocData.categorias) ? userDocData.categorias : [];
         
-        // --- CÁLCULO DE FONDOS DISPONIBLES ---
+       // --- CÁLCULO DE LÍMITES PRESUPUESTABLES ---
         const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
         let fondosRetenidos = 0;
         if (Array.isArray(userDocData.fondosReservados)) userDocData.fondosReservados.forEach(r => fondosRetenidos += (parseFloat(r.cantidadAportada) || 0));
         if (Array.isArray(userDocData.objetivosAhorro)) userDocData.objetivosAhorro.forEach(a => fondosRetenidos += (parseFloat(a.cantidadAportada) || 0));
         
-        dineroDisponibleGeneral = ingresoTotal - fondosRetenidos;
-        document.getElementById('gsDisponibles').innerText = formatMoney(dineroDisponibleGeneral);
-        // -------------------------------------
-
+        const gastosImprevistos = parseFloat(userDocData.gastosImprevistos) || 0;
+        
+        // Guardamos el límite matemático para que la app lo use luego al editar
+        window.limitePresupuestable = ingresoTotal - fondosRetenidos;
+        // ------------------------------------------
+        
         const container = document.getElementById('categoriesContainer');
         const emptyState = document.getElementById('emptyState');
         container.innerHTML = '';
@@ -430,6 +432,11 @@
 
         document.getElementById('gsGastado').innerText = formatMoney(totalGastado);
         document.getElementById('gsMaximo').innerText = formatMoney(totalMaximo);
+        
+        // 2. Cálculo real de fondos líquidos para mostrar en pantalla
+        dineroDisponibleGeneral = window.limitePresupuestable - totalGastado - gastosImprevistos;
+        document.getElementById('gsDisponibles').innerText = formatMoney(dineroDisponibleGeneral);
+
         const globalPct = totalMaximo > 0 ? Math.round((totalGastado / totalMaximo) * 100) : 0;
         
         const gsPctEl = document.getElementById('gsPorcentaje');
@@ -592,8 +599,8 @@
         if (index !== currentIndex) sumaOtrosPresupuestos += parseFloat(cat.presupuesto);
       });
       
-      if ((sumaOtrosPresupuestos + nuevoMax) > dineroDisponibleGeneral) {
-         mostrarAlerta("Fondos insuficientes", `Este nuevo presupuesto supera tus Fondos Disponibles (<b>${formatMoney(dineroDisponibleGeneral)}</b>).<br><br>Reduce el límite de esta u otras categorías.`);
+     if ((sumaOtrosPresupuestos + nuevoMax) > window.limitePresupuestable) {
+         mostrarAlerta("Fondos insuficientes", `La suma de tus límites supera tu capacidad de asignación (<b>${formatMoney(window.limitePresupuestable)}</b>).<br><br>Reduce el límite de esta u otras categorías.`);
          return;
       }
 
