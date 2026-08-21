@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Presupuestos - BudgetWise</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: #F5F7FA;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #0B1A2E;
+    }
+
+    .app-container {
+      width: 100%; max-width: 480px; margin: 0 auto;
+      background-color: #F5F7FA; min-height: 100vh;
+      position: relative; padding-bottom: 90px;
+    }
+
+    /* CABECERA (Similar al Dashboard pero con Título) */
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: white;
+    }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; }
+    .page-title { font-weight: 800; font-size: 18px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* RESUMEN GLOBAL DE PRESUPUESTOS */
+    .global-summary {
+      background: white; margin: 16px 24px; padding: 20px; border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03); text-align: center;
+    }
+    .gs-title { font-size: 13px; color: #666; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+    .gs-amounts { font-size: 24px; font-weight: 800; color: #0B1A2E; margin-bottom: 8px; }
+    .gs-amounts span { color: #999; font-size: 16px; font-weight: 600; }
+    .gs-pct { display: inline-block; background: #E8F5E9; color: #00A878; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+
+    /* LISTA DE CATEGORÍAS */
+    .categories-container { padding: 0 24px 24px 24px; }
+    
+    .category-card {
+      background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px;
+      display: flex; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); position: relative;
+    }
+    .cat-icon-box {
+      width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+      display: flex; justify-content: center; align-items: center; font-size: 26px;
+    }
+    .cat-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;}
+    
+    .cat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; padding-right: 60px; /* Espacio para botones */ }
+    .cat-name { font-size: 16px; font-weight: 700; color: #0B1A2E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .cat-amounts { font-size: 13px; color: #666; margin-bottom: 10px; font-weight: 500; }
+    .cat-amounts strong { color: #0B1A2E; font-weight: 700; }
+
+    .cat-progress-wrapper { display: flex; align-items: center; gap: 10px; }
+    .cat-progress-bg { flex: 1; height: 6px; background: #F0F0F0; border-radius: 3px; overflow: hidden; }
+    .cat-progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background-color 0.4s ease; }
+    .cat-pct-text { font-size: 12px; font-weight: 700; width: 36px; text-align: right; }
+
+    /* BOTONES DE ACCIÓN (Añadir y Editar) */
+    .cat-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; }
+    .btn-action {
+      width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center;
+      background: #F5F7FA; border: none; cursor: pointer; color: #555; transition: 0.2s;
+    }
+    .btn-action:active { background: #E0E0E0; }
+    .btn-action.add { color: #00A878; background: #E8F5E9; }
+    .btn-action.add:active { background: #C8E6C9; }
+
+    /* ESTADO VACÍO */
+    .empty-state { text-align: center; padding: 40px 20px; color: #666; display: none; }
+    .empty-state svg { width: 48px; height: 48px; color: #CCC; margin-bottom: 12px; }
+
+    /* MENSAJE FINAL / ACCESO AL MENÚ */
+    .bottom-notice {
+      background: #E3F2FD; border: 1px dashed #90CAF9; border-radius: 12px; padding: 16px;
+      margin: 0 24px 24px 24px; display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; transition: 0.2s;
+    }
+    .bottom-notice:active { background: #BBDEFB; }
+    .bottom-notice p { font-size: 13px; color: #1565C0; font-weight: 500; line-height: 1.4; flex: 1; margin-right: 12px;}
+    .bottom-notice svg { color: #1976D2; flex-shrink: 0; }
+
+    /* SCROLL HORIZONTAL PARA ICONOS Y COLORES (Modal Editar) */
+    .scroll-selector { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 16px; scroll-snap-type: x mandatory; }
+    .scroll-selector::-webkit-scrollbar { height: 4px; }
+    .scroll-selector::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
+    .item-select { flex-shrink: 0; width: 48px; height: 48px; border: 2px solid #E0E0E0; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; background: white; scroll-snap-align: start; }
+    .item-select.active { border-color: #00A878; background: #E8F5E9; }
+    .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; position: relative;}
+    .padlock { position: absolute; top: -4px; right: -4px; background: #0B1A2E; color: white; font-size: 9px; padding: 3px; border-radius: 50%; width: 16px; height: 16px; display: flex; justify-content: center; align-items: center; }
+
+    /* COMPONENTES COMPARTIDOS (Modales, Menú, Nav) - Copiados del Dashboard */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box { background: white; width: 90%; max-width: 340px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s ease; position: relative; max-height: 90vh; overflow-y: auto;}
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .close-modal { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #999; }
+    .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center;}
+    .modal-text { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 16px; text-align: center;}
+    .modal-input-group { text-align: left; margin-bottom: 16px; }
+    .modal-input-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
+    .modal-input-group input { width: 100%; padding: 14px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; }
+    .modal-input-group input:focus { border-color: #00A878; }
+    .btn-main { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; color: white; background-color: #00A878; cursor: pointer; margin-top: 8px;}
+    
+    .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .menu-overlay.open { opacity: 1; pointer-events: auto; }
+    .side-menu { position: fixed; top: 0; left: -100%; width: 290px; max-width: 85%; height: 100%; background: white; z-index: 2001; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; display: flex; flex-direction: column; overflow-y: auto; }
+    .side-menu.open { left: 0; }
+    .side-menu-header { padding: 24px; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; }
+    .side-menu-header .logo-container { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; color: #0B1A2E;}
+    .close-menu { color: #999; cursor: pointer; }
+    .side-menu-content { padding: 12px 0; flex: 1; display: flex; flex-direction: column; }
+    .menu-link { display: flex; align-items: center; gap: 16px; padding: 14px 24px; color: #333; text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.2s; }
+    .menu-link:active { background: #F5F7FA; color: #00A878; }
+    .menu-link svg { width: 20px; height: 20px; color: #666; flex-shrink: 0; }
+    .menu-link.active-link { color: #00A878; background: #F4F9F8; border-right: 4px solid #00A878; }
+    .menu-link.active-link svg { color: #00A878; }
+    .badge-nuevo { background: #00A878; color: white; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 12px; margin-left: auto; text-transform: uppercase; letter-spacing: 0.5px; }
+    .menu-divider { height: 1px; background: #F0F0F0; margin: 8px 24px; }
+    .menu-logout { color: #F44336; margin-top: 12px; }
+    .menu-logout svg { color: #F44336; }
+    
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; display: flex; justify-content: space-around; padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-item.active { color: #00A878; }
+    .nav-item svg { width: 22px; height: 22px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- MENÚ LATERAL -->
+  <div id="menuOverlay" class="menu-overlay"></div>
+  <div id="sideMenu" class="side-menu">
+    <div class="side-menu-header">
+      <div class="logo-container"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg> BudgetWise</div>
+      <svg id="btnCloseMenu" class="close-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    
+    <div class="side-menu-content">
+      <a href="dashboard.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard</a>
+      <a href="presupuestos.html" class="menu-link active-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Fondos reservados</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Objetivos de ahorro</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Estadísticas</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.59.81 3.14 1.5 4.5.77.76 1.24 1.52 1.42 2.5"></path></svg> Asesor financiero <span class="badge-nuevo">Nuevo</span></a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
+      <div class="menu-divider"></div>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Ayuda y soporte</a>
+      <a href="#" class="menu-link menu-logout" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="header">
+      <svg id="btnOpenMenu" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div class="page-title">PRESUPUESTOS</div>
+      <div class="header-actions">
+        <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+    </header>
+
+    <!-- RESUMEN GLOBAL -->
+    <div class="global-summary">
+      <div class="gs-title">Uso del Presupuesto Total</div>
+      <div class="gs-amounts"><span id="gsGastado">0,00 €</span> / <span id="gsMaximo">0,00 €</span></div>
+      <div class="gs-pct" id="gsPorcentaje">0% consumido</div>
+    </div>
+
+    <!-- CONTENEDOR DE CATEGORÍAS -->
+    <div class="categories-container" id="categoriesContainer">
+      <!-- Las tarjetas se inyectarán aquí desde Javascript -->
+    </div>
+
+    <!-- ESTADO VACÍO -->
+    <div class="empty-state" id="emptyState">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <p style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px;">No tienes categorías activas</p>
+      <p style="font-size: 14px;">Crea tu primera categoría en el menú para empezar a gestionar tus gastos.</p>
+    </div>
+
+    <!-- ACCESO AL MENÚ DE CATEGORÍAS -->
+    <div class="bottom-notice" onclick="openSideMenu()">
+      <p>¿Quieres crear una nueva categoría o borrar una existente? Accede al menú de "Categorías".</p>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </div>
+
+    <!-- MENÚ INFERIOR FIJO -->
+    <nav class="bottom-nav">
+      <!-- Ahora Presupuestos está activo -->
+      <a href="presupuestos.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Presupuestos
+        <div class="active-dot"></div>
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Fondos reservados
+      </a>
+      <!-- Dashboard ya no está activo -->
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        Objetivos ahorro
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        Misiones
+      </a>
+    </nav>
+  </div>
+
+  <!-- MODAL: AÑADIR GASTO -->
+  <div id="modalAddGasto" class="modal-overlay">
+    <div class="modal-box" style="padding: 32px 24px;">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title">Añadir Gasto</div>
+      <div class="modal-text" id="gastoCatName" style="font-weight: bold; color: #00A878;">Categoría</div>
+      
+      <div class="modal-input-group">
+        <label>Concepto (Obligatorio)</label>
+        <input type="text" id="inputConceptoGasto" placeholder="Ej: Mercadona, Cine...">
+      </div>
+      <div class="modal-input-group">
+        <label>Importe Gastado (€)</label>
+        <input type="number" id="inputImporteGasto" placeholder="Ej: 45.50">
+      </div>
+      <button id="btnConfirmarGasto" class="btn-main">Añadir gasto</button>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR CATEGORÍA -->
+  <div id="modalEditCat" class="modal-overlay">
+    <div class="modal-box" style="padding: 24px;">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title">Editar Categoría</div>
+      
+      <div class="modal-input-group">
+        <label>Nombre de la categoría</label>
+        <input type="text" id="editCatNombre">
+      </div>
+      <div class="modal-input-group">
+        <label>Presupuesto Máximo (€)</label>
+        <input type="number" id="editCatPresupuesto">
+      </div>
+
+      <!-- Selectores de Icono y Color (Reutilizados del Tutorial) -->
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Icono</label>
+      <div class="scroll-selector" id="editIconSelector">
+        <div class="item-select" data-val="🧺">🧺</div><div class="item-select" data-val="🍔">🍔</div>
+        <div class="item-select" data-val="🏠">🏠</div><div class="item-select" data-val="🚗">🚗</div>
+        <div class="item-select" data-val="📱">📱</div><div class="item-select" data-val="👕">👕</div>
+        <div class="item-select" data-val="🛍️">🛍️</div><div class="item-select" data-val="🚫">🚫</div>
+        <!-- Bloqueados -->
+        <div class="item-select item-locked" onclick="mostrarAlerta('Bloqueado', 'Se desbloquea con monedas.')">✈️<div class="padlock">🔒</div></div>
+      </div>
+
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Color</label>
+      <div class="scroll-selector" id="editColorSelector">
+        <div class="item-select" style="background:#2196F3;" data-val="#2196F3"></div>
+        <div class="item-select" style="background:#F44336;" data-val="#F44336"></div>
+        <div class="item-select" style="background:#FFC107;" data-val="#FFC107"></div>
+        <div class="item-select" style="background:#4CAF50;" data-val="#4CAF50"></div>
+        <div class="item-select" style="background:#FF9800;" data-val="#FF9800"></div>
+        <div class="item-select" style="background:#9E9E9E;" data-val="#9E9E9E"></div>
+        <!-- Bloqueados -->
+        <div class="item-select item-locked" style="background:#9C27B0;" onclick="mostrarAlerta('Premium', 'Color desbloqueable.')"><div class="padlock">🔒</div></div>
+      </div>
+
+      <button id="btnGuardarEdicion" class="btn-main">Guardar cambios</button>
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO DE ALERTA -->
+  <div id="modalAlertaBasica" class="modal-overlay">
+    <div class="modal-box">
+      <div id="alertaTitulo" class="modal-title" style="justify-content: center; color: #F44336;">Atención</div>
+      <div id="alertaMensaje" class="modal-text">Mensaje</div>
+      <button onclick="document.getElementById('modalAlertaBasica').classList.remove('active')" class="btn-main" style="background: #0B1A2E;">Entendido</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJJsgp1RnXGqva04EuQEONEM9frfx-7I8",
+      authDomain: "budgetwise-9608f.firebaseapp.com",
+      projectId: "budgetwise-9608f",
+      storageBucket: "budgetwise-9608f.firebasestorage.app",
+      messagingSenderId: "438887897789",
+      appId: "1:438887897789:web:1075b7b21577d1b632b5d4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ==========================================
+    // UI BÁSICA (Menú y Modales)
+    // ==========================================
+    const btnOpenMenu = document.getElementById('btnOpenMenu');
+    const btnCloseMenu = document.getElementById('btnCloseMenu');
+    const sideMenu = document.getElementById('sideMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    window.openSideMenu = function() { sideMenu.classList.add('open'); menuOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    window.closeSideMenu = function() { sideMenu.classList.remove('open'); menuOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+
+    btnOpenMenu.addEventListener('click', openSideMenu);
+    btnCloseMenu.addEventListener('click', closeSideMenu);
+    menuOverlay.addEventListener('click', closeSideMenu);
+    document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
+
+    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; };
+    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); document.body.style.overflow = ''; };
+    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerText = mensaje; abrirModal('modalAlertaBasica'); };
+
+    function formatMoney(amount) { return parseFloat(amount || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+
+    // ==========================================
+    // LÓGICA DE PRESUPUESTOS
+    // ==========================================
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (!usuarioLogueado) window.location.href = 'login.html';
+
+    let categoriasCache = [];
+    let currentIndex = -1; // Para saber qué categoría estamos editando/añadiendo gasto
+
+    // Función para decidir el color de la barra según %
+    function getBarColor(pct) {
+      if (pct <= 50) return '#4CAF50'; // Verde
+      if (pct <= 80) return '#FFC107'; // Amarillo
+      return '#F44336'; // Rojo
+    }
+
+    async function cargarPresupuestos() {
+      try {
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        const docSnap = await getDoc(userRef);
+        if (!docSnap.exists()) return;
+        
+        const data = docSnap.data();
+        categoriasCache = Array.isArray(data.categorias) ? data.categorias : [];
+        
+        const container = document.getElementById('categoriesContainer');
+        const emptyState = document.getElementById('emptyState');
+        container.innerHTML = '';
+
+        if (categoriasCache.length === 0) {
+          emptyState.style.display = 'block';
+          document.getElementById('gsGastado').innerText = "0,00 €";
+          document.getElementById('gsMaximo').innerText = "0,00 €";
+          document.getElementById('gsPorcentaje').innerText = "0% consumido";
+          return;
+        }
+
+        emptyState.style.display = 'none';
+        let totalMaximo = 0;
+        let totalGastado = 0;
+
+        categoriasCache.forEach((cat, index) => {
+          const max = parseFloat(cat.presupuesto) || 0;
+          const gast = parseFloat(cat.gastado) || 0;
+          totalMaximo += max;
+          totalGastado += gast;
+
+          const pct = max > 0 ? Math.min(Math.round((gast / max) * 100), 100) : 0;
+          const barColor = getBarColor(pct);
+
+          const card = document.createElement('div');
+          card.className = 'category-card';
+          card.innerHTML = `
+            <div class="cat-icon-box" style="background-color: ${cat.color || '#E0E0E0'};">
+              ${cat.icono || ''}
+            </div>
+            <div class="cat-info">
+              <div class="cat-header">
+                <div class="cat-name">${cat.nombre}</div>
+              </div>
+              <div class="cat-amounts">
+                <strong>${formatMoney(gast)}</strong> / ${formatMoney(max)}
+              </div>
+              <div class="cat-progress-wrapper">
+                <div class="cat-progress-bg">
+                  <div class="cat-progress-fill" style="width: ${pct}%; background-color: ${barColor};"></div>
+                </div>
+                <div class="cat-pct-text">${pct}%</div>
+              </div>
+            </div>
+            <div class="cat-actions">
+              <button class="btn-action add" onclick="abrirAddGasto(${index})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+              <button class="btn-action" onclick="abrirEditCat(${index})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+        // Actualizar Cabecera Global
+        document.getElementById('gsGastado').innerText = formatMoney(totalGastado);
+        document.getElementById('gsMaximo').innerText = formatMoney(totalMaximo);
+        const globalPct = totalMaximo > 0 ? Math.round((totalGastado / totalMaximo) * 100) : 0;
+        
+        const gsPctEl = document.getElementById('gsPorcentaje');
+        gsPctEl.innerText = `${globalPct}% consumido`;
+        gsPctEl.style.backgroundColor = globalPct > 80 ? '#FFEBEE' : (globalPct > 50 ? '#FFF8E1' : '#E8F5E9');
+        gsPctEl.style.color = globalPct > 80 ? '#F44336' : (globalPct > 50 ? '#F57F17' : '#00A878');
+
+      } catch (error) { console.error("Error cargando presupuestos:", error); }
+    }
+
+    // ==========================================
+    // AÑADIR GASTO
+    // ==========================================
+    window.abrirAddGasto = function(index) {
+      currentIndex = index;
+      document.getElementById('gastoCatName').innerText = categoriasCache[index].nombre;
+      document.getElementById('inputConceptoGasto').value = "";
+      document.getElementById('inputImporteGasto').value = "";
+      abrirModal('modalAddGasto');
+    }
+
+    document.getElementById('btnConfirmarGasto').addEventListener('click', async () => {
+      const concepto = document.getElementById('inputConceptoGasto').value.trim();
+      const cantidad = parseFloat(document.getElementById('inputImporteGasto').value);
+      
+      if (concepto === "") return mostrarAlerta("Datos incompletos", "Debes indicar en qué te has gastado el dinero (Concepto).");
+      if (isNaN(cantidad) || cantidad <= 0) return mostrarAlerta("Importe no válido", "El gasto debe ser mayor que 0.");
+
+      const catActual = categoriasCache[currentIndex];
+      const maximo = parseFloat(catActual.presupuesto);
+      const yaGastado = parseFloat(catActual.gastado);
+      
+      // REGLA DE ORO: No pasarse del presupuesto
+      if ((yaGastado + cantidad) > maximo) {
+        mostrarAlerta("Presupuesto excedido", `No es posible registrar este gasto.<br><br>Superas el máximo de <b>${formatMoney(maximo)}</b> para esta categoría.<br><br>Reduce el gasto o edita la categoría para aumentar el presupuesto máximo.`);
+        return;
+      }
+
+      const btn = document.getElementById('btnConfirmarGasto');
+      btn.innerText = "Añadiendo..."; btn.disabled = true;
+
+      try {
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        const docSnap = await getDoc(userRef);
+        const data = docSnap.data();
+        
+        // Sumamos el gasto a la categoría
+        let categoriasDocs = data.categorias;
+        categoriasDocs[currentIndex].gastado = yaGastado + cantidad;
+
+        // Lo guardamos en el historial global de gastos
+        const historialGastos = data.historialGastos || [];
+        historialGastos.push({
+          concepto: concepto,
+          cantidad: cantidad,
+          categoria: catActual.nombre,
+          fecha: new Date().toISOString()
+        });
+
+        await updateDoc(userRef, { categorias: categoriasDocs, historialGastos: historialGastos });
+        
+        cerrarModal();
+        btn.innerText = "Añadir gasto"; btn.disabled = false;
+        cargarPresupuestos(); // Recargar UI
+      } catch (error) {
+        mostrarAlerta("Error", "No se pudo añadir: " + error.message);
+        btn.innerText = "Añadir gasto"; btn.disabled = false;
+      }
+    });
+
+    // ==========================================
+    // EDITAR CATEGORÍA
+    // ==========================================
+    let editIcon = "";
+    let editColor = "";
+
+    // Selector Visual de Edición
+    document.querySelectorAll('#editIconSelector .item-select:not(.item-locked)').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('#editIconSelector .item-select').forEach(i => i.classList.remove('active'));
+        this.classList.add('active'); editIcon = this.getAttribute('data-val');
+      });
+    });
+    document.querySelectorAll('#editColorSelector .item-select:not(.item-locked)').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('#editColorSelector .item-select').forEach(i => i.classList.remove('active'));
+        this.classList.add('active'); editColor = this.getAttribute('data-val');
+      });
+    });
+
+    window.abrirEditCat = function(index) {
+      currentIndex = index;
+      const cat = categoriasCache[index];
+      
+      document.getElementById('editCatNombre').value = cat.nombre;
+      document.getElementById('editCatPresupuesto').value = cat.presupuesto;
+      editIcon = cat.icono;
+      editColor = cat.color;
+
+      // Marcar visualmente los seleccionados
+      document.querySelectorAll('#editIconSelector .item-select').forEach(i => {
+        i.classList.remove('active'); if(i.getAttribute('data-val') === editIcon) i.classList.add('active');
+      });
+      document.querySelectorAll('#editColorSelector .item-select').forEach(i => {
+        i.classList.remove('active'); if(i.getAttribute('data-val') === editColor) i.classList.add('active');
+      });
+
+      abrirModal('modalEditCat');
+    }
+
+    document.getElementById('btnGuardarEdicion').addEventListener('click', async () => {
+      const nuevoNombre = document.getElementById('editCatNombre').value.trim();
+      const nuevoMax = parseFloat(document.getElementById('editCatPresupuesto').value);
+      const yaGastado = parseFloat(categoriasCache[currentIndex].gastado);
+
+      if (nuevoNombre === "") return mostrarAlerta("Nombre vacío", "La categoría debe tener un nombre.");
+      if (isNaN(nuevoMax) || nuevoMax <= 0) return mostrarAlerta("Presupuesto inválido", "El presupuesto máximo debe ser mayor que 0.");
+      
+      // REGLA: No puedes bajar el máximo por debajo de lo que ya has gastado
+      if (nuevoMax < yaGastado) {
+        mostrarAlerta("Límite no permitido", `No puedes establecer el presupuesto máximo por debajo de <b>${formatMoney(yaGastado)}</b> porque ya has gastado esa cantidad.`);
+        return;
+      }
+
+      const btn = document.getElementById('btnGuardarEdicion');
+      btn.innerText = "Guardando..."; btn.disabled = true;
+
+      try {
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        const docSnap = await getDoc(userRef);
+        let categoriasDocs = docSnap.data().categorias;
+        
+        categoriasDocs[currentIndex].nombre = nuevoNombre;
+        categoriasDocs[currentIndex].presupuesto = nuevoMax;
+        categoriasDocs[currentIndex].icono = editIcon;
+        categoriasDocs[currentIndex].color = editColor;
+
+        await updateDoc(userRef, { categorias: categoriasDocs });
+        
+        cerrarModal();
+        btn.innerText = "Guardar cambios"; btn.disabled = false;
+        cargarPresupuestos(); // Recargar UI
+      } catch (error) {
+        mostrarAlerta("Error", "No se pudo guardar: " + error.message);
+        btn.innerText = "Guardar cambios"; btn.disabled = false;
+      }
+    });
+
+    // Cargar datos al iniciar
+    cargarPresupuestos();
+  </script>
+</body>
+</html>
