@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dashboard - BudgetWise</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #F5F7FA;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #0B1A2E;
+    }
+
+    /* CONTENEDOR PRINCIPAL (Simulando App Móvil) */
+    .app-container {
+      width: 100%; max-width: 480px; margin: 0 auto;
+      background-color: #F5F7FA; min-height: 100vh;
+      position: relative; padding-bottom: 80px; /* Espacio para el menú inferior */
+    }
+
+    /* CABECERA (Menú, Logo, Perfil) */
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: white;
+    }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; }
+    .logo-container { display: flex; align-items: center; font-weight: bold; font-size: 20px; color: #0B1A2E; }
+    .logo-container svg { margin-right: 8px; }
+    .header-actions { display: flex; gap: 16px; }
+
+    /* SALUDO Y FECHA */
+    .greeting-section {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px 16px 24px;
+    }
+    .greeting-text h1 { font-size: 22px; margin-bottom: 4px; }
+    .greeting-text p { font-size: 13px; color: #666; }
+    .date-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: white; padding: 8px 12px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; color: #333;
+      border: 1px solid #E0E0E0;
+    }
+
+    /* TARJETAS RESUMEN (4 columnas) */
+    .summary-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      padding: 0 24px; margin-bottom: 24px;
+    }
+    .summary-card {
+      background: white; border-radius: 12px; padding: 16px 8px;
+      text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .summary-icon {
+      width: 32px; height: 32px; border-radius: 50%; margin: 0 auto 8px auto;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .icon-ingresos { background: #E8F5E9; color: #4CAF50; }
+    .icon-gastos { background: #FFEBEE; color: #F44336; }
+    .icon-retenidos { background: #F3E5F5; color: #9C27B0; }
+    .icon-disponibles { background: #E3F2FD; color: #2196F3; }
+    .summary-title { font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 500; }
+    .summary-amount { font-size: 14px; font-weight: 700; }
+    .color-green { color: #00A878; } .color-red { color: #F44336; }
+    .color-purple { color: #9C27B0; } .color-blue { color: #2196F3; }
+
+    /* TARJETAS GENERALES */
+    .card {
+      background: white; border-radius: 16px; margin: 0 24px 20px 24px;
+      padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .card-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .info-icon { color: #999; cursor: pointer; }
+    .link-action { color: #00A878; font-size: 13px; font-weight: 600; text-decoration: none; display: flex; align-items: center; cursor: pointer; }
+
+    /* PROGRESO MENSUAL */
+    .progress-stats { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 12px; }
+    .progress-stats strong { color: #333; }
+    .progress-track { width: 100%; height: 8px; background: #E0E0E0; border-radius: 4px; margin-bottom: 16px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #00A878; width: 62%; border-radius: 4px; }
+    .progress-msg { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #555; background: #F9FAFB; padding: 10px; border-radius: 8px;}
+    .progress-msg svg { color: #00A878; }
+
+    /* GRÁFICO CIRCULAR Y LEYENDA */
+    .chart-container { display: flex; align-items: center; gap: 20px; }
+    .donut-chart {
+      width: 130px; height: 130px; border-radius: 50%; flex-shrink: 0;
+      /* Los colores representan los porcentajes reales de la captura */
+      background: conic-gradient(
+        #4285F4 0% 36%,      /* Vivienda 36% */
+        #FF9800 36% 58%,     /* Alimentación 22% */
+        #FFC107 58% 72%,     /* Transporte 14% */
+        #00BFA5 72% 84%,     /* Ocio 12% */
+        #7E57C2 84% 92%,     /* Salud 8% */
+        #9E9E9E 92% 100%     /* Otros 7% */
+      );
+      display: flex; justify-content: center; align-items: center;
+    }
+    .donut-hole {
+      width: 90px; height: 90px; background: white; border-radius: 50%;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+    .donut-total { font-size: 14px; font-weight: 700; color: #0B1A2E; }
+    .donut-label { font-size: 10px; color: #666; }
+
+    .legend { flex: 1; }
+    .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 11px; margin-bottom: 8px; }
+    .legend-left { display: flex; align-items: center; gap: 6px; flex: 1; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .legend-name { color: #555; font-weight: 500; }
+    .legend-amount { font-weight: 600; text-align: right; width: 65px; }
+    .legend-percent { color: #888; text-align: right; width: 30px; }
+
+    /* ACCESOS RÁPIDOS */
+    .quick-access { display: flex; gap: 12px; }
+    .qa-btn {
+      flex: 1; background: #F4F9F8; border: 1px solid #E8F0EF; border-radius: 12px;
+      padding: 16px 8px; text-align: center; cursor: pointer; transition: 0.2s;
+    }
+    .qa-btn:hover { background: #E8F5E9; }
+    .qa-btn svg { color: #00A878; margin-bottom: 8px; }
+    .qa-title { font-size: 12px; font-weight: 600; color: #333; }
+
+    /* MENÚ INFERIOR FIJO */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; background: white;
+      display: flex; justify-content: space-around; padding: 12px 0 24px 0;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-item.active { color: #00A878; }
+    .nav-item svg { width: 24px; height: 24px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
+
+    /* MODALES */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(11, 26, 46, 0.7); display: none; 
+      justify-content: center; align-items: center; z-index: 1000;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box {
+      background: white; width: 90%; max-width: 340px; padding: 24px;
+      border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transform: scale(0.9); transition: transform 0.3s ease; position: relative;
+    }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .close-modal { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #999; }
+    .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px;}
+    .modal-text { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 16px; }
+    
+    .breakdown-box { background: #F5F7FA; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+    .breakdown-item { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: #444;}
+    .breakdown-item:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="header">
+      <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div class="logo-container">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
+        BudgetWise
+      </div>
+      <div class="header-actions">
+        <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </div>
+    </header>
+
+    <!-- SALUDO Y FECHA DINÁMICA -->
+    <section class="greeting-section">
+      <div class="greeting-text">
+        <h1>¡Hola, <span id="nombreUsuarioDisplay">Carolina</span>! 👋</h1>
+        <p>Este es el resumen de tus finanzas</p>
+      </div>
+      <div class="date-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span id="currentDate">Cargando...</span>
+      </div>
+    </section>
+
+    <!-- TARJETAS SUPERIORES -->
+    <section class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon icon-ingresos"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
+        <div class="summary-title">Ingresos</div>
+        <div class="summary-amount color-green">2.850,00 €</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon icon-gastos"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg></div>
+        <div class="summary-title">Gastos</div>
+        <div class="summary-amount color-red">1.248,75 €</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon icon-retenidos"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+        <div class="summary-title">Retenidos</div>
+        <div class="summary-amount color-purple">350,00 €</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon icon-disponibles"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg></div>
+        <div class="summary-title">Disponibles</div>
+        <div class="summary-amount color-blue">1.251,25 €</div>
+      </div>
+    </section>
+
+    <!-- PROGRESO MENSUAL -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          Progreso mensual 
+          <svg onclick="abrirModal('infoProgreso')" class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </div>
+      </div>
+      <div class="progress-stats">
+        <span>Gastos: <strong>62%</strong> de tu presupuesto</span>
+        <span><strong>1.248,75 €</strong> / 2.000,00 €</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <div class="progress-msg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
+        ¡Vas por buen camino! Aún te quedan 751,25 € para el resto del mes.
+      </div>
+    </div>
+
+    <!-- DISTRIBUCIÓN DE GASTOS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Distribución de gastos</div>
+        <div class="link-action" onclick="abrirModal('infoDistribucion')">Ver detalle <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+      </div>
+      
+      <div class="chart-container">
+        <!-- Gráfico Circular -->
+        <div class="donut-chart">
+          <div class="donut-hole">
+            <span class="donut-total">1.248,75 €</span>
+            <span class="donut-label">Total gastos</span>
+          </div>
+        </div>
+        
+        <!-- Leyenda -->
+        <div class="legend">
+          <div class="legend-item"><div class="legend-left"><div class="dot" style="background:#4285F4"></div><span class="legend-name">Vivienda</span></div><span class="legend-amount">450,00 €</span><span class="legend-percent">36%</span></div>
+          <div class="legend-item"><div class="legend-left"><div class="dot" style="background:#FF9800"></div><span class="legend-name">Alimentación</span></div><span class="legend-amount">280,50 €</span><span class="legend-percent">22%</span></div>
+          <div class="legend-item"><div class="legend-left"><div class="dot" style="background:#FFC107"></div><span class="legend-name">Transporte</span></div><span class="legend-amount">180,20 €</span><span class="legend-percent">14%</span></div>
+          <div class="legend-item"><div class="legend-left"><div class="dot" style="background:#00BFA5"></div><span class="legend-name">Ocio</span></div><span class="legend-amount">150,00 €</span><span class="legend-percent">12%</span></div>
+          <div class="legend-item"><div class="legend-left"><div class="dot" style="background:#7E57C2"></div><span class="legend-name">Salud</span></div><span class="legend-amount">100,00 €</span><span class="legend-percent">8%</span></div>
+          <div class="legend-item"><div class="legend-left"><div class="dot" style="background:#9E9E9E"></div><span class="legend-name">Otros</span></div><span class="legend-amount">88,05 €</span><span class="legend-percent">7%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCESOS RÁPIDOS -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom: 16px;">Accesos rápidos</div>
+      <div class="quick-access">
+        <div class="qa-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          <div class="qa-title">Añadir ingreso</div>
+        </div>
+        <div class="qa-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><polyline points="9 11 12 14 22 4"></polyline></svg>
+          <div class="qa-title">Finalizar mes</div>
+        </div>
+        <div class="qa-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <div class="qa-title">Historia mensual</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENÚ NAVEGACIÓN INFERIOR -->
+    <nav class="bottom-nav">
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Presupuestos
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Fondos reservados
+      </a>
+      <a href="#" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg>
+        Dashboard
+        <div class="active-dot"></div>
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        Objetivos ahorro
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        Misiones
+      </a>
+    </nav>
+  </div>
+
+  <!-- MODAL: INFO PROGRESO -->
+  <div id="infoProgreso" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        Progreso Mensual
+      </div>
+      <div class="modal-text">
+        Esta barra compara el <b>total de tus gastos reales</b> de este mes frente a la suma del <b>presupuesto máximo</b> que has asignado a tus categorías.
+      </div>
+      <div class="modal-text" style="font-size: 13px; color: #777;">
+        Te ayuda a saber de un vistazo si vas a llegar a fin de mes de forma holgada o si necesitas frenar los gastos.
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALLE DISTRIBUCIÓN -->
+  <div id="infoDistribucion" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title">Detalle de Gastos</div>
+      <div class="modal-text">
+        Este gráfico representa el 100% de los gastos que has realizado. El apartado <b>Otros (Gris)</b> se divide en:
+      </div>
+      
+      <!-- Desglose de Otros -->
+      <div class="breakdown-box">
+        <div class="breakdown-item">
+          <span>Gastos imprevistos</span>
+          <strong>45,00 €</strong>
+        </div>
+        <div class="breakdown-item">
+          <span>Pagos desde reservas</span>
+          <strong>20,00 €</strong>
+        </div>
+        <div class="breakdown-item">
+          <span>Pagos desde ahorros</span>
+          <strong>23,05 €</strong>
+        </div>
+        <div class="breakdown-item" style="border-top: 1px solid #E0E0E0; padding-top: 8px; margin-top: 8px;">
+          <span><strong>Total Otros</strong></span>
+          <strong>88,05 €</strong>
+        </div>
+      </div>
+      
+      <div class="modal-text" style="font-size: 12px; color: #777; margin-bottom: 0;">
+        La suma de los porcentajes siempre equivale a 100, mostrando qué área de tu vida consume más recursos este mes.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Mostrar el nombre del usuario guardado
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (usuarioLogueado) {
+      document.getElementById('nombreUsuarioDisplay').innerText = usuarioLogueado;
+    } else {
+      // Si entra directo sin login, redirigimos por seguridad
+      window.location.href = 'login.html';
+    }
+
+    // 2. Generar y formatear la fecha actual (Ej: 21 de agosto 2026)
+    const date = new Date();
+    const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    const dia = date.getDate();
+    const mes = meses[date.getMonth()];
+    const anio = date.getFullYear();
+    document.getElementById('currentDate').innerText = `${dia} de ${mes} ${anio}`;
+
+    // 3. Funciones para los modales
+    function abrirModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function cerrarModal() {
+      document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.classList.remove('active');
+      });
+    }
+  </script>
+</body>
+</html>
