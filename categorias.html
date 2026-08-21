@@ -372,13 +372,18 @@
         userDocData = docSnap.data();
         categoriasActuales = Array.isArray(userDocData.categorias) ? userDocData.categorias : [];
         
-        // --- LÓGICA DE FONDOS DISPONIBLES ---
+        // --- LÓGICA DE FONDOS DISPONIBLES Y LÍMITES ---
         const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
         let fondosRetenidos = 0;
         if (Array.isArray(userDocData.fondosReservados)) userDocData.fondosReservados.forEach(r => fondosRetenidos += (parseFloat(r.cantidadAportada) || 0));
         if (Array.isArray(userDocData.objetivosAhorro)) userDocData.objetivosAhorro.forEach(a => fondosRetenidos += (parseFloat(a.cantidadAportada) || 0));
         
-        window.limitePresupuestable = ingresoTotal - fondosRetenidos; // Límite para asignar en creaciones nuevas
+        // Recuperamos los pagos hechos desde reservas y ahorros
+        const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
+        const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
+        
+        // Límite blindado: Ingresos menos lo retenido y menos lo que ya se gastó de esos fondos
+        window.limitePresupuestable = ingresoTotal - fondosRetenidos - pagosRes - pagosAho; 
         
         actualizarUI();
         generarSelectores();
