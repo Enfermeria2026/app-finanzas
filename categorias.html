@@ -177,27 +177,25 @@
       </div>
     </header>
 
-    <!-- RESUMEN FIJO DE ESTADÍSTICAS Y FONDOS -->
+   <!-- RESUMEN FIJO DE ESTADÍSTICAS Y FONDOS -->
     <div class="summary-box">
       <div class="summary-main">
         <h2 id="sumTotalCat">0</h2>
         <p>Categorías Creadas</p>
       </div>
 
-      <!-- FILA DE GASTOS VS MÁXIMO -->
+      <!-- FILA DE GASTOS VS MÁXIMO (Sin texto redundante) -->
       <div class="summary-budget">
-        <div class="summary-budget-title">Uso del Presupuesto</div>
         <div class="summary-budget-amounts"><span id="gsGastado" style="color: #0B1A2E;">0,00 €</span> <span>/ <span id="gsMaximo">0,00 €</span></span></div>
       </div>
 
-      <div class="summary-row">
-        <div class="summary-col"><div class="summary-val" id="sumGastoCero">0</div><div class="summary-label">Gasto 0€</div></div>
-        <div class="summary-col"><div class="summary-val" id="sumGastoMax">0</div><div class="summary-label">Al 100%</div></div>
-      </div>
-      <div class="summary-row" style="margin-bottom:0;">
-        <div class="summary-col"><div class="summary-val val-green" id="sumVerde">0</div><div class="summary-label">< 50%</div></div>
-        <div class="summary-col"><div class="summary-val val-yellow" id="sumAmarillo">0</div><div class="summary-label">50-80%</div></div>
-        <div class="summary-col"><div class="summary-val val-red" id="sumRojo">0</div><div class="summary-label">> 80%</div></div>
+      <!-- TODAS LAS ESTADÍSTICAS EN UNA SOLA FILA -->
+      <div class="summary-row" style="margin-bottom:0; gap: 2px;">
+        <div class="summary-col"><div class="summary-val" id="sumGastoCero" style="font-size: 15px;">0</div><div class="summary-label" style="font-size: 9.5px; white-space: nowrap;">Gasto 0€</div></div>
+        <div class="summary-col"><div class="summary-val val-green" id="sumVerde" style="font-size: 15px;">0</div><div class="summary-label" style="font-size: 9.5px; white-space: nowrap;">< 50%</div></div>
+        <div class="summary-col"><div class="summary-val val-yellow" id="sumAmarillo" style="font-size: 15px;">0</div><div class="summary-label" style="font-size: 9.5px; white-space: nowrap;">50-80%</div></div>
+        <div class="summary-col"><div class="summary-val val-red" id="sumRojo" style="font-size: 15px;">0</div><div class="summary-label" style="font-size: 9.5px; white-space: nowrap;">> 80%</div></div>
+        <div class="summary-col"><div class="summary-val" id="sumGastoMax" style="font-size: 15px;">0</div><div class="summary-label" style="font-size: 9.5px; white-space: nowrap;">Al 100%</div></div>
       </div>
 
       <!-- FONDOS DISPONIBLES REALES -->
