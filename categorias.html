@@ -496,28 +496,58 @@
 
     document.getElementById('btnPrepararBorrado').addEventListener('click', () => {
       totalDineroHuerfano = 0;
+      
+      // 1. PRIMER PASO: Calcular exactamente cuánto dinero vamos a reasignar
+      categoriasActuales.forEach((cat, index) => {
+        if (itemsSeleccionados.has(index)) totalDineroHuerfano += (parseFloat(cat.gastado) || 0);
+      });
+
       const optDestino = document.getElementById('selectCatDestino');
       const optRepartir = document.getElementById('selectCatRepartir');
       optDestino.innerHTML = ''; optRepartir.innerHTML = '';
-      let opcionesHTML = '';
+      
+      let opcionesDestinoHTML = '';
+      let opcionesRepartirHTML = '';
 
+      // 2. SEGUNDO PASO: Evaluar quién tiene espacio físico para recibirlo
       categoriasActuales.forEach((cat, index) => {
-        if (itemsSeleccionados.has(index)) {
-          totalDineroHuerfano += (parseFloat(cat.gastado) || 0);
-        } else {
-          opcionesHTML += `<option value="${index}">${cat.nombre}</option>`;
+        if (!itemsSeleccionados.has(index)) {
+          const max = parseFloat(cat.presupuesto) || 0;
+          const gastado = parseFloat(cat.gastado) || 0;
+          const margenLibre = max > 0 ? (max - gastado) : 0;
+
+          if (max > 0) {
+            // Para la opción "Todo a una categoría", debe tener espacio de sobra para TODO
+            if (margenLibre >= totalDineroHuerfano) {
+              opcionesDestinoHTML += `<option value="${index}">${cat.nombre} (Libre: ${formatMoney(margenLibre)})</option>`;
+            }
+            // Para la opción "Repartir", basta con que tenga ALGO de espacio > 0
+            if (margenLibre > 0) {
+              opcionesRepartirHTML += `<option value="${index}">${cat.nombre} (Libre: ${formatMoney(margenLibre)})</option>`;
+            }
+          }
         }
       });
 
-      if (opcionesHTML === '') {
-        optDestino.style.display = 'none'; optRepartir.style.display = 'none';
+      // 3. TERCER PASO: Ocultar o mostrar los desplegables según la capacidad
+      if (opcionesDestinoHTML === '') {
+        optDestino.style.display = 'none';
         document.getElementById('msgSinCategorias').style.display = 'block';
-        document.getElementById('msgSinCategoriasRepartir').style.display = 'block';
+        document.getElementById('msgSinCategorias').innerText = 'No hay categorías con capacidad para recibir el total de este importe.';
       } else {
-        optDestino.style.display = 'block'; optRepartir.style.display = 'block';
+        optDestino.style.display = 'block';
         document.getElementById('msgSinCategorias').style.display = 'none';
+        optDestino.innerHTML = opcionesDestinoHTML;
+      }
+
+      if (opcionesRepartirHTML === '') {
+        optRepartir.style.display = 'none';
+        document.getElementById('msgSinCategoriasRepartir').style.display = 'block';
+        document.getElementById('msgSinCategoriasRepartir').innerText = 'Ninguna de tus categorías actuales admite más gastos.';
+      } else {
+        optRepartir.style.display = 'block';
         document.getElementById('msgSinCategoriasRepartir').style.display = 'none';
-        optDestino.innerHTML = opcionesHTML; optRepartir.innerHTML = opcionesHTML;
+        optRepartir.innerHTML = opcionesRepartirHTML;
       }
 
       if (totalDineroHuerfano === 0) {
@@ -548,19 +578,31 @@
           if (document.getElementById('conceptoImprevistos').value.trim() === "") return mostrarAlerta('Falta Concepto', 'Debes introducir un concepto para guardar este dinero como gasto imprevisto.');
         } 
         else if (opcion === 'otras_categorias') {
-          if (!tieneCatsSobrantes) return mostrarAlerta('Acción no permitida', 'No tienes otras categorías para reasignar este gasto. Crea una primero o elige otra opción.');
+          const haySobrantes = (document.getElementById('selectCatDestino').options.length > 0);
+          if (!haySobrantes) return mostrarAlerta('Acción no permitida', 'No tienes categorías con margen suficiente para asumir este gasto íntegro.');
+          
+          const idxDest = parseInt(document.getElementById('selectCatDestino').value);
+          const margen = parseFloat(categoriasActuales[idxDest].presupuesto) - parseFloat(categoriasActuales[idxDest].gastado);
+          if (totalDineroHuerfano > margen) return mostrarAlerta('Límite excedido', `La categoría seleccionada no tiene espacio suficiente.`);
         } 
         else if (opcion === 'repartir') {
           const impImp = parseFloat(document.getElementById('importeRepartirImp').value) || 0;
           const impCat = parseFloat(document.getElementById('importeRepartirCat').value) || 0;
           const concepto = document.getElementById('conceptoRepartirImp').value.trim();
+          const hayRepartir = (document.getElementById('selectCatRepartir').options.length > 0);
           
           if (impImp > 0 && concepto === "") return mostrarAlerta('Falta Concepto', 'Has introducido importe en Imprevistos, pero te falta escribir el Concepto.');
-          if (impCat > 0 && !tieneCatsSobrantes) return mostrarAlerta('Acción no permitida', 'No puedes asignar dinero a categorías porque no tienes ninguna otra disponible.');
+          
+          if (impCat > 0) {
+             if (!hayRepartir) return mostrarAlerta('Acción no permitida', 'No hay categorías con espacio libre disponible.');
+             const idxRep = parseInt(document.getElementById('selectCatRepartir').value);
+             const margen = parseFloat(categoriasActuales[idxRep].presupuesto) - parseFloat(categoriasActuales[idxRep].gastado);
+             if (impCat > margen) return mostrarAlerta('Límite excedido', `Intentas mandar <b>${formatMoney(impCat)}</b> a una categoría que solo tiene <b>${formatMoney(margen)}</b> libres.`);
+          }
           
           const totalRepartido = impImp + impCat;
           if (totalRepartido > totalDineroHuerfano) {
-            return mostrarAlerta('Límite excedido', `Estás intentando repartir <b>${formatMoney(totalRepartido)}</b>, pero el dinero a reasignar es de solo <b>${formatMoney(totalDineroHuerfano)}</b>. Suma correctamente ambas casillas.`);
+            return mostrarAlerta('Descuadre', `Intentas repartir <b>${formatMoney(totalRepartido)}</b>, pero el dinero a reasignar es de <b>${formatMoney(totalDineroHuerfano)}</b>.`);
           }
         }
       }
