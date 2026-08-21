@@ -96,7 +96,7 @@
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: 0.3s; padding: 20px; }
     .modal-overlay.active { display: flex; opacity: 1; }
-    .modal-box { background: white; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: 0.3s; position: relative; max-height: 90vh; overflow-y: auto; }
+    .modal-box { background: white; width: 100%; max-width: 380px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: 0.3s; position: relative; max-height: 90vh; overflow-y: auto; }
     .modal-overlay.active .modal-box { transform: scale(1); }
     .close-modal { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #999; }
     .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 16px; font-weight: bold; text-align: center; }
@@ -116,13 +116,20 @@
     .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; filter: grayscale(100%); }
     .padlock { position: absolute; top: -4px; right: -4px; background: #0B1A2E; color: white; font-size: 8px; border-radius: 50%; width: 14px; height: 14px; display: flex; justify-content: center; align-items: center; }
 
-    .dest-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
-    .btn-dest { flex: 1; padding: 10px; border: 2px solid #E0E0E0; border-radius: 8px; background: white; font-size: 12px; font-weight: 700; color: #666; cursor: pointer; text-align: center; transition: 0.2s; }
-    .btn-dest.active { border-color: #00A878; color: #00A878; background: #E8F5E9; }
-
     /* ESTILO SECCIONES BORRADO REDISTRIBUCIÓN */
-    .repartir-box { background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 12px; }
+    .repartir-box { background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #E0E0E0;}
     .repartir-title { font-size: 12px; font-weight: 700; color: #0B1A2E; margin-bottom: 8px; border-bottom: 1px solid #E0E0E0; padding-bottom: 4px; }
+
+    /* CUADRÍCULA 2x2 PARA ELEGIR DESTINO (SÚPER BONITA) */
+    .dest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .btn-dest { 
+      padding: 14px 10px; border: 2px solid #E0E0E0; border-radius: 12px; background: white; 
+      font-size: 12px; font-weight: 700; color: #555; cursor: pointer; text-align: center; 
+      transition: 0.2s; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 4px;
+    }
+    .btn-dest:active { transform: scale(0.95); }
+    .btn-dest.active { border-color: #00A878; color: #00A878; background: #E8F5E9; box-shadow: 0 4px 12px rgba(0,168,120,0.15); }
+    
   </style>
 </head>
 <body>
@@ -305,27 +312,69 @@
     </div>
   </div>
 
-  <!-- MODAL: TRANSFERIR -->
+  <!-- MODAL: TRANSFERIR (NUEVO DISEÑO 2x2) -->
   <div id="modalTransferir" class="modal-overlay">
     <div class="modal-box">
       <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       <div class="modal-title" style="color: #2196F3;">Transferir Dinero</div>
-      <p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 12px;">Saldo en este objetivo: <strong id="transfSaldoOrigen" style="color: #FF9800;">0,00 €</strong></p>
-      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px;">Destino de la transferencia</label>
-      <div class="dest-toggle">
-        <div class="btn-dest active" id="btnDestFondo" onclick="cambiarTipoDestino('fondo')">Fondo de reserva</div>
-        <div class="btn-dest" id="btnDestObjetivo" onclick="cambiarTipoDestino('objetivo')">Objetivo de ahorro</div>
-      </div>
+      <p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 16px;">Saldo en este objetivo: <strong id="transfSaldoOrigen" style="color: #FF9800;">0,00 €</strong></p>
+      
       <div class="modal-input-group">
-        <label>Selecciona el destino</label>
-        <select id="selectDestino"></select>
-        <p id="msgSinDestino" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay destinos disponibles con capacidad libre.</p>
-      </div>
-      <div class="modal-input-group">
-        <label>Importe a transferir (€)</label>
+        <label>Importe general a transferir (€)</label>
         <input type="number" id="transfImporte" placeholder="Ej: 50.00">
       </div>
-      <button id="btnConfirmarTransferencia" class="btn-main" style="background: #2196F3;">Completar transferencia</button>
+
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 8px;">Elegir destino:</label>
+      <div class="dest-grid">
+        <div class="btn-dest active" id="btnDestFondo" onclick="cambiarTipoDestino('fondo')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          Fondos Reserva
+        </div>
+        <div class="btn-dest" id="btnDestObjetivo" onclick="cambiarTipoDestino('objetivo')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
+          Otros Objetivos
+        </div>
+        <div class="btn-dest" id="btnDestDisponibles" onclick="cambiarTipoDestino('disponibles')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Disponibles
+        </div>
+        <div class="btn-dest" id="btnDestRepartir" onclick="cambiarTipoDestino('repartir')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          Repartir
+        </div>
+      </div>
+
+      <!-- DESPLEGABLES SEGÚN OPCIÓN -->
+      <div id="secTransfFondo" style="display:block;" class="modal-input-group">
+        <label>Selecciona el fondo destino</label>
+        <select id="transfSelectFondo"></select>
+        <p id="msgSinTransfFondo" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay fondos con capacidad libre.</p>
+      </div>
+
+      <div id="secTransfObj" style="display:none;" class="modal-input-group">
+        <label>Selecciona el objetivo destino</label>
+        <select id="transfSelectObj"></select>
+        <p id="msgSinTransfObj" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay objetivos con capacidad libre.</p>
+      </div>
+
+      <div id="secTransfRepartir" style="display:none; background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #E0E0E0;">
+        <div class="repartir-box">
+          <div class="repartir-title">A Fondos Disponibles</div>
+          <input type="number" id="transfRepDispAmt" placeholder="Importe (€)" class="modal-input-group" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:0;">
+        </div>
+        <div class="repartir-box">
+          <div class="repartir-title">A Fondo de Reserva</div>
+          <select id="transfRepFondoSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+          <input type="number" id="transfRepFondoAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
+        </div>
+        <div class="repartir-box">
+          <div class="repartir-title">A Objetivo de Ahorro</div>
+          <select id="transfRepObjSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+          <input type="number" id="transfRepObjAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
+        </div>
+      </div>
+
+      <button id="btnConfirmarTransferencia" class="btn-main" style="background: #2196F3;">Transferir dinero</button>
     </div>
   </div>
 
@@ -341,7 +390,7 @@
     </div>
   </div>
 
-  <!-- MODAL: BORRAR Y REDISTRIBUIR (LA GRAN LÓGICA) -->
+  <!-- MODAL: BORRAR Y REDISTRIBUIR -->
   <div id="modalDelete" class="modal-overlay">
     <div class="modal-box">
       <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -350,29 +399,39 @@
 
       <div id="bloqueRedistribucion" style="display: none;">
         <div class="modal-input-group">
-          <label>¿Qué hacer con el dinero retenido?</label>
-          <select id="selectDeleteAccion">
-            <option value="disponibles">Devolver a Fondos Disponibles</option>
-            <option value="fondo">Transferir a Fondo de Reserva</option>
-            <option value="objetivo">Transferir a otro Objetivo</option>
-            <option value="repartir">Repartir el dinero</option>
-          </select>
+          <label>Elegir destino del dinero:</label>
+          <div class="dest-grid">
+            <div class="btn-dest active" id="btnDelDisponibles" onclick="cambiarDelDestino('disponibles')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              Disponibles
+            </div>
+            <div class="btn-dest" id="btnDelFondo" onclick="cambiarDelDestino('fondo')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              Fondos
+            </div>
+            <div class="btn-dest" id="btnDelObjetivo" onclick="cambiarDelDestino('objetivo')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg>
+              Objetivos
+            </div>
+            <div class="btn-dest" id="btnDelRepartir" onclick="cambiarDelDestino('repartir')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+              Repartir
+            </div>
+          </div>
         </div>
 
-        <!-- OPCIONES DESTINO ÚNICO -->
         <div id="secDelFondo" style="display:none;" class="modal-input-group">
           <label>Selecciona el Fondo destino</label>
           <select id="delSelectFondo"></select>
+          <p id="msgSinDelFondo" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay fondos con capacidad suficiente para este importe.</p>
         </div>
         <div id="secDelObj" style="display:none;" class="modal-input-group">
           <label>Selecciona el Objetivo destino</label>
           <select id="delSelectObj"></select>
+          <p id="msgSinDelObj" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay objetivos con capacidad suficiente para este importe.</p>
         </div>
         
-        <p id="msgSinEspacioUnico" style="display: none; color: #F44336; font-size: 12px; margin-bottom: 12px; font-weight: 600;">No hay opciones con capacidad suficiente para recibir todo el importe. Elige "Devolver a Disponibles" o "Repartir".</p>
-
-        <!-- REPARTIR -->
-        <div id="secDelRepartir" style="display:none; background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+        <div id="secDelRepartir" style="display:none; background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #E0E0E0;">
           <div class="repartir-box">
             <div class="repartir-title">A Fondos Disponibles</div>
             <input type="number" id="repDispAmt" placeholder="Importe (€)" class="modal-input-group" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:0;">
@@ -424,7 +483,9 @@
     let itemsSeleccionados = new Set();
     let currentIndex = -1;
     let fondosDisponiblesGlobal = 0;
+    
     let destinoTipoActual = 'fondo'; 
+    let delTipoActual = 'disponibles';
     let objIdPostPago = -1;
 
     // Helpers UI
@@ -590,20 +651,167 @@
     }
 
     // ==========================================
-    // LOGICA DE BORRADO Y REDISTRIBUCIÓN EXACTA
+    // LOGICA DE TRANSFERENCIA 2x2
+    // ==========================================
+    window.abrirModalTransferir = function(index) {
+      currentIndex = index;
+      const obj = objetivosList[index];
+      const ret = parseFloat(obj.cantidadAportada) || 0;
+
+      document.getElementById('transfSaldoOrigen').innerText = formatMoney(ret);
+      document.getElementById('transfImporte').value = "";
+      document.getElementById('transfRepDispAmt').value = "";
+      document.getElementById('transfRepFondoAmt').value = "";
+      document.getElementById('transfRepObjAmt').value = "";
+
+      cambiarTipoDestino('fondo');
+      abrirModal('modalTransferir');
+    };
+
+    window.cambiarTipoDestino = function(tipo) {
+      destinoTipoActual = tipo;
+      document.getElementById('btnDestFondo').classList.toggle('active', tipo === 'fondo');
+      document.getElementById('btnDestObjetivo').classList.toggle('active', tipo === 'objetivo');
+      document.getElementById('btnDestDisponibles').classList.toggle('active', tipo === 'disponibles');
+      document.getElementById('btnDestRepartir').classList.toggle('active', tipo === 'repartir');
+
+      document.getElementById('secTransfFondo').style.display = tipo === 'fondo' ? 'block' : 'none';
+      document.getElementById('secTransfObj').style.display = tipo === 'objetivo' ? 'block' : 'none';
+      document.getElementById('secTransfRepartir').style.display = tipo === 'repartir' ? 'block' : 'none';
+      
+      actualizarDestinosUI();
+    };
+
+    function actualizarDestinosUI() {
+      const sFondo = document.getElementById('transfSelectFondo');
+      const sObj = document.getElementById('transfSelectObj');
+      const rFondo = document.getElementById('transfRepFondoSel');
+      const rObj = document.getElementById('transfRepObjSel');
+      
+      const mFondo = document.getElementById('msgSinTransfFondo');
+      const mObj = document.getElementById('msgSinTransfObj');
+
+      sFondo.innerHTML = ''; sObj.innerHTML = ''; rFondo.innerHTML = ''; rObj.innerHTML = '';
+
+      let htmlF = '', htmlO = '';
+      
+      const fondos = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
+      fondos.forEach((f, idx) => {
+         const libre = parseFloat(f.objetivo) - parseFloat(f.cantidadAportada);
+         if(libre > 0) htmlF += `<option value="${idx}" data-libre="${libre}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
+      });
+
+      objetivosList.forEach((o, idx) => {
+        if (idx !== currentIndex) {
+           const libre = parseFloat(o.objetivo) - parseFloat(o.cantidadAportada);
+           if(libre > 0) htmlO += `<option value="${idx}" data-libre="${libre}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
+        }
+      });
+
+      if(htmlF === '') { sFondo.style.display = 'none'; mFondo.style.display = 'block'; }
+      else { sFondo.style.display = 'block'; mFondo.style.display = 'none'; sFondo.innerHTML = htmlF; rFondo.innerHTML = htmlF; }
+
+      if(htmlO === '') { sObj.style.display = 'none'; mObj.style.display = 'block'; }
+      else { sObj.style.display = 'block'; mObj.style.display = 'none'; sObj.innerHTML = htmlO; rObj.innerHTML = htmlO; }
+    }
+
+    document.getElementById('btnConfirmarTransferencia').addEventListener('click', async () => {
+      const cantGeneral = parseFloat(document.getElementById('transfImporte').value);
+      const saldoOrigen = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
+
+      if (isNaN(cantGeneral) || cantGeneral <= 0) return mostrarAlerta("Importe no válido", "Escribe el importe a transferir.");
+      if (cantGeneral > saldoOrigen) return mostrarAlerta("Saldo insuficiente", `El objetivo solo tiene <b>${formatMoney(saldoOrigen)}</b>.`);
+
+      if (destinoTipoActual === 'fondo') {
+        const select = document.getElementById('transfSelectFondo');
+        if (select.options.length === 0) return mostrarAlerta("Acción no permitida", "No hay fondos con espacio.");
+        const libre = parseFloat(select.options[select.selectedIndex].dataset.libre);
+        if (cantGeneral > libre) return mostrarAlerta("Límite excedido", `El destino solo admite <b>${formatMoney(libre)}</b>.`);
+      } 
+      else if (destinoTipoActual === 'objetivo') {
+        const select = document.getElementById('transfSelectObj');
+        if (select.options.length === 0) return mostrarAlerta("Acción no permitida", "No hay objetivos con espacio.");
+        const libre = parseFloat(select.options[select.selectedIndex].dataset.libre);
+        if (cantGeneral > libre) return mostrarAlerta("Límite excedido", `El destino solo admite <b>${formatMoney(libre)}</b>.`);
+      }
+      else if (destinoTipoActual === 'repartir') {
+        const iD = parseFloat(document.getElementById('transfRepDispAmt').value) || 0;
+        const iF = parseFloat(document.getElementById('transfRepFondoAmt').value) || 0;
+        const iO = parseFloat(document.getElementById('transfRepObjAmt').value) || 0;
+        
+        if (iF > 0) {
+          const s = document.getElementById('transfRepFondoSel');
+          if (s.options.length === 0) return mostrarAlerta('Error', 'No hay fondos disponibles para repartir.');
+          const libre = parseFloat(s.options[s.selectedIndex].dataset.libre);
+          if (iF > libre) return mostrarAlerta('Límite excedido', `El fondo elegido solo admite ${formatMoney(libre)}.`);
+        }
+        if (iO > 0) {
+          const s = document.getElementById('transfRepObjSel');
+          if (s.options.length === 0) return mostrarAlerta('Error', 'No hay objetivos disponibles para repartir.');
+          const libre = parseFloat(s.options[s.selectedIndex].dataset.libre);
+          if (iO > libre) return mostrarAlerta('Límite excedido', `El objetivo elegido solo admite ${formatMoney(libre)}.`);
+        }
+
+        const sum = iD + iF + iO;
+        if (sum.toFixed(2) !== cantGeneral.toFixed(2)) {
+          return mostrarAlerta('Descuadre', `La suma de las casillas debe ser EXACTAMENTE <b>${formatMoney(cantGeneral)}</b>.`);
+        }
+      }
+
+      const btn = document.getElementById('btnConfirmarTransferencia');
+      btn.innerText = "Transfiriendo..."; btn.disabled = true;
+
+      try {
+        objetivosList[currentIndex].cantidadAportada = saldoOrigen - cantGeneral;
+        let fondosRes = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
+
+        if (destinoTipoActual === 'fondo') {
+          const idx = parseInt(document.getElementById('transfSelectFondo').value);
+          fondosRes[idx].cantidadAportada = (parseFloat(fondosRes[idx].cantidadAportada) || 0) + cantGeneral;
+        } 
+        else if (destinoTipoActual === 'objetivo') {
+          const idx = parseInt(document.getElementById('transfSelectObj').value);
+          objetivosList[idx].cantidadAportada = (parseFloat(objetivosList[idx].cantidadAportada) || 0) + cantGeneral;
+        }
+        else if (destinoTipoActual === 'repartir') {
+          const iF = parseFloat(document.getElementById('transfRepFondoAmt').value) || 0;
+          const iO = parseFloat(document.getElementById('transfRepObjAmt').value) || 0;
+          if (iF > 0) {
+            const idxF = parseInt(document.getElementById('transfRepFondoSel').value);
+            fondosRes[idxF].cantidadAportada = (parseFloat(fondosRes[idxF].cantidadAportada) || 0) + iF;
+          }
+          if (iO > 0) {
+            const idxO = parseInt(document.getElementById('transfRepObjSel').value);
+            objetivosList[idxO].cantidadAportada = (parseFloat(objetivosList[idxO].cantidadAportada) || 0) + iO;
+          }
+        }
+        // "disponibles" y el sobrante de "repartir" no se añaden a ninguna caja. Al restarlo del objetivo origen, se libera solo.
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList, fondosReservados: fondosRes });
+
+        cerrarModal(); cargarDatos();
+        mostrarAlerta("Transferencia completada", `Se han transferido <b>${formatMoney(cantGeneral)}</b> con éxito.`);
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Transferir dinero"; btn.disabled = false; }
+    });
+
+    // ==========================================
+    // LOGICA DE BORRADO MULTIPLE (REDISTRIBUCIÓN 2x2)
     // ==========================================
     let totalDineroHuerfano = 0;
-    const selectDelAccion = document.getElementById('selectDeleteAccion');
+    
+    window.cambiarDelDestino = function(tipo) {
+      delTipoActual = tipo;
+      document.getElementById('btnDelFondo').classList.toggle('active', tipo === 'fondo');
+      document.getElementById('btnDelObjetivo').classList.toggle('active', tipo === 'objetivo');
+      document.getElementById('btnDelDisponibles').classList.toggle('active', tipo === 'disponibles');
+      document.getElementById('btnDelRepartir').classList.toggle('active', tipo === 'repartir');
 
-    selectDelAccion.addEventListener('change', (e) => {
-      document.getElementById('secDelFondo').style.display = 'none';
-      document.getElementById('secDelObj').style.display = 'none';
-      document.getElementById('secDelRepartir').style.display = 'none';
-      
-      if (e.target.value === 'fondo') document.getElementById('secDelFondo').style.display = 'block';
-      else if (e.target.value === 'objetivo') document.getElementById('secDelObj').style.display = 'block';
-      else if (e.target.value === 'repartir') document.getElementById('secDelRepartir').style.display = 'block';
-    });
+      document.getElementById('secDelFondo').style.display = tipo === 'fondo' ? 'block' : 'none';
+      document.getElementById('secDelObj').style.display = tipo === 'objetivo' ? 'block' : 'none';
+      document.getElementById('secDelRepartir').style.display = tipo === 'repartir' ? 'block' : 'none';
+    };
 
     document.getElementById('btnPrepararBorrado').addEventListener('click', () => {
       totalDineroHuerfano = 0;
@@ -611,7 +819,6 @@
         if (itemsSeleccionados.has(idx)) totalDineroHuerfano += (parseFloat(obj.cantidadAportada) || 0);
       });
 
-      // Llenar selects verificando capacidad
       const sFondo = document.getElementById('delSelectFondo');
       const sObj = document.getElementById('delSelectObj');
       const rFondo = document.getElementById('repFondoSel');
@@ -625,8 +832,8 @@
       fondosReservados.forEach((f, idx) => {
         let libre = (parseFloat(f.objetivo) || 0) - (parseFloat(f.cantidadAportada) || 0);
         if (libre > 0) {
-          if (libre >= totalDineroHuerfano) htmlFondoCompleto += `<option value="${idx}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
-          htmlFondoParcial += `<option value="${idx}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
+          if (libre >= totalDineroHuerfano) htmlFondoCompleto += `<option value="${idx}" data-libre="${libre}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
+          htmlFondoParcial += `<option value="${idx}" data-libre="${libre}">${f.nombre} (Libre: ${formatMoney(libre)})</option>`;
         }
       });
 
@@ -634,22 +841,21 @@
         if (!itemsSeleccionados.has(idx)) {
           let libre = (parseFloat(o.objetivo) || 0) - (parseFloat(o.cantidadAportada) || 0);
           if (libre > 0) {
-            if (libre >= totalDineroHuerfano) htmlObjCompleto += `<option value="${idx}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
-            htmlObjParcial += `<option value="${idx}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
+            if (libre >= totalDineroHuerfano) htmlObjCompleto += `<option value="${idx}" data-libre="${libre}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
+            htmlObjParcial += `<option value="${idx}" data-libre="${libre}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
           }
         }
       });
 
-      document.getElementById('msgSinEspacioUnico').style.display = 'none';
+      const msgF = document.getElementById('msgSinDelFondo');
+      const msgO = document.getElementById('msgSinDelObj');
 
-      // Ocultar opciones del SELECT principal si no hay capacidad
-      Array.from(selectDelAccion.options).forEach(opt => {
-         if (opt.value === 'fondo') opt.disabled = (htmlFondoCompleto === '');
-         if (opt.value === 'objetivo') opt.disabled = (htmlObjCompleto === '');
-      });
+      if (htmlFondoCompleto === '') { sFondo.style.display='none'; msgF.style.display='block'; document.getElementById('btnDelFondo').style.opacity='0.4'; document.getElementById('btnDelFondo').style.pointerEvents='none'; } 
+      else { sFondo.style.display='block'; msgF.style.display='none'; sFondo.innerHTML = htmlFondoCompleto; document.getElementById('btnDelFondo').style.opacity='1'; document.getElementById('btnDelFondo').style.pointerEvents='auto';}
 
-      if (htmlFondoCompleto !== '') sFondo.innerHTML = htmlFondoCompleto;
-      if (htmlObjCompleto !== '') sObj.innerHTML = htmlObjCompleto;
+      if (htmlObjCompleto === '') { sObj.style.display='none'; msgO.style.display='block'; document.getElementById('btnDelObjetivo').style.opacity='0.4'; document.getElementById('btnDelObjetivo').style.pointerEvents='none'; } 
+      else { sObj.style.display='block'; msgO.style.display='none'; sObj.innerHTML = htmlObjCompleto; document.getElementById('btnDelObjetivo').style.opacity='1'; document.getElementById('btnDelObjetivo').style.pointerEvents='auto';}
+
       if (htmlFondoParcial !== '') rFondo.innerHTML = htmlFondoParcial;
       if (htmlObjParcial !== '') rObj.innerHTML = htmlObjParcial;
 
@@ -657,14 +863,10 @@
         document.getElementById('textoBorradoInfo').innerHTML = `Vas a borrar <b>${itemsSeleccionados.size} objetivos</b>.<br><br>Al no tener fondos retenidos, puedes borrarlos directamente.`;
         document.getElementById('bloqueRedistribucion').style.display = 'none';
       } else {
-        document.getElementById('textoBorradoInfo').innerHTML = `Estás a punto de borrar objetivos que contienen ahorros por valor de <b style="color:#00A878;">${formatMoney(totalDineroHuerfano)}</b>.`;
+        document.getElementById('textoBorradoInfo').innerHTML = `Estás a punto de borrar objetivos que contienen ahorros por valor de <b style="color:#00A878;">${formatMoney(totalDineroHuerfano)}</b>.<br>Elegir destino:`;
         document.getElementById('bloqueRedistribucion').style.display = 'block';
-        
-        selectDelAccion.value = 'disponibles';
-        selectDelAccion.dispatchEvent(new Event('change'));
-        document.getElementById('repDispAmt').value = '';
-        document.getElementById('repFondoAmt').value = '';
-        document.getElementById('repObjAmt').value = '';
+        cambiarDelDestino('disponibles');
+        document.getElementById('repDispAmt').value = ''; document.getElementById('repFondoAmt').value = ''; document.getElementById('repObjAmt').value = '';
       }
 
       abrirModal('modalDelete');
@@ -672,29 +874,36 @@
 
     document.getElementById('btnConfirmarDelete').addEventListener('click', async () => {
       const btn = document.getElementById('btnConfirmarDelete');
-      const opcion = selectDelAccion.value;
       const fondosRes = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
 
       if (totalDineroHuerfano > 0) {
-        if (opcion === 'fondo') {
-          if (document.getElementById('delSelectFondo').options.length === 0) return mostrarAlerta('Error', 'No hay fondos disponibles.');
-        } else if (opcion === 'objetivo') {
-          if (document.getElementById('delSelectObj').options.length === 0) return mostrarAlerta('Error', 'No hay objetivos disponibles.');
-        } else if (opcion === 'repartir') {
+        if (delTipoActual === 'fondo') {
+          const s = document.getElementById('delSelectFondo');
+          if (s.options.length === 0) return mostrarAlerta('Error', 'No hay fondos con espacio.');
+          const libre = parseFloat(s.options[s.selectedIndex].dataset.libre);
+          if (totalDineroHuerfano > libre) return mostrarAlerta('Error', 'El fondo no tiene capacidad.');
+        } 
+        else if (delTipoActual === 'objetivo') {
+          const s = document.getElementById('delSelectObj');
+          if (s.options.length === 0) return mostrarAlerta('Error', 'No hay objetivos con espacio.');
+          const libre = parseFloat(s.options[s.selectedIndex].dataset.libre);
+          if (totalDineroHuerfano > libre) return mostrarAlerta('Error', 'El objetivo no tiene capacidad.');
+        } 
+        else if (delTipoActual === 'repartir') {
           const iDisp = parseFloat(document.getElementById('repDispAmt').value) || 0;
           const iFondo = parseFloat(document.getElementById('repFondoAmt').value) || 0;
           const iObj = parseFloat(document.getElementById('repObjAmt').value) || 0;
 
           if (iFondo > 0) {
-            if (document.getElementById('repFondoSel').options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay fondos con espacio libre.');
-            const idx = parseInt(document.getElementById('repFondoSel').value);
-            const libre = (parseFloat(fondosRes[idx].objetivo) || 0) - (parseFloat(fondosRes[idx].cantidadAportada) || 0);
+            const s = document.getElementById('repFondoSel');
+            if (s.options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay fondos con espacio libre.');
+            const libre = parseFloat(s.options[s.selectedIndex].dataset.libre);
             if (iFondo > libre) return mostrarAlerta('Límite excedido', `El fondo solo admite ${formatMoney(libre)}.`);
           }
           if (iObj > 0) {
-            if (document.getElementById('repObjSel').options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay objetivos con espacio libre.');
-            const idx = parseInt(document.getElementById('repObjSel').value);
-            const libre = (parseFloat(objetivosList[idx].objetivo) || 0) - (parseFloat(objetivosList[idx].cantidadAportada) || 0);
+            const s = document.getElementById('repObjSel');
+            if (s.options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay objetivos con espacio libre.');
+            const libre = parseFloat(s.options[s.selectedIndex].dataset.libre);
             if (iObj > libre) return mostrarAlerta('Límite excedido', `El objetivo solo admite ${formatMoney(libre)}.`);
           }
 
@@ -709,16 +918,16 @@
 
       try {
         let nuevosAhorros = [];
-        let indexFondoUnico = opcion === 'fondo' && totalDineroHuerfano > 0 ? parseInt(document.getElementById('delSelectFondo').value) : -1;
-        let indexObjUnico = opcion === 'objetivo' && totalDineroHuerfano > 0 ? parseInt(document.getElementById('delSelectObj').value) : -1;
+        let idxDestFondo = (delTipoActual === 'fondo' && totalDineroHuerfano > 0) ? parseInt(document.getElementById('delSelectFondo').value) : -1;
+        let idxDestObj = (delTipoActual === 'objetivo' && totalDineroHuerfano > 0) ? parseInt(document.getElementById('delSelectObj').value) : -1;
 
         objetivosList.forEach((o, idx) => {
           if (!itemsSeleccionados.has(idx)) {
             let objLimpio = { ...o };
-            if (totalDineroHuerfano > 0 && opcion === 'objetivo' && idx === indexObjUnico) {
+            if (totalDineroHuerfano > 0 && delTipoActual === 'objetivo' && idx === idxDestObj) {
               objLimpio.cantidadAportada = (parseFloat(objLimpio.cantidadAportada) || 0) + totalDineroHuerfano;
             }
-            if (totalDineroHuerfano > 0 && opcion === 'repartir') {
+            if (totalDineroHuerfano > 0 && delTipoActual === 'repartir') {
               const rIdx = parseInt(document.getElementById('repObjSel').value);
               const iObj = parseFloat(document.getElementById('repObjAmt').value) || 0;
               if (iObj > 0 && idx === rIdx) objLimpio.cantidadAportada = (parseFloat(objLimpio.cantidadAportada) || 0) + iObj;
@@ -728,9 +937,9 @@
         });
 
         if (totalDineroHuerfano > 0) {
-          if (opcion === 'fondo') {
-             fondosRes[indexFondoUnico].cantidadAportada = (parseFloat(fondosRes[indexFondoUnico].cantidadAportada) || 0) + totalDineroHuerfano;
-          } else if (opcion === 'repartir') {
+          if (delTipoActual === 'fondo') {
+             fondosRes[idxDestFondo].cantidadAportada = (parseFloat(fondosRes[idxDestFondo].cantidadAportada) || 0) + totalDineroHuerfano;
+          } else if (delTipoActual === 'repartir') {
              const iFondo = parseFloat(document.getElementById('repFondoAmt').value) || 0;
              if (iFondo > 0) {
                 const rIdxF = parseInt(document.getElementById('repFondoSel').value);
@@ -742,18 +951,116 @@
         const userRef = doc(db, "usuarios", usuarioLogueado);
         await updateDoc(userRef, { objetivosAhorro: nuevosAhorros, fondosReservados: fondosRes });
 
-        cerrarModal();
-        cargarDatos();
-      } catch (e) {
-        mostrarAlerta("Error", e.message);
-      } finally {
-        btn.innerText = "Borrar definitivamente"; btn.disabled = false;
-      }
+        cerrarModal(); cargarDatos();
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Borrar definitivamente"; btn.disabled = false; }
     });
 
     // ==========================================
-    // ACCIONES DE TARJETA (+, Pagar, Transferir)
+    // CREAR Y EDITAR OBJETIVOS 
     // ==========================================
+    let addIcon = "🎯", addColor = "#4CAF50";
+    let editIcon = "🎯", editColor = "#4CAF50";
+
+    function generarSelectoresUI() {
+      const iconosComprados = Array.isArray(userDocData.iconosComprados) ? userDocData.iconosComprados : [];
+      const coloresComprados = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados : [];
+
+      ['add', 'edit'].forEach(modo => {
+        const contIco = document.getElementById(`${modo}IconSelector`);
+        const contCol = document.getElementById(`${modo}ColorSelector`);
+        contIco.innerHTML = ''; contCol.innerHTML = '';
+
+        baseIcons.forEach(ico => {
+          const div = document.createElement('div');
+          div.className = 'item-select'; div.dataset.val = ico; div.innerText = ico;
+          div.onclick = function() { contIco.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addIcon = ico; else editIcon = ico; };
+          contIco.appendChild(div);
+        });
+        premiumIcons.filter(ico => iconosComprados.includes(ico)).forEach(ico => {
+          const div = document.createElement('div');
+          div.className = 'item-select'; div.dataset.val = ico; div.innerText = ico;
+          div.onclick = function() { contIco.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addIcon = ico; else editIcon = ico; };
+          contIco.appendChild(div);
+        });
+        premiumIcons.filter(ico => !iconosComprados.includes(ico)).forEach(ico => {
+          const div = document.createElement('div');
+          div.className = 'item-select item-locked'; div.innerHTML = `${ico}<div class="padlock">🔒</div>`;
+          div.onclick = () => mostrarAlerta('Bloqueado', 'Visita la tienda.');
+          contIco.appendChild(div);
+        });
+
+        baseColors.forEach(col => {
+          const div = document.createElement('div');
+          div.className = 'item-select'; div.dataset.val = col; div.style.background = col;
+          div.onclick = function() { contCol.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addColor = col; else editColor = col; };
+          contCol.appendChild(div);
+        });
+        premiumColors.filter(col => coloresComprados.includes(col)).forEach(col => {
+          const div = document.createElement('div');
+          div.className = 'item-select'; div.dataset.val = col; div.style.background = col;
+          div.onclick = function() { contCol.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addColor = col; else editColor = col; };
+          contCol.appendChild(div);
+        });
+        premiumColors.filter(col => !coloresComprados.includes(col)).forEach(col => {
+          const div = document.createElement('div');
+          div.className = 'item-select item-locked'; div.style.background = col; div.innerHTML = `<div class="padlock">🔒</div>`;
+          div.onclick = () => mostrarAlerta('Premium', 'Visita la tienda.');
+          contCol.appendChild(div);
+        });
+      });
+    }
+
+    document.getElementById('btnAbrirAdd').addEventListener('click', () => {
+      document.getElementById('addNombre').value = ''; document.getElementById('addMeta').value = '';
+      addIcon = '🎯'; addColor = '#4CAF50'; abrirModal('modalAdd');
+    });
+
+    document.getElementById('btnConfirmarAdd').addEventListener('click', async () => {
+      const nombre = document.getElementById('addNombre').value.trim();
+      const meta = parseFloat(document.getElementById('addMeta').value);
+      if (nombre === "") return mostrarAlerta("Faltan datos", "Escribe un nombre.");
+      if (isNaN(meta) || meta <= 0) return mostrarAlerta("Meta inválida", "La meta debe ser mayor a 0.");
+
+      const btn = document.getElementById('btnConfirmarAdd'); btn.innerText = "Guardando..."; btn.disabled = true;
+
+      try {
+        objetivosList.push({ nombre: nombre, objetivo: meta, cantidadAportada: 0, icono: addIcon, color: addColor });
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList });
+        cerrarModal(); cargarDatos();
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Crear objetivo"; btn.disabled = false; }
+    });
+
+    window.abrirModalEdit = function(index) {
+      currentIndex = index; const obj = objetivosList[index];
+      document.getElementById('editNombre').value = obj.nombre; document.getElementById('editMeta').value = obj.objetivo;
+      editIcon = obj.icono || '🎯'; editColor = obj.color || '#4CAF50'; abrirModal('modalEdit');
+    };
+
+    document.getElementById('btnConfirmarEdit').addEventListener('click', async () => {
+      const nombre = document.getElementById('editNombre').value.trim();
+      const meta = parseFloat(document.getElementById('editMeta').value);
+      const yaRetenido = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
+
+      if (nombre === "") return mostrarAlerta("Faltan datos", "El objetivo debe tener un nombre.");
+      if (isNaN(meta) || meta <= 0) return mostrarAlerta("Meta inválida", "La meta debe ser mayor a 0.");
+      if (meta < yaRetenido) return mostrarAlerta("Límite inválido", `La meta no puede ser inferior al dinero ahorrado (<b>${formatMoney(yaRetenido)}</b>).`);
+
+      const btn = document.getElementById('btnConfirmarEdit'); btn.innerText = "Guardando..."; btn.disabled = true;
+
+      try {
+        objetivosList[currentIndex].nombre = nombre; objetivosList[currentIndex].objetivo = meta;
+        objetivosList[currentIndex].icono = editIcon; objetivosList[currentIndex].color = editColor;
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { objetivosAhorro: objetivosList });
+        cerrarModal(); cargarDatos();
+      } catch (e) { mostrarAlerta("Error", e.message); } 
+      finally { btn.innerText = "Guardar cambios"; btn.disabled = false; }
+    });
+
+    // AÑADIR DINERO, PAGAR Y POST-PAGO (Igual que en reservas)
     window.abrirModalAddDinero = function(index) {
       currentIndex = index;
       const obj = objetivosList[index];
@@ -774,8 +1081,7 @@
 
       if (cant > libre) return mostrarAlerta("Meta excedida", `Para alcanzar tu meta solo necesitas <b>${formatMoney(libre)}</b>.`);
 
-      const btn = document.getElementById('btnConfirmarAddDinero');
-      btn.innerText = "Guardando..."; btn.disabled = true;
+      const btn = document.getElementById('btnConfirmarAddDinero'); btn.innerText = "Guardando..."; btn.disabled = true;
 
       try {
         objetivosList[currentIndex].cantidadAportada = retenido + cant;
@@ -787,19 +1093,10 @@
     });
 
     window.abrirModalPagar = function(index) {
-      currentIndex = index;
-      const obj = objetivosList[index];
-      const ret = parseFloat(obj.cantidadAportada) || 0;
-
-      document.getElementById('pagarName').innerText = obj.nombre;
-      document.getElementById('pagarSaldoRetenido').innerText = formatMoney(ret);
-      document.getElementById('pagarConcepto').value = "";
-      document.getElementById('pagarImporte').value = "";
-      document.getElementById('checkPagarTodo').checked = false;
-
-      document.getElementById('checkPagarTodo').onchange = function() {
-        document.getElementById('pagarImporte').value = this.checked ? ret : "";
-      };
+      currentIndex = index; const obj = objetivosList[index]; const ret = parseFloat(obj.cantidadAportada) || 0;
+      document.getElementById('pagarName').innerText = obj.nombre; document.getElementById('pagarSaldoRetenido').innerText = formatMoney(ret);
+      document.getElementById('pagarConcepto').value = ""; document.getElementById('pagarImporte').value = ""; document.getElementById('checkPagarTodo').checked = false;
+      document.getElementById('checkPagarTodo').onchange = function() { document.getElementById('pagarImporte').value = this.checked ? ret : ""; };
       abrirModal('modalPagar');
     };
 
@@ -812,13 +1109,11 @@
       if (isNaN(cant) || cant <= 0) return mostrarAlerta("Importe no válido", "Introduce una cantidad válida.");
       if (cant > saldoRetenido) return mostrarAlerta("Saldo insuficiente", `El ahorro actual es de <b>${formatMoney(saldoRetenido)}</b>.`);
 
-      const btn = document.getElementById('btnConfirmarPago');
-      btn.innerText = "Procesando..."; btn.disabled = true;
+      const btn = document.getElementById('btnConfirmarPago'); btn.innerText = "Procesando..."; btn.disabled = true;
 
       try {
         const nuevoSaldo = saldoRetenido - cant;
         objetivosList[currentIndex].cantidadAportada = nuevoSaldo;
-
         const historial = Array.isArray(userDocData.historialGastos) ? userDocData.historialGastos : [];
         historial.push({ concepto: concepto, cantidad: cant, categoria: `Pago Ahorro: ${objetivosList[currentIndex].nombre}`, fecha: new Date().toISOString() });
         const nuevoPagos = (parseFloat(userDocData.pagosDesdeAhorros) || 0) + cant;
@@ -827,13 +1122,8 @@
         await updateDoc(userRef, { objetivosAhorro: objetivosList, pagosDesdeAhorros: nuevoPagos, historialGastos: historial });
 
         cerrarModal();
-
-        if (nuevoSaldo === 0) {
-          objIdPostPago = currentIndex;
-          abrirModal('modalPostPagoVacio');
-        } else {
-          cargarDatos(); mostrarAlerta("Pago efectuado", `Se ha descontado <b>${formatMoney(cant)}</b> del objetivo.`);
-        }
+        if (nuevoSaldo === 0) { objIdPostPago = currentIndex; abrirModal('modalPostPagoVacio'); } 
+        else { cargarDatos(); mostrarAlerta("Pago efectuado", `Se ha descontado <b>${formatMoney(cant)}</b> del objetivo.`); }
       } catch (e) { mostrarAlerta("Error", e.message); } 
       finally { btn.innerText = "Confirmar pago"; btn.disabled = false; }
     });
@@ -846,209 +1136,6 @@
         await updateDoc(userRef, { objetivosAhorro: objetivosList });
         cerrarModal(); cargarDatos();
       } catch (e) { mostrarAlerta("Error", e.message); }
-    });
-
-    window.abrirModalTransferir = function(index) {
-      currentIndex = index;
-      const obj = objetivosList[index];
-      const ret = parseFloat(obj.cantidadAportada) || 0;
-
-      document.getElementById('transfSaldoOrigen').innerText = formatMoney(ret);
-      document.getElementById('transfImporte').value = "";
-      destinoTipoActual = 'fondo';
-      actualizarDestinosUI();
-      abrirModal('modalTransferir');
-    };
-
-    window.cambiarTipoDestino = function(tipo) {
-      destinoTipoActual = tipo;
-      document.getElementById('btnDestFondo').classList.toggle('active', tipo === 'fondo');
-      document.getElementById('btnDestObjetivo').classList.toggle('active', tipo === 'objetivo');
-      actualizarDestinosUI();
-    };
-
-    function actualizarDestinosUI() {
-      const select = document.getElementById('selectDestino');
-      const msgSin = document.getElementById('msgSinDestino');
-      select.innerHTML = '';
-
-      let opciones = [];
-      if (destinoTipoActual === 'fondo') {
-        const fondos = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
-        fondos.forEach((f, idx) => {
-           const libre = parseFloat(f.objetivo) - parseFloat(f.cantidadAportada);
-           if(libre > 0) opciones.push({ id: idx, nombre: f.nombre + ` (Libre: ${formatMoney(libre)})`, libre: libre });
-        });
-      } else {
-        objetivosList.forEach((o, idx) => {
-          if (idx !== currentIndex) {
-             const libre = parseFloat(o.objetivo) - parseFloat(o.cantidadAportada);
-             if(libre > 0) opciones.push({ id: idx, nombre: o.nombre + ` (Libre: ${formatMoney(libre)})`, libre: libre });
-          }
-        });
-      }
-
-      if (opciones.length === 0) {
-        select.style.display = 'none'; msgSin.style.display = 'block';
-      } else {
-        select.style.display = 'block'; msgSin.style.display = 'none';
-        opciones.forEach(op => {
-          const opt = document.createElement('option');
-          opt.value = op.id; opt.dataset.libre = op.libre; opt.innerText = op.nombre;
-          select.appendChild(opt);
-        });
-      }
-    }
-
-    document.getElementById('btnConfirmarTransferencia').addEventListener('click', async () => {
-      const select = document.getElementById('selectDestino');
-      if (select.style.display === 'none' || select.options.length === 0) return mostrarAlerta("Sin destino", "No hay ningún destino con capacidad.");
-
-      const cant = parseFloat(document.getElementById('transfImporte').value);
-      const saldoOrigen = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
-      const destIndex = parseInt(select.value);
-      const destLibre = parseFloat(select.options[select.selectedIndex].dataset.libre);
-
-      if (isNaN(cant) || cant <= 0) return mostrarAlerta("Importe no válido", "Introduce una cantidad válida.");
-      if (cant > saldoOrigen) return mostrarAlerta("Saldo insuficiente", `El objetivo solo tiene <b>${formatMoney(saldoOrigen)}</b>.`);
-      if (cant > destLibre) return mostrarAlerta("Destino lleno", `El destino solo admite <b>${formatMoney(destLibre)}</b>.`);
-
-      const btn = document.getElementById('btnConfirmarTransferencia');
-      btn.innerText = "Transfiriendo..."; btn.disabled = true;
-
-      try {
-        objetivosList[currentIndex].cantidadAportada = saldoOrigen - cant;
-        let fondosActualizados = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
-
-        if (destinoTipoActual === 'fondo') fondosActualizados[destIndex].cantidadAportada = (parseFloat(fondosActualizados[destIndex].cantidadAportada) || 0) + cant;
-        else objetivosList[destIndex].cantidadAportada = (parseFloat(objetivosList[destIndex].cantidadAportada) || 0) + cant;
-
-        const userRef = doc(db, "usuarios", usuarioLogueado);
-        await updateDoc(userRef, { objetivosAhorro: objetivosList, fondosReservados: fondosActualizados });
-
-        cerrarModal(); cargarDatos();
-        mostrarAlerta("Transferencia completada", `Se han movido <b>${formatMoney(cant)}</b> con éxito.`);
-      } catch (e) { mostrarAlerta("Error", e.message); } 
-      finally { btn.innerText = "Completar transferencia"; btn.disabled = false; }
-    });
-
-    // ==========================================
-    // CREAR Y EDITAR OBJETIVOS (SIN FECHA)
-    // ==========================================
-    let addIcon = "🎯", addColor = "#4CAF50";
-    let editIcon = "🎯", editColor = "#4CAF50";
-
-    function generarSelectoresUI() {
-      const iconosComprados = Array.isArray(userDocData.iconosComprados) ? userDocData.iconosComprados : [];
-      const coloresComprados = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados : [];
-
-      ['add', 'edit'].forEach(modo => {
-        const contIco = document.getElementById(`${modo}IconSelector`);
-        const contCol = document.getElementById(`${modo}ColorSelector`);
-        contIco.innerHTML = ''; contCol.innerHTML = '';
-
-        baseIcons.forEach(ico => {
-          const div = document.createElement('div');
-          div.className = 'item-select'; div.dataset.val = ico; div.innerText = ico;
-          div.onclick = function() { contIco.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addIcon = ico; else editIcon = ico; };
-          contIco.appendChild(div);
-        });
-
-        premiumIcons.filter(ico => iconosComprados.includes(ico)).forEach(ico => {
-          const div = document.createElement('div');
-          div.className = 'item-select'; div.dataset.val = ico; div.innerText = ico;
-          div.onclick = function() { contIco.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addIcon = ico; else editIcon = ico; };
-          contIco.appendChild(div);
-        });
-
-        premiumIcons.filter(ico => !iconosComprados.includes(ico)).forEach(ico => {
-          const div = document.createElement('div');
-          div.className = 'item-select item-locked'; div.innerHTML = `${ico}<div class="padlock">🔒</div>`;
-          div.onclick = () => mostrarAlerta('Bloqueado', 'Visita la tienda para desbloquear este icono.');
-          contIco.appendChild(div);
-        });
-
-        baseColors.forEach(col => {
-          const div = document.createElement('div');
-          div.className = 'item-select'; div.dataset.val = col; div.style.background = col;
-          div.onclick = function() { contCol.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addColor = col; else editColor = col; };
-          contCol.appendChild(div);
-        });
-
-        premiumColors.filter(col => coloresComprados.includes(col)).forEach(col => {
-          const div = document.createElement('div');
-          div.className = 'item-select'; div.dataset.val = col; div.style.background = col;
-          div.onclick = function() { contCol.querySelectorAll('.item-select').forEach(i => i.classList.remove('active')); this.classList.add('active'); if (modo === 'add') addColor = col; else editColor = col; };
-          contCol.appendChild(div);
-        });
-
-        premiumColors.filter(col => !coloresComprados.includes(col)).forEach(col => {
-          const div = document.createElement('div');
-          div.className = 'item-select item-locked'; div.style.background = col; div.innerHTML = `<div class="padlock">🔒</div>`;
-          div.onclick = () => mostrarAlerta('Premium', 'Visita la tienda para desbloquear este color.');
-          contCol.appendChild(div);
-        });
-      });
-    }
-
-    document.getElementById('btnAbrirAdd').addEventListener('click', () => {
-      document.getElementById('addNombre').value = '';
-      document.getElementById('addMeta').value = '';
-      addIcon = '🎯'; addColor = '#4CAF50';
-      abrirModal('modalAdd');
-    });
-
-    document.getElementById('btnConfirmarAdd').addEventListener('click', async () => {
-      const nombre = document.getElementById('addNombre').value.trim();
-      const meta = parseFloat(document.getElementById('addMeta').value);
-
-      if (nombre === "") return mostrarAlerta("Faltan datos", "Escribe un nombre.");
-      if (isNaN(meta) || meta <= 0) return mostrarAlerta("Meta inválida", "La meta debe ser mayor a 0.");
-
-      const btn = document.getElementById('btnConfirmarAdd');
-      btn.innerText = "Guardando..."; btn.disabled = true;
-
-      try {
-        objetivosList.push({ nombre: nombre, objetivo: meta, cantidadAportada: 0, icono: addIcon, color: addColor });
-        const userRef = doc(db, "usuarios", usuarioLogueado);
-        await updateDoc(userRef, { objetivosAhorro: objetivosList });
-        cerrarModal(); cargarDatos();
-      } catch (e) { mostrarAlerta("Error", e.message); } 
-      finally { btn.innerText = "Crear objetivo"; btn.disabled = false; }
-    });
-
-    window.abrirModalEdit = function(index) {
-      currentIndex = index;
-      const obj = objetivosList[index];
-      document.getElementById('editNombre').value = obj.nombre;
-      document.getElementById('editMeta').value = obj.objetivo;
-      editIcon = obj.icono || '🎯'; editColor = obj.color || '#4CAF50';
-      abrirModal('modalEdit');
-    };
-
-    document.getElementById('btnConfirmarEdit').addEventListener('click', async () => {
-      const nombre = document.getElementById('editNombre').value.trim();
-      const meta = parseFloat(document.getElementById('editMeta').value);
-      const yaRetenido = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
-
-      if (nombre === "") return mostrarAlerta("Faltan datos", "El objetivo debe tener un nombre.");
-      if (isNaN(meta) || meta <= 0) return mostrarAlerta("Meta inválida", "La meta debe ser mayor a 0.");
-      if (meta < yaRetenido) return mostrarAlerta("Límite inválido", `La meta no puede ser inferior al dinero ahorrado (<b>${formatMoney(yaRetenido)}</b>).`);
-
-      const btn = document.getElementById('btnConfirmarEdit');
-      btn.innerText = "Guardando..."; btn.disabled = true;
-
-      try {
-        objetivosList[currentIndex].nombre = nombre;
-        objetivosList[currentIndex].objetivo = meta;
-        objetivosList[currentIndex].icono = editIcon;
-        objetivosList[currentIndex].color = editColor;
-
-        const userRef = doc(db, "usuarios", usuarioLogueado);
-        await updateDoc(userRef, { objetivosAhorro: objetivosList });
-        cerrarModal(); cargarDatos();
-      } catch (e) { mostrarAlerta("Error", e.message); } 
-      finally { btn.innerText = "Guardar cambios"; btn.disabled = false; }
     });
 
     cargarDatos();
