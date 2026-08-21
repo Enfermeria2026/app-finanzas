@@ -24,14 +24,13 @@
     .section-title { font-size: 14px; font-weight: 800; color: #0B1A2E; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
     .offers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
     .offer-card { background: white; border-radius: 16px; padding: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 2px solid transparent; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 110px;}
-    .offer-card.selected { border-color: #00A878; background: #F4F9F8; }
+    .offer-card:active { transform: scale(0.95); }
     .offer-badge { position: absolute; top: 0; left: 0; width: 100%; background: #F44336; color: white; font-size: 10px; font-weight: 800; padding: 4px 0; text-transform: uppercase; }
     .offer-content { font-size: 32px; margin-top: 12px; margin-bottom: 8px; }
     .offer-price { font-size: 14px; font-weight: 800; color: #F57F17; display: flex; justify-content: center; align-items: center; gap: 4px;}
     .offer-price-old { font-size: 11px; color: #999; text-decoration: line-through; margin-right: 4px;}
     
     .btn-free { background: #E8F5E9; border: 1px solid #A5D6A7; }
-    .btn-free:active { transform: scale(0.95); }
     .btn-free.disabled { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
 
     /* PESTAÑAS (TABS) */
@@ -120,7 +119,7 @@
 
       <!-- PESTAÑAS -->
       <div class="tabs">
-        <div class="tab active" id="tabIconos" onclick="switchTab('iconos')">Iconos</div>
+        <div class="tab active" id="tabIconos" onclick="switchTab('iconos')">Catálogo de Iconos</div>
         <div class="tab" id="tabColores" onclick="switchTab('colores')">Colores</div>
       </div>
 
@@ -152,6 +151,18 @@
     </div>
   </div>
 
+  <!-- MODAL: CONFIRMAR COMPRA DE OFERTA DIRECTA -->
+  <div id="modalConfirmOferta" class="modal-overlay">
+    <div class="modal-box" style="align-items: center; text-align: center; padding: 32px 24px;">
+      <div style="font-size: 18px; font-weight: bold; color: #0B1A2E; margin-bottom: 12px;">Comprar Oferta</div>
+      <div id="confirmOfertaMensaje" style="font-size: 14px; color: #555; margin-bottom: 24px;">¿Quieres comprar esto?</div>
+      <div class="modal-actions" style="width: 100%;">
+        <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-main" id="btnComprarOferta">Comprar ahora</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: CARRITO Y TICKETS -->
   <div id="modalCart" class="modal-overlay">
     <div class="modal-box">
@@ -169,7 +180,7 @@
 
       <div class="modal-actions">
         <button class="btn-secondary" onclick="cerrarModal()">Seguir comprando</button>
-        <button class="btn-main" id="btnFinalizarCompra">Finalizar</button>
+        <button class="btn-main" id="btnFinalizarCompra">Pagar</button>
       </div>
     </div>
   </div>
@@ -197,7 +208,7 @@
     // BASE DE DATOS DE LA TIENDA
     // ==========================================
     const PRECIOS = { common: 120, rare: 160, unique: 200, color: 60 };
-    const BASE_ICONS = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"]; // El usuario los tiene de serie
+    const BASE_ICONS = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"]; 
     const BASE_COLORS = ["#2196F3","#F44336","#FFC107","#4CAF50","#FFFFFF","#FF9800"];
 
     const CUPONES_VALIDOS = {
@@ -247,12 +258,14 @@
     let misCuponesUsados = [];
     let tiendaDiaria = {};
     
-    let carrito = []; // { id: str, tipo: 'icono'|'color'|'caja', precio: num, ref: DOMid, rarity: str }
-    let cuponAplicado = null; // {codigo: str, descuento: num}
+    let carrito = []; 
+    let cuponAplicado = null; 
+    let ofertaPendiente = null; // Para la ventana de confirmación rápida
 
     // UTILS
     window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
-    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; document.getElementById('modalAlertaBasica').classList.add('active'); };
+    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); };
+    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; abrirModal('modalAlertaBasica'); };
     window.switchTab = function(tab) {
       document.getElementById('tabIconos').classList.remove('active');
       document.getElementById('tabColores').classList.remove('active');
@@ -286,10 +299,10 @@
     }
 
     // ==========================================
-    // LÓGICA DE OFERTAS DIARIAS Y CAJA MISTERIOSA
+    // LÓGICA DE OFERTAS DIARIAS (COMPRA DIRECTA)
     // ==========================================
     async function gestionarOfertasDiarias() {
-      const hoy = new Date().toLocaleDateString('es-ES'); // ej: "21/8/2026"
+      const hoy = new Date().toLocaleDateString('es-ES'); 
       
       if (tiendaDiaria.fecha !== hoy) {
         // GENERAR NUEVAS OFERTAS
@@ -301,19 +314,15 @@
 
         let ofertaIco = null, ofertaCol = null, ofertaCaja = null;
 
-        // 1. Random Icon (30% off)
         if (unownedIconsObj.length > 0) {
           const rand = unownedIconsObj[Math.floor(Math.random() * unownedIconsObj.length)];
           ofertaIco = { id: rand.id, r: rand.r, precio: Math.round(PRECIOS[rand.r] * 0.7) };
         }
-        
-        // 2. Random Color (30% off)
         if (unownedColors.length > 0) {
           ofertaCol = { id: unownedColors[Math.floor(Math.random() * unownedColors.length)], precio: Math.round(PRECIOS.color * 0.7) };
         }
 
-        // 3. Caja Misteriosa (Decidimos contenido ahora pero el usuario no lo sabe)
-        // 50/50 Icono o Color (si hay disponibles)
+        // Caja Misteriosa (Decidimos contenido ahora pero el usuario no lo sabe)
         let cajaSeraIcono = Math.random() > 0.5;
         if (unownedIconsObj.length === 0) cajaSeraIcono = false;
         if (unownedColors.length === 0) cajaSeraIcono = true;
@@ -330,7 +339,6 @@
 
         tiendaDiaria = { fecha: hoy, ofertaIcono: ofertaIco, ofertaColor: ofertaCol, ofertaCaja: ofertaCaja, comprados: { icono: false, color: false, caja: false, gratis: false } };
         
-        // Guardar en Firebase
         await updateDoc(doc(db, "usuarios", usuarioLogueado), { tiendaDiaria: tiendaDiaria });
       }
 
@@ -346,7 +354,6 @@
       let pR = rares.length > 0 ? 0.30 : 0;
       let pU = uniques.length > 0 ? 0.10 : 0;
 
-      // Rebalanceo si faltan
       if (pC===0 && pR>0 && pU>0) { pR=0.80; pU=0.20; }
       else if (pR===0 && pC>0 && pU>0) { pC=0.90; pU=0.10; }
       else if (pU===0 && pC>0 && pR>0) { pC=0.70; pR=0.30; }
@@ -365,31 +372,103 @@
       container.innerHTML = '';
       const t = tiendaDiaria;
 
-      // 1. Icono Oferta
+      // Cambiamos onclick para llamar a prepararOfertaDirecta (NO al carrito)
       if (t.ofertaIcono && !t.comprados.icono && !misIconos.includes(t.ofertaIcono.id)) {
         const oId = 'off-ico';
-        container.innerHTML += `<div class="offer-card" id="${oId}" onclick="toggleCart('${oId}', 'icono', '${t.ofertaIcono.id}', ${t.ofertaIcono.precio})"><div class="offer-badge">-30%</div><div class="offer-content">${t.ofertaIcono.id}</div><div class="offer-price"><span class="offer-price-old">${PRECIOS[t.ofertaIcono.r]}</span> ${t.ofertaIcono.precio} 🪙</div></div>`;
+        container.innerHTML += `<div class="offer-card" onclick="prepararOfertaDirecta('${oId}', 'icono', '${t.ofertaIcono.id}', ${t.ofertaIcono.precio})"><div class="offer-badge">-30%</div><div class="offer-content">${t.ofertaIcono.id}</div><div class="offer-price"><span class="offer-price-old">${PRECIOS[t.ofertaIcono.r]}</span> ${t.ofertaIcono.precio} 🪙</div></div>`;
       }
 
-      // 2. Color Oferta
       if (t.ofertaColor && !t.comprados.color && !misColores.includes(t.ofertaColor.id)) {
         const oId = 'off-col';
-        container.innerHTML += `<div class="offer-card" id="${oId}" onclick="toggleCart('${oId}', 'color', '${t.ofertaColor.id}', ${t.ofertaColor.precio})"><div class="offer-badge">-30%</div><div class="offer-content"><div style="width:32px; height:32px; border-radius:50%; background:${t.ofertaColor.id}; border:2px solid #EEE;"></div></div><div class="offer-price"><span class="offer-price-old">60</span> ${t.ofertaColor.precio} 🪙</div></div>`;
+        container.innerHTML += `<div class="offer-card" onclick="prepararOfertaDirecta('${oId}', 'color', '${t.ofertaColor.id}', ${t.ofertaColor.precio})"><div class="offer-badge">-30%</div><div class="offer-content"><div style="width:32px; height:32px; border-radius:50%; background:${t.ofertaColor.id}; border:2px solid #EEE;"></div></div><div class="offer-price"><span class="offer-price-old">60</span> ${t.ofertaColor.precio} 🪙</div></div>`;
       }
 
-      // 3. Caja Sorpresa
       if (t.ofertaCaja && !t.comprados.caja) {
         const oId = 'off-box';
-        container.innerHTML += `<div class="offer-card" id="${oId}" onclick="toggleCart('${oId}', 'caja', 'Caja Sorpresa', ${t.ofertaCaja.precio})"><div class="offer-badge" style="background:#9C27B0;">MISTERIO</div><div class="offer-content">🎁</div><div class="offer-price">${t.ofertaCaja.precio} 🪙</div></div>`;
+        container.innerHTML += `<div class="offer-card" onclick="prepararOfertaDirecta('${oId}', 'caja', 'Caja Sorpresa', ${t.ofertaCaja.precio})"><div class="offer-badge" style="background:#9C27B0;">MISTERIO</div><div class="offer-content">🎁</div><div class="offer-price">${t.ofertaCaja.precio} 🪙</div></div>`;
       }
 
-      // 4. Gratis
       if (t.comprados.gratis) {
         container.innerHTML += `<div class="offer-card btn-free disabled"><div class="offer-content" style="font-size:20px;">✓</div><div class="offer-price" style="color:#4CAF50;">Recogido</div></div>`;
       } else {
         container.innerHTML += `<div class="offer-card btn-free" onclick="reclamarGratis()"><div class="offer-badge" style="background:#4CAF50;">¡10 GRATIS!</div><div class="offer-content">🪙</div><div class="offer-price" style="color:#4CAF50;">Recoger</div></div>`;
       }
     }
+
+    // ==========================================
+    // COMPRA DIRECTA DE OFERTAS (SIN CARRITO)
+    // ==========================================
+    window.prepararOfertaDirecta = function(oId, tipo, contenido, precio) {
+      ofertaPendiente = { oId, tipo, contenido, precio };
+      let msg = "";
+      
+      if(oId === 'off-box') msg = `¿Quieres abrir la <b>Caja Sorpresa</b> por <b>${precio} 🪙</b>?`;
+      else if (tipo === 'icono') msg = `¿Quieres comprar el icono <b>${contenido}</b> en oferta por <b>${precio} 🪙</b>?`;
+      else msg = `¿Quieres comprar este <b style="color:${contenido};">Color</b> en oferta por <b>${precio} 🪙</b>?`;
+      
+      document.getElementById('confirmOfertaMensaje').innerHTML = msg;
+      abrirModal('modalConfirmOferta');
+    }
+
+    document.getElementById('btnComprarOferta').addEventListener('click', async () => {
+      const { oId, tipo, contenido, precio } = ofertaPendiente;
+      
+      if (misMonedas < precio) {
+        return mostrarAlerta("Fondos insuficientes", `Necesitas <b>${precio}</b> monedas pero solo tienes <b>${misMonedas}</b>.`);
+      }
+
+      const btn = document.getElementById('btnComprarOferta');
+      btn.innerText = "Procesando..."; btn.disabled = true;
+
+      try {
+        misMonedas -= precio;
+        let mensajeCaja = "";
+        
+        if (tipo === 'icono' && oId !== 'off-box') {
+          misIconos.push(contenido);
+          tiendaDiaria.comprados.icono = true;
+        } else if (tipo === 'color' && oId !== 'off-box') {
+          misColores.push(contenido);
+          tiendaDiaria.comprados.color = true;
+        } else if (oId === 'off-box') {
+          tiendaDiaria.comprados.caja = true;
+          if (tiendaDiaria.ofertaCaja.tipo === 'icono') {
+            misIconos.push(tiendaDiaria.ofertaCaja.contenido);
+            mensajeCaja = `🎁 ¡La caja se ha abierto y contenía el icono <b>${tiendaDiaria.ofertaCaja.contenido}</b>!`;
+          } else {
+            misColores.push(tiendaDiaria.ofertaCaja.contenido);
+            mensajeCaja = `🎁 ¡La caja se ha abierto y contenía un <b style="color:${tiendaDiaria.ofertaCaja.contenido};">Color Especial</b>!`;
+          }
+        }
+
+        misIconos = [...new Set(misIconos)];
+        misColores = [...new Set(misColores)];
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, {
+          monedas: misMonedas,
+          iconosComprados: misIconos.filter(i => !BASE_ICONS.includes(i)),
+          coloresComprados: misColores.filter(c => !BASE_COLORS.includes(c)),
+          tiendaDiaria: tiendaDiaria
+        });
+
+        document.getElementById('uiMonedas').innerText = misMonedas;
+        renderOfertasUI(); // Refrescar ofertas
+        renderStore(); // Refrescar catálogo para que aparezcan como comprados
+        cerrarModal();
+        
+        let msjExito = "¡Oferta comprada con éxito! Ya está disponible en tus Categorías.";
+        if (mensajeCaja !== "") msjExito = mensajeCaja;
+        mostrarAlerta("¡Compra realizada!", msjExito);
+
+      } catch(e) {
+        mostrarAlerta("Error", "No se pudo realizar la compra: " + e.message);
+      } finally {
+        btn.innerText = "Comprar ahora"; btn.disabled = false;
+      }
+    });
+
+    // ------------------------------------------
 
     window.reclamarGratis = async function() {
       tiendaDiaria.comprados.gratis = true;
@@ -403,10 +482,9 @@
     }
 
     // ==========================================
-    // RENDERIZAR TIENDA PRINCIPAL
+    // RENDERIZAR CATÁLOGO PRINCIPAL (CARRITO)
     // ==========================================
     function renderStore() {
-      // RENDER ICONOS
       const contIconos = document.getElementById('viewIconos');
       contIconos.innerHTML = '';
       
@@ -427,6 +505,8 @@
           const card = document.createElement('div');
           card.className = `item-card ${isOwned ? 'owned' : ''}`;
           card.id = domId;
+          
+          // Solo añadimos al carrito el catálogo general
           if (!isOwned) card.onclick = () => toggleCart(domId, 'icono', ico.id, PRECIOS[ico.r]);
           
           card.innerHTML = `<div class="item-circle ${bgClass}">${ico.id}</div><div class="item-price">${PRECIOS[ico.r]} 🪙</div>`;
@@ -437,7 +517,6 @@
         contIconos.appendChild(details);
       }
 
-      // RENDER COLORES
       const contColores = document.getElementById('colorsGrid');
       contColores.innerHTML = '';
       CATALOGO_COLORES.forEach(col => {
@@ -455,7 +534,7 @@
     }
 
     // ==========================================
-    // SISTEMA DE CARRITO Y COMPRA
+    // SISTEMA DE CARRITO DE LA COMPRA (SÓLO CATÁLOGO)
     // ==========================================
     window.toggleCart = function(domId, tipo, itemId, precio) {
       const index = carrito.findIndex(c => c.ref === domId);
@@ -482,14 +561,14 @@
     }
 
     window.abrirCarrito = function() {
-      if (carrito.length === 0) return mostrarAlerta("Carrito vacío", "Selecciona algún artículo de la tienda primero.");
+      if (carrito.length === 0) return mostrarAlerta("Carrito vacío", "Selecciona algún icono o color del catálogo para comprar.");
       
       cuponAplicado = null;
       document.getElementById('inputCupon').value = '';
       document.getElementById('msgCupon').innerText = '';
       
       renderRecibo();
-      document.getElementById('modalCart').classList.add('active');
+      abrirModal('modalCart');
     }
 
     function renderRecibo() {
@@ -500,9 +579,6 @@
       carrito.forEach(item => {
         sum += item.precio;
         let nombre = item.tipo === 'color' ? `Color ${item.id}` : `Icono ${item.id}`;
-        if(item.tipo === 'caja') nombre = "🎁 Caja Sorpresa";
-        if(item.ref.startsWith('off-')) nombre += " (Oferta)";
-        
         html += `<div class="receipt-item"><span>1x ${nombre}</span><span>${item.precio} 🪙</span></div>`;
       });
 
@@ -550,29 +626,14 @@
         misMonedas -= window.costeFinalCarrito;
         let nuevosIconos = [...misIconos];
         let nuevosColores = [...misColores];
-        let mensajeCaja = "";
 
         carrito.forEach(item => {
-          if (item.tipo === 'icono' && !item.ref.includes('off-box')) nuevosIconos.push(item.id);
-          if (item.tipo === 'color' && !item.ref.includes('off-box')) nuevosColores.push(item.id);
-          
-          if (item.ref === 'off-ico') tiendaDiaria.comprados.icono = true;
-          if (item.ref === 'off-col') tiendaDiaria.comprados.color = true;
-          if (item.ref === 'off-box') {
-            tiendaDiaria.comprados.caja = true;
-            if (tiendaDiaria.ofertaCaja.tipo === 'icono') {
-              nuevosIconos.push(tiendaDiaria.ofertaCaja.contenido);
-              mensajeCaja = `🎁 ¡La caja misteriosa contenía el icono <b>${tiendaDiaria.ofertaCaja.contenido}</b>!`;
-            } else {
-              nuevosColores.push(tiendaDiaria.ofertaCaja.contenido);
-              mensajeCaja = `🎁 ¡La caja misteriosa contenía un <b>Color Especial</b>!`;
-            }
-          }
+          if (item.tipo === 'icono') nuevosIconos.push(item.id);
+          if (item.tipo === 'color') nuevosColores.push(item.id);
         });
 
         if (cuponAplicado) misCuponesUsados.push(cuponAplicado.codigo);
 
-        // Limpiar arrays de duplicados por si acaso
         misIconos = [...new Set(nuevosIconos)];
         misColores = [...new Set(nuevosColores)];
 
@@ -581,26 +642,21 @@
           monedas: misMonedas,
           iconosComprados: misIconos.filter(i => !BASE_ICONS.includes(i)),
           coloresComprados: misColores.filter(c => !BASE_COLORS.includes(c)),
-          cuponesUsados: misCuponesUsados,
-          tiendaDiaria: tiendaDiaria
+          cuponesUsados: misCuponesUsados
         });
 
         carrito = [];
         actualizarUIcarrito();
         document.getElementById('uiMonedas').innerText = misMonedas;
-        renderOfertasUI();
         renderStore();
         cerrarModal();
         
-        btn.innerText = "Finalizar"; btn.disabled = false;
-        
-        let msjExito = "¡Compra realizada con éxito! Los elementos ya están disponibles en tu creador de categorías.";
-        if (mensajeCaja !== "") msjExito += "<br><br>" + mensajeCaja;
-        mostrarAlerta("¡Gracias por tu compra!", msjExito);
+        btn.innerText = "Pagar"; btn.disabled = false;
+        mostrarAlerta("¡Gracias por tu compra!", "Los elementos que has comprado ya están disponibles en tu creador de categorías.");
 
       } catch (error) {
         mostrarAlerta("Error", error.message);
-        btn.innerText = "Finalizar"; btn.disabled = false;
+        btn.innerText = "Pagar"; btn.disabled = false;
       }
     });
 
