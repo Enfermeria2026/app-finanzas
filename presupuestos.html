@@ -7,7 +7,10 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
-    body {
+    /* BLOQUEO DEL SCROLL FANTASMA MÓVIL */
+    html, body {
+      height: 100%;
+      overflow: hidden; /* Esto bloquea que la pantalla entera se mueva */
       background-color: #F5F7FA;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: #0B1A2E;
@@ -16,14 +19,16 @@
     /* CONTENEDOR FLEX PARA FIJAR ELEMENTOS */
     .app-container {
       width: 100%; max-width: 480px; margin: 0 auto;
-      background-color: #F5F7FA; height: 100vh; 
-      display: flex; flex-direction: column; overflow: hidden; 
-      position: relative; padding-bottom: 75px; 
+      background-color: #F5F7FA; 
+      height: 100%; /* Ahora toma exactamente la parte visible de la pantalla */
+      display: flex; flex-direction: column; 
+      position: relative; 
+      padding-bottom: 75px; /* Hueco exacto para que el menú no tape el cartel */
     }
 
-    /* CABECERA (Fija) */
+    /* CABECERA (Fija arriba) */
     .header {
-      flex-shrink: 0; 
+      flex-shrink: 0; /* IMPIDE que se aplaste o cambie de tamaño */
       display: flex; justify-content: space-between; align-items: center;
       padding: 16px 24px; background: white;
     }
@@ -31,9 +36,9 @@
     .page-title { font-weight: 800; font-size: 18px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
     .header-actions { display: flex; gap: 16px; }
     
-    /* RESUMEN GLOBAL (Fijo) */
+    /* RESUMEN GLOBAL (Fijo debajo de la cabecera) */
     .global-summary {
-      flex-shrink: 0;
+      flex-shrink: 0; /* IMPIDE que se aplaste */
       background: white; margin: 16px 24px; padding: 20px; border-radius: 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.03); text-align: center;
     }
@@ -46,14 +51,18 @@
     .gs-disponibles { font-size: 13px; font-weight: 600; color: #555; border-top: 1px solid #F0F0F0; padding-top: 12px; }
     .gs-disponibles strong { color: #2196F3; font-size: 15px;}
 
-    /* LISTA DE CATEGORÍAS (Scrollable) */
+    /* ZONA MEDIA SCROLLABLE (El único lugar donde se puede deslizar) */
     .categories-container {
-      flex: 1; 
-      overflow-y: auto; 
+      flex: 1; /* Esto hace que ocupe todo el espacio que sobra en el medio */
+      overflow-y: auto; /* Activa el scroll SOLO para las tarjetas */
       padding: 0 24px 8px 24px;
     }
     .categories-container::-webkit-scrollbar { display: none; }
     
+    /* ESTADO VACÍO (Centrado en la zona media) */
+    .empty-state { flex: 1; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; color: #666; text-align: center; }
+    .empty-state svg { width: 48px; height: 48px; color: #CCC; margin-bottom: 12px; }
+
     .category-card {
       background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px;
       display: flex; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); position: relative;
@@ -69,27 +78,43 @@
     .cat-progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background-color 0.4s ease; }
     .cat-pct-text { font-size: 12px; font-weight: 700; width: 36px; text-align: right; }
 
-    /* BOTONES DE ACCIÓN */
     .cat-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; }
     .btn-action { width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center; background: #F5F7FA; border: none; cursor: pointer; color: #555; transition: 0.2s; }
     .btn-action:active { background: #E0E0E0; }
     .btn-action.add { color: #00A878; background: #E8F5E9; }
     .btn-action.add:active { background: #C8E6C9; }
 
-    /* ESTADO VACÍO */
-    .empty-state { text-align: center; padding: 40px 20px; color: #666; display: none; }
-    .empty-state svg { width: 48px; height: 48px; color: #CCC; margin-bottom: 12px; }
-
-    /* MENSAJE FINAL (Fijo abajo) */
+    /* MENSAJE FINAL (Fijo abajo, justo encima del menú) */
     .bottom-notice {
-      flex-shrink: 0;
+      flex-shrink: 0; /* IMPIDE que se aplaste o tenga scroll interno */
       background: #E3F2FD; border: 1px dashed #90CAF9; border-radius: 12px; padding: 16px;
       margin: 8px 24px 16px 24px; display: flex; justify-content: space-between; align-items: center;
       cursor: pointer; transition: 0.2s;
     }
     .bottom-notice:active { background: #BBDEFB; }
-    .bottom-notice p { font-size: 13px; color: #1565C0; font-weight: 500; line-height: 1.4; flex: 1; margin-right: 12px;}
+    .bottom-notice p { font-size: 13px; color: #1565C0; font-weight: 500; line-height: 1.4; flex: 1; margin-right: 12px; margin-bottom: 0;}
     .bottom-notice svg { color: #1976D2; flex-shrink: 0; }
+
+    /* MENÚ INFERIOR FIJO */
+    .bottom-nav {
+      position: absolute; /* Anclado al fondo exacto del contenedor */
+      bottom: 0; left: 0; width: 100%; 
+      background: white; display: flex; justify-content: space-around; 
+      padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; 
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-item.active { color: #00A878; }
+    .nav-item svg { width: 22px; height: 22px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
+
+    /* SCROLL HORIZONTAL PARA ICONOS Y COLORES */
+    .scroll-selector { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 16px; scroll-snap-type: x mandatory; }
+    .scroll-selector::-webkit-scrollbar { height: 4px; }
+    .scroll-selector::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
+    .item-select { flex-shrink: 0; width: 48px; height: 48px; border: 2px solid #E0E0E0; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; background: white; scroll-snap-align: start; }
+    .item-select.active { border-color: #00A878; background: #E8F5E9; }
+    .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; position: relative;}
+    .padlock { position: absolute; top: -4px; right: -4px; background: #0B1A2E; color: white; font-size: 9px; padding: 3px; border-radius: 50%; width: 16px; height: 16px; display: flex; justify-content: center; align-items: center; }
 
     /* MODALES Y MENÚS */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
@@ -122,21 +147,6 @@
     .menu-divider { height: 1px; background: #F0F0F0; margin: 8px 24px; }
     .menu-logout { color: #F44336; margin-top: 12px; }
     .menu-logout svg { color: #F44336; }
-    
-    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: white; display: flex; justify-content: space-around; padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
-    .nav-item.active { color: #00A878; }
-    .nav-item svg { width: 22px; height: 22px; }
-    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
-
-    /* SCROLL HORIZONTAL SELECTORES DE EDICIÓN */
-    .scroll-selector { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 16px; scroll-snap-type: x mandatory; }
-    .scroll-selector::-webkit-scrollbar { height: 4px; }
-    .scroll-selector::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
-    .item-select { flex-shrink: 0; width: 48px; height: 48px; border: 2px solid #E0E0E0; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; background: white; scroll-snap-align: start; }
-    .item-select.active { border-color: #00A878; background: #E8F5E9; }
-    .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; position: relative;}
-    .padlock { position: absolute; top: -4px; right: -4px; background: #0B1A2E; color: white; font-size: 9px; padding: 3px; border-radius: 50%; width: 16px; height: 16px; display: flex; justify-content: center; align-items: center; }
   </style>
 </head>
 <body>
@@ -156,7 +166,6 @@
       <a href="dashboard.html" class="menu-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard
       </a>
-      <!-- ACTIVO AQUÍ: PRESUPUESTOS -->
       <a href="presupuestos.html" class="menu-link active-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos
       </a>
@@ -183,7 +192,7 @@
       <svg onclick="openSideMenu()" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       <div class="page-title">PRESUPUESTOS</div>
       <div class="header-actions">
-        <!-- Espacio reservado para iconos a la derecha si hiciera falta -->
+        <!-- Espacio alineación -->
       </div>
     </header>
 
@@ -197,10 +206,10 @@
 
     <!-- CONTENEDOR DE CATEGORÍAS (HACE SCROLL) -->
     <div class="categories-container" id="categoriesContainer">
-      <!-- Las tarjetas se inyectarán aquí -->
+      <!-- Se rellenará desde JS -->
     </div>
 
-    <!-- ESTADO VACÍO -->
+    <!-- ESTADO VACÍO (Si no hay nada, ocupa el espacio del medio) -->
     <div class="empty-state" id="emptyState">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
       <p style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px;">No tienes categorías activas</p>
@@ -314,8 +323,8 @@
 
     window.openSideMenu = function() { sideMenu.classList.add('open'); menuOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
     window.closeSideMenu = function() { sideMenu.classList.remove('open'); menuOverlay.classList.remove('open'); document.body.style.overflow = ''; }
-
     menuOverlay.addEventListener('click', closeSideMenu);
+    
     document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
 
     window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; };
@@ -332,12 +341,10 @@
     let dineroDisponibleGeneral = 0; 
     let userDocData = {};
 
-    // Listas de Iconos/Colores (Mismas que en Categorías)
     const baseIcons = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"];
     const premiumIcons = ["✈️","🚆","🎮","📺","🎬","📷","🍻","💧","🥤","🍕","📚","🏫","🎓","✉️","📶","💬","📍","💵","🚢","🌍","👓","🔬","♻️","⌚","🏛️","🎵","🎤","❤️","🎁","🔍","💡","🌐","💍","▶️","🆖","🪟","🤖","🍎","🏰","⭐","🐶","🐱","🐴","🐹","🐦","🐢","🐟","🧠","♊","☁️","☀️","⚠️","👩‍⚕️","👮","👨‍🚒","👨‍🏫","👨‍⚕️","👨‍🚀","🧑‍🔬","🛋️","📐","⚖️","💃","🚀","🖌️"];
     const baseColors = ["#2196F3","#F44336","#FFC107","#4CAF50","#FFFFFF","#FF9800"];
     const premiumColors = ["#9C27B0","#E91E63","#87CEEB","#00BCD4","#795548","#000000","#FF00FF","#FFB6C1","#CDDC39","#800020","#006A4E","#8A2BE2","#FA8072","#FF7F50","#DC143C"];
-
 
     function getBarColor(pct) {
       if (pct <= 50) return '#4CAF50'; 
@@ -369,7 +376,8 @@
         container.innerHTML = '';
 
         if (categoriasCache.length === 0) {
-          emptyState.style.display = 'block';
+          emptyState.style.display = 'flex';
+          container.style.display = 'none'; // Ocultamos el div de scroll
           document.getElementById('gsGastado').innerText = "0,00 €";
           document.getElementById('gsMaximo').innerText = "0,00 €";
           document.getElementById('gsPorcentaje').innerText = "0% consumido";
@@ -378,6 +386,8 @@
         }
 
         emptyState.style.display = 'none';
+        container.style.display = 'block';
+
         let totalMaximo = 0;
         let totalGastado = 0;
 
@@ -432,9 +442,6 @@
       } catch (error) { console.error("Error cargando presupuestos:", error); }
     }
 
-    // ==========================================
-    // AÑADIR GASTO
-    // ==========================================
     window.abrirAddGasto = function(index) {
       currentIndex = index;
       document.getElementById('gastoCatName').innerText = categoriasCache[index].nombre;
@@ -486,9 +493,6 @@
       }
     });
 
-    // ==========================================
-    // EDITAR CATEGORÍA
-    // ==========================================
     let editIcon = "";
     let editColor = "";
 
@@ -583,7 +587,6 @@
         return;
       }
 
-      // Validar si el NUEVO máximo supera los fondos disponibles
       let sumaOtrosPresupuestos = 0;
       categoriasCache.forEach((cat, index) => {
         if (index !== currentIndex) sumaOtrosPresupuestos += parseFloat(cat.presupuesto);
