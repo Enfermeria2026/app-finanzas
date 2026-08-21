@@ -361,17 +361,21 @@
         userDocData = docSnap.data();
         categoriasCache = Array.isArray(userDocData.categorias) ? userDocData.categorias : [];
         
-       // --- CÁLCULO DE LÍMITES PRESUPUESTABLES ---
+
+        // --- CÁLCULO DE LÍMITES PRESUPUESTABLES ---
         const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
         let fondosRetenidos = 0;
         if (Array.isArray(userDocData.fondosReservados)) userDocData.fondosReservados.forEach(r => fondosRetenidos += (parseFloat(r.cantidadAportada) || 0));
         if (Array.isArray(userDocData.objetivosAhorro)) userDocData.objetivosAhorro.forEach(a => fondosRetenidos += (parseFloat(a.cantidadAportada) || 0));
         
         const gastosImprevistos = parseFloat(userDocData.gastosImprevistos) || 0;
+        const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
+        const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
         
-        // Guardamos el límite matemático para que la app lo use luego al editar
-        window.limitePresupuestable = ingresoTotal - fondosRetenidos;
+        // Guardamos el límite matemático restando el dinero que ya se pagó desde los fondos
+        window.limitePresupuestable = ingresoTotal - fondosRetenidos - pagosRes - pagosAho;
         // ------------------------------------------
+        
         
         const container = document.getElementById('categoriesContainer');
         const emptyState = document.getElementById('emptyState');
