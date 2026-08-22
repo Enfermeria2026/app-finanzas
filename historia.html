@@ -102,7 +102,8 @@
     /* FÓRMULA MATEMÁTICA */
     .math-box { background: #0B1A2E; padding: 20px; border-radius: 12px; color: white; margin-top: 12px;}
     .math-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; margin-bottom: 12px; color: #B0BEC5;}
-    .math-row strong { font-size: 14px; font-weight: 700; color: white;}
+    .math-row span { flex: 1; padding-right: 12px; line-height: 1.3; }
+    .math-row strong { font-size: 14px; font-weight: 700; color: white; white-space: nowrap; flex-shrink: 0; text-align: right; }
     .math-divider { height: 1px; background: rgba(255,255,255,0.2); margin: 12px 0; }
     .math-row.total { font-size: 15px; font-weight: 800; margin-bottom: 0; color: white;}
     .math-row.total strong { font-size: 18px; color: #00A878; }
@@ -283,7 +284,7 @@
           </div>
           <div class="math-divider"></div>
           <div class="math-row total">
-            <span>= Líquido Disponible</span>
+            <span>Disponible:</span>
             <strong id="mathDisponibles">0,00 €</strong>
           </div>
         </div>
