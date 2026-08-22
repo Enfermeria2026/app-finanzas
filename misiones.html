@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Misiones - BudgetWise</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; background-color: #F5F7FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0B1A2E; }
+    .app-container { width: 100%; max-width: 480px; margin: 0 auto; background-color: #F5F7FA; height: 100%; display: flex; flex-direction: column; position: relative; padding-bottom: 75px; }
+
+    /* CABECERA FIJA */
+    .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; z-index: 10; }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; transition: 0.2s; }
+    .header-icon:active { transform: scale(0.9); }
+    .page-title { font-weight: 800; font-size: 17px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
+    .header-actions { display: flex; gap: 14px; align-items: center; }
+
+    /* CUADRO RESUMEN DE NIVEL (FIJO) */
+    .summary-box { flex-shrink: 0; background: white; margin: 12px 20px 10px 20px; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 16px; position: relative; }
+    
+    .level-info { flex: 1; }
+    .level-title { font-size: 14px; font-weight: 800; color: #0B1A2E; margin-bottom: 6px; text-transform: uppercase; display: flex; justify-content: space-between;}
+    .level-coins { font-size: 14px; font-weight: 800; color: #F57F17; display: flex; align-items: center; gap: 4px; }
+    
+    .progress-wrapper { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    .progress-bg { flex: 1; height: 10px; background: #F0F0F0; border-radius: 5px; overflow: hidden; position: relative; }
+    .progress-fill { height: 100%; background: #00A878; border-radius: 5px; transition: width 0.5s ease; }
+    .progress-text { font-size: 11px; font-weight: 700; color: #666; white-space: nowrap; width: 40px; text-align: right; }
+    .xp-text { position: absolute; width: 100%; text-align: center; font-size: 8px; font-weight: 800; color: white; line-height: 10px; top: 0; left: 0; text-shadow: 0px 1px 2px rgba(0,0,0,0.3); }
+
+    .level-star-box { width: 54px; height: 54px; background: #FFF8E1; border: 2px solid #FFE082; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; position: relative; transition: 0.2s; }
+    .level-star-box:active { transform: scale(0.95); }
+    .level-star-icon { color: #FFC107; width: 34px; height: 34px; }
+    .level-number { position: absolute; font-size: 14px; font-weight: 900; color: #0B1A2E; margin-top: 2px; }
+
+    /* PAGINACIÓN */
+    .pagination-bar { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 20px 10px 20px; }
+    .btn-page { background: white; border: 1px solid #E0E0E0; border-radius: 8px; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #333; transition: 0.2s; }
+    .btn-page:active { background: #F0F0F0; }
+    .btn-page.disabled { opacity: 0.3; pointer-events: none; }
+    .page-indicator { font-size: 13px; font-weight: 700; color: #555; }
+
+    /* LISTA DE MISIONES (SCROLL) */
+    .missions-container { flex: 1; overflow-y: auto; padding: 0 20px 10px 20px; }
+    .missions-container::-webkit-scrollbar { display: none; }
+
+    .mission-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; flex-direction: column; position: relative; border: 2px solid transparent; transition: 0.3s; }
+    .mission-card.ready { border-color: #00A878; background: #F4F9F8; }
+    .mission-card.claimed { opacity: 0.6; filter: grayscale(1); pointer-events: none; }
+
+    .mission-top { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+    .mission-info { flex: 1; min-width: 0; }
+    .mission-title { font-size: 14px; font-weight: 800; color: #0B1A2E; margin-bottom: 2px; }
+    .mission-desc { font-size: 11px; color: #666; font-weight: 500; line-height: 1.3; }
+    
+    .btn-claim { flex-shrink: 0; background: #F0F0F0; color: #999; border: none; padding: 10px 16px; border-radius: 10px; font-size: 12px; font-weight: 800; transition: 0.3s; }
+    .mission-card.ready .btn-claim { background: #00A878; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,168,120,0.2); }
+    .mission-card.ready .btn-claim:active { transform: scale(0.95); }
+
+    .mission-rewards { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .reward-badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+    .rb-xp { background: #E3F2FD; color: #1565C0; }
+    .rb-coin { background: #FFF8E1; color: #F57F17; }
+    .rb-coupon { background: #F3E5F5; color: #6A1B9A; border: 1px dashed #CE93D8;}
+
+    /* BARRAS DE PROGRESO DE LA MISIÓN */
+    .mission-prog-text { font-size: 11px; font-weight: 700; color: #555; text-align: right; margin-bottom: 4px;}
+    .mission-tiers { display: flex; gap: 4px; height: 6px; width: 100%; }
+    .tier-line { flex: 1; background: #F0F0F0; border-radius: 3px; }
+    .tier-line.filled { background: #00A878; }
+    .mission-card.claimed .tier-line.filled { background: #999; }
+
+    /* NAVEGACIÓN Y MODALES */
+    .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .menu-overlay.open { opacity: 1; pointer-events: auto; }
+    .side-menu { position: fixed; top: 0; left: -100%; width: 290px; max-width: 85%; height: 100%; background: white; z-index: 2001; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; display: flex; flex-direction: column; overflow-y: auto; }
+    .side-menu.open { left: 0; }
+    .side-menu-header { padding: 24px; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; }
+    .side-menu-header .logo-container { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; color: #0B1A2E; }
+    .side-menu-content { padding: 12px 0; flex: 1; display: flex; flex-direction: column; }
+    .menu-link { display: flex; align-items: center; gap: 16px; padding: 14px 24px; color: #333; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .menu-link svg { width: 20px; height: 20px; color: #666; flex-shrink: 0; }
+    .menu-link.active-link { color: #00A878; background: #F4F9F8; border-right: 4px solid #00A878; }
+    .menu-link.active-link svg { color: #00A878; }
+
+    .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-item.active { color: #00A878; }
+    .nav-item svg { width: 22px; height: 22px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; display: none; }
+    .nav-item.active .active-dot { display: block; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: 0.3s; padding: 20px; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box { background: white; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; transform: scale(0.9); transition: 0.3s; position: relative; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column;}
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .close-modal { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #999; }
+    .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 16px; font-weight: bold; text-align: center; }
+    
+    .btn-main { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; color: white; background-color: #00A878; cursor: pointer; margin-top: 6px; }
+
+    /* TIMELINE NIVELES (VERTICAL) */
+    .timeline { padding-left: 20px; border-left: 3px solid #E0E0E0; margin-top: 10px; margin-left: 10px; padding-bottom: 20px;}
+    .tl-item { position: relative; margin-bottom: 24px; }
+    .tl-marker { position: absolute; left: -36px; top: 0; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: 900; background: white; border: 3px solid #E0E0E0; color: #999; z-index: 2; transition: 0.3s;}
+    .tl-content { background: #F9FAFB; padding: 12px; border-radius: 12px; border: 1px solid #EEE; position: relative;}
+    
+    /* Estados Timeline */
+    .tl-item.locked .tl-marker { background: white; border-color: #E0E0E0; color: #CCC; }
+    .tl-item.locked .tl-content { opacity: 0.5; }
+    
+    .tl-item.ready .tl-marker { background: #FFC107; border-color: #FF9800; color: #0B1A2E; box-shadow: 0 0 10px rgba(255,193,7,0.5); cursor: pointer;}
+    .tl-item.ready .tl-content { border-color: #FFC107; background: #FFFDF7; cursor: pointer; }
+    .tl-item.ready .tl-content::after { content: '¡RECOGER!'; position: absolute; top: -10px; right: 10px; background: #FFC107; color: #0B1A2E; font-size: 9px; font-weight: 900; padding: 4px 8px; border-radius: 10px; }
+    
+    .tl-item.claimed .tl-marker { background: #E0E0E0; border-color: #BDBDBD; color: #555; }
+    .tl-item.claimed .tl-content { background: #F5F5F5; }
+
+    /* LISTA DE CUPONES */
+    .coupon-list { display: flex; flex-direction: column; gap: 10px; }
+    .coupon-item { background: #F3E5F5; border: 1px dashed #CE93D8; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .coupon-code { font-family: monospace; font-size: 16px; font-weight: bold; color: #6A1B9A; letter-spacing: 1px;}
+    .btn-copy { background: #6A1B9A; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .btn-copy:active { transform: scale(0.9); }
+  </style>
+</head>
+<body>
+
+  <!-- MENÚ LATERAL -->
+  <div id="menuOverlay" class="menu-overlay"></div>
+  <div id="sideMenu" class="side-menu">
+    <div class="side-menu-header">
+      <div class="logo-container"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg> BudgetWise</div>
+      <svg id="btnCloseMenu" onclick="closeSideMenu()" style="cursor:pointer; color:#999;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    <div class="side-menu-content">
+      <a href="dashboard.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard</a>
+      <a href="presupuestos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos</a>
+      <a href="categorias.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías</a>
+      <a href="reservas.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Fondos reservados</a>
+      <a href="ahorro.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Objetivos de ahorro</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Estadísticas</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.59.81 3.14 1.5 4.5.77.76 1.24 1.52 1.42 2.5"></path></svg> Asesor financiero <span class="badge-nuevo">Nuevo</span></a>
+      <a href="misiones.html" class="menu-link active-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
+      <div class="menu-divider"></div>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Ayuda y soporte</a>
+      <a href="#" class="menu-link menu-logout" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="header">
+      <svg onclick="openSideMenu()" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div class="page-title">MISIONES</div>
+      <div class="header-actions">
+        <svg onclick="abrirModalCupones()" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 12H16c-.7 2-3 3-4.5 3S7 14 6.3 12H2v8.5a1.5 1.5 0 0 0 1.5 1.5h17a1.5 1.5 0 0 0 1.5-1.5v-8.5z"></path><path d="M2 12V3.5A1.5 1.5 0 0 1 3.5 2h17A1.5 1.5 0 0 1 22 3.5V12"></path></svg>
+        <a href="tienda.html" style="color: inherit;">
+          <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- RESUMEN DE NIVEL -->
+    <div class="summary-box">
+      <div class="level-info">
+        <div class="level-title">
+          <span>Progreso de Nivel</span>
+          <div class="level-coins"><span id="uiMonedas">0</span> 🪙</div>
+        </div>
+        <div class="progress-wrapper">
+          <div class="progress-bg">
+            <div class="progress-fill" id="uiProgressFill" style="width: 0%;"></div>
+            <div class="xp-text" id="uiProgressText">0 / 100 XP</div>
+          </div>
+          <div class="progress-text" id="uiProgressPct">0%</div>
+        </div>
+      </div>
+      <div class="level-star-box" onclick="abrirModalNiveles()">
+        <svg class="level-star-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <div class="level-number" id="uiLevelNumber">1</div>
+      </div>
+    </div>
+
+    <!-- PAGINACIÓN TOP -->
+    <div class="pagination-bar">
+      <button class="btn-page" id="btnPrevPage" onclick="cambiarPagina(-1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="page-indicator" id="uiPageIndicator">Página 1 de 1</div>
+      <button class="btn-page" id="btnNextPage" onclick="cambiarPagina(1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+
+    <!-- LISTA DE MISIONES (10 por página) -->
+    <div class="missions-container" id="missionsContainer">
+      <!-- Rellenado por JS -->
+    </div>
+
+    <!-- MENÚ INFERIOR FIJO -->
+    <nav class="bottom-nav">
+      <a href="presupuestos.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Presupuestos
+      </a>
+      <a href="reservas.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Reservas
+      </a>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg> Dashboard
+      </a>
+      <a href="ahorro.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Ahorros
+      </a>
+      <a href="misiones.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones
+        <div class="active-dot"></div>
+      </a>
+    </nav>
+  </div>
+
+  <!-- MODAL: CAMINO DE NIVELES (TIMELINE) -->
+  <div id="modalNiveles" class="modal-overlay">
+    <div class="modal-box" style="padding: 20px; max-height: 80vh;">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title" style="margin-bottom: 4px;">Camino de Recompensas</div>
+      <p style="text-align: center; font-size: 12px; color: #666; margin-bottom: 16px;">Sube de nivel para reclamar tus premios.</p>
+      
+      <div class="timeline" id="timelineContainer">
+        <!-- Generado por JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BILLETERA DE CUPONES -->
+  <div id="modalCupones" class="modal-overlay">
+    <div class="modal-box" style="padding: 24px;">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title" style="margin-bottom: 8px;">Mis Cupones</div>
+      <p style="text-align: center; font-size: 12px; color: #666; margin-bottom: 20px;">Copia el código y úsalo en el carrito de la tienda.</p>
+      
+      <div class="coupon-list" id="cuponesListContainer">
+        <!-- Generado por JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO ALERTA -->
+  <div id="modalAlertaBasica" class="modal-overlay" style="z-index: 3500;">
+    <div class="modal-box" style="text-align: center; padding: 28px 20px;">
+      <div id="alertaTitulo" class="modal-title" style="color: #00A878; justify-content: center;">¡Enhorabuena!</div>
+      <div id="alertaMensaje" style="font-size: 14px; color: #555; margin-bottom: 20px; line-height: 1.5;">Mensaje</div>
+      <button onclick="cerrarModal()" class="btn-main" style="background: #0B1A2E;">Genial</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyCJJsgp1RnXGqva04EuQEONEM9frfx-7I8", authDomain: "budgetwise-9608f.firebaseapp.com", projectId: "budgetwise-9608f", storageBucket: "budgetwise-9608f.firebasestorage.app", messagingSenderId: "438887897789", appId: "1:438887897789:web:1075b7b21577d1b632b5d4" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (!usuarioLogueado) window.location.href = 'login.html';
+
+    // DATOS DE USUARIO GLOBALES
+    let userDocData = {};
+    let misMonedas = 0;
+    
+    // SISTEMA DE ESTADO DE MISIONES (Guardado en Firebase)
+    let misionesState = {
+      level: 1,
+      xp: 0,
+      claimedLevels: [], // Ej: [2, 3, 4]
+      claimedMissions: [], // Ej: ['b_cat', 'b_ing']
+      tiersCompleted: {} // Ej: { 'r_gastos': 2 } (Ha cobrado la recompensa del tier 1 y 2)
+    };
+    
+    let cuponesGanados = [];
+    const POOL_CUPONES = ["PROMO80953", "PROMO61552", "PROMO45468", "PROMO72859", "PROMO60249", "PROMO52045", "PROMO33761"];
+
+    // VARIABLES DE PAGINACIÓN Y RENDER
+    let misionesParaMostrar = [];
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 10;
+    const MAX_LEVELS = 20;
+
+    // MÉTRICAS CALCULADAS EN TIEMPO REAL DESDE FIREBASE
+    let metricas = {
+      categoriasCreadas: 0, fondosCreados: 0, ahorrosCreados: 0,
+      gastosRegistrados: 0, comprasTienda: 0, dineroAhorrado: 0,
+      dineroGastado: 0, ingresosRegistrados: 0, pagosDesdeReservas: 0, pagosDesdeAhorros: 0,
+      ahorroCompletado: false, fondoCompletado: false
+    };
+
+    window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); };
+    window.closeSideMenu = function() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); };
+    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); };
+    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
+    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; abrirModal('modalAlertaBasica'); };
+
+    document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
+
+    // CARGAR DATOS
+    async function cargarDatos() {
+      try {
+        const docSnap = await getDoc(doc(db, "usuarios", usuarioLogueado));
+        if (!docSnap.exists()) return;
+        userDocData = docSnap.data();
+
+        // 1. Extraer estado
+        misMonedas = parseFloat(userDocData.monedas) || 0;
+        if (userDocData.misionesState) misionesState = userDocData.misionesState;
+        cuponesGanados = Array.isArray(userDocData.cuponesGanados) ? userDocData.cuponesGanados : [];
+
+        // 2. Calcular Métricas dinámicas cruzando las arrays
+        const categorias = Array.isArray(userDocData.categorias) ? userDocData.categorias : [];
+        const fondos = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
+        const ahorros = Array.isArray(userDocData.objetivosAhorro) ? userDocData.objetivosAhorro : [];
+        const historial = Array.isArray(userDocData.historialGastos) ? userDocData.historialGastos : [];
+        const iconosC = Array.isArray(userDocData.iconosComprados) ? userDocData.iconosComprados : [];
+        const coloresC = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados : [];
+
+        metricas.categoriasCreadas = categorias.length;
+        metricas.fondosCreados = fondos.length;
+        metricas.ahorrosCreados = ahorros.length;
+        metricas.gastosRegistrados = historial.length;
+        metricas.comprasTienda = iconosC.length + coloresC.length;
+        metricas.pagosDesdeReservas = parseFloat(userDocData.pagosDesdeReservas) || 0;
+        metricas.pagosDesdeAhorros = parseFloat(userDocData.pagosDesdeAhorros) || 0;
+        metricas.ingresosRegistrados = parseFloat(userDocData.ingresoTotalMensual) > 0 ? 1 : 0; // Simplificado
+
+        let sumGastado = 0; historial.forEach(h => sumGastado += (parseFloat(h.cantidad)||0));
+        metricas.dineroGastado = sumGastado;
+
+        let sumAhorro = 0;
+        fondos.forEach(f => {
+           let r = parseFloat(f.cantidadAportada)||0; let obj = parseFloat(f.objetivo)||0;
+           sumAhorro += r;
+           if (obj > 0 && r >= obj) metricas.fondoCompletado = true;
+        });
+        ahorros.forEach(a => {
+           let r = parseFloat(a.cantidadAportada)||0; let obj = parseFloat(a.objetivo)||0;
+           sumAhorro += r;
+           if (obj > 0 && r >= obj) metricas.ahorroCompletado = true;
+        });
+        metricas.dineroAhorrado = sumAhorro;
+
+        actualizarResumenTop();
+        evaluarMisiones();
+
+      } catch (e) { console.error("Error cargando:", e); }
+    }
+
+    // ACTUALIZAR CABECERA DE NIVEL
+    function actualizarResumenTop() {
+      document.getElementById('uiMonedas').innerText = misMonedas;
+      document.getElementById('uiLevelNumber').innerText = misionesState.level;
+
+      const reqXP = misionesState.level * 100;
+      const pct = Math.min(Math.round((misionesState.xp / reqXP) * 100), 100);
+
+      document.getElementById('uiProgressText').innerText = `${misionesState.xp} / ${reqXP} XP`;
+      document.getElementById('uiProgressPct').innerText = `${pct}%`;
+      document.getElementById('uiProgressFill').style.width = `${pct}%`;
+    }
+
+    // ==========================================
+    // DEFINICIÓN DE MISIONES
+    // ==========================================
+
+    const misionesBasicas = [
+      { id: 'b_cat', title: 'Primeros pasos', desc: 'Crea tu primera categoría de gastos.', check: () => metricas.categoriasCreadas >= 1, reward: {xp: 50, coins: 50} },
+      { id: 'b_ing', title: 'Punto de partida', desc: 'Registra tu primer ingreso mensual.', check: () => metricas.ingresosRegistrados >= 1, reward: {xp: 50, coins: 50} },
+      { id: 'b_aho', title: 'Ahorrador novato', desc: 'Crea tu primer objetivo de ahorro.', check: () => metricas.ahorrosCreados >= 1, reward: {xp: 50, coins: 50} },
+      { id: 'b_res', title: 'Precavido vale por dos', desc: 'Crea tu primer fondo de reserva.', check: () => metricas.fondosCreados >= 1, reward: {xp: 50, coins: 50} },
+      { id: 'b_gas', title: 'Consumidor habitual', desc: 'Registra tu primer gasto en la app.', check: () => metricas.gastosRegistrados >= 1, reward: {xp: 20, coins: 20} },
+      { id: 'b_sho', title: 'De compras', desc: 'Realiza tu primera compra en la tienda de iconos o colores.', check: () => metricas.comprasTienda >= 1, reward: {xp: 100, coins: 0} },
+      { id: 'b_met', title: 'Meta cumplida', desc: 'Completa al 100% el dinero de un objetivo de ahorro.', check: () => metricas.ahorroCompletado, reward: {xp: 100, coins: 150} },
+      { id: 'b_pag', title: 'Uso de reservas', desc: 'Realiza un pago efectivo usando el dinero de un fondo o ahorro.', check: () => (metricas.pagosDesdeReservas > 0 || metricas.pagosDesdeAhorros > 0), reward: {xp: 80, coins: 100} }
+    ];
+
+    const misionesRecurrentes = [
+      { id: 'r_gas', titleFn: (t) => `Gastador serial`, desc: 'Registra gastos en tus categorías o imprevistos.', 
+        targets: [5, 10, 25, 50, 100, 200, 300, 500, 750, 1000],
+        getReward: (tier) => ({ xp: (tier+1)*20, coins: (tier+1)*30 }),
+        checkVal: () => metricas.gastosRegistrados 
+      },
+      { id: 'r_aho', titleFn: (t) => `El gran tesoro`, desc: 'Acumula euros en tus objetivos y reservas.', 
+        targets: [100, 500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000],
+        getReward: (tier) => ({ xp: (tier+1)*30, coins: (tier+1)*50 }),
+        checkVal: () => metricas.dineroAhorrado 
+      },
+      { id: 'r_vip', titleFn: (t) => `Cliente VIP`, desc: 'Desbloquea iconos y colores en la tienda.', 
+        targets: [1, 3, 5, 10, 15, 20, 25, 30, 40, 50],
+        getReward: (tier) => ({ xp: (tier+1)*50, coins: 0 }),
+        checkVal: () => metricas.comprasTienda 
+      },
+      { id: 'r_org', titleFn: (t) => `Organizador experto`, desc: 'Crea diferentes categorías de gastos.', 
+        targets: [3, 5, 8, 12, 15, 20, 25, 30, 35, 40],
+        getReward: (tier) => ({ xp: (tier+1)*20, coins: (tier+1)*20 }),
+        checkVal: () => metricas.categoriasCreadas 
+      }
+    ];
+
+    // EVALUAR Y ORDENAR
+    function evaluarMisiones() {
+      let lista = [];
+
+      // 1. Básicas
+      misionesBasicas.forEach(b => {
+        let isClaimed = misionesState.claimedMissions.includes(b.id);
+        let isCompleted = b.check();
+        // Orden: 0 (Completa sin cobrar), 1 (Pendiente), 2 (Cobrada)
+        let sortVal = isClaimed ? 2 : (isCompleted ? 0 : 1);
+        lista.push({ ...b, type: 'basic', isClaimed, isCompleted, sortVal });
+      });
+
+      // 2. Recurrentes (10 tiers)
+      misionesRecurrentes.forEach(r => {
+        let claimedTiers = misionesState.tiersCompleted[r.id] || 0; // 0 a 10
+        if (claimedTiers >= 10) {
+           lista.push({ ...r, type: 'recur', tier: 10, isClaimed: true, isCompleted: true, sortVal: 2 });
+        } else {
+           let valActual = r.checkVal();
+           let target = r.targets[claimedTiers];
+           let isCompleted = valActual >= target;
+           let sortVal = isCompleted ? 0 : 1;
+           lista.push({ ...r, type: 'recur', tier: claimedTiers, valActual, target, isClaimed: false, isCompleted, sortVal });
+        }
+      });
+
+      // Ordenar: Prioridad -> sortVal (0, 1, 2). En caso de empate, alfabético por ID.
+      lista.sort((a,b) => {
+        if (a.sortVal !== b.sortVal) return a.sortVal - b.sortVal;
+        return a.id.localeCompare(b.id);
+      });
+
+      misionesParaMostrar = lista;
+      currentPage = 1;
+      renderMisiones();
+    }
+
+    // DIBUJAR PANTALLA
+    window.cambiarPagina = function(dir) {
+      const maxPages = Math.ceil(misionesParaMostrar.length / ITEMS_PER_PAGE) || 1;
+      currentPage += dir;
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > maxPages) currentPage = maxPages;
+      renderMisiones();
+    };
+
+    function renderMisiones() {
+      const container = document.getElementById('missionsContainer');
+      container.innerHTML = '';
+      
+      const maxPages = Math.ceil(misionesParaMostrar.length / ITEMS_PER_PAGE) || 1;
+      document.getElementById('uiPageIndicator').innerText = `Página ${currentPage} de ${maxPages}`;
+      
+      document.getElementById('btnPrevPage').classList.toggle('disabled', currentPage === 1);
+      document.getElementById('btnNextPage').classList.toggle('disabled', currentPage === maxPages);
+
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const paginated = misionesParaMostrar.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+      paginated.forEach(m => {
+        const isReady = m.sortVal === 0;
+        let cardClass = `mission-card ${isReady ? 'ready' : ''} ${m.isClaimed ? 'claimed' : ''}`;
+        
+        let title = m.type === 'basic' ? m.title : m.titleFn(m.target);
+        let reward = m.type === 'basic' ? m.reward : (m.tier < 10 ? m.getReward(m.tier) : m.getReward(9));
+        
+        let rewardHtml = '';
+        if (reward.xp > 0) rewardHtml += `<div class="reward-badge rb-xp">${reward.xp} XP</div>`;
+        if (reward.coins > 0) rewardHtml += `<div class="reward-badge rb-coin">${reward.coins} 🪙</div>`;
+
+        let btnHtml = m.isClaimed ? `<button class="btn-claim">Completada</button>` : `<button class="btn-claim" onclick="reclamarMision('${m.id}', '${m.type}')">${isReady ? 'Recoger' : 'Pendiente'}</button>`;
+
+        let tierHtml = '';
+        if (m.type === 'recur') {
+          let progressText = m.isClaimed ? 'Max Nivel Alcanzado' : `${Math.floor(m.valActual)} / ${m.target}`;
+          tierHtml = `<div class="mission-prog-text">${progressText}</div><div class="mission-tiers">`;
+          for(let i=0; i<10; i++) {
+             tierHtml += `<div class="tier-line ${i < m.tier ? 'filled' : ''}"></div>`;
+          }
+          tierHtml += `</div>`;
+        }
+
+        container.innerHTML += `
+          <div class="${cardClass}">
+            <div class="mission-top">
+              <div class="mission-info">
+                <div class="mission-title">${title}</div>
+                <div class="mission-desc">${m.desc}</div>
+              </div>
+              ${btnHtml}
+            </div>
+            <div class="mission-rewards">${rewardHtml}</div>
+            ${tierHtml}
+          </div>
+        `;
+      });
+    }
+
+    // ==========================================
+    // SISTEMA DE RECOMPENSAS Y LEVEL UP
+    // ==========================================
+
+    window.reclamarMision = async function(id, type) {
+      // Buscar la mision en la lista actual
+      let m = misionesParaMostrar.find(x => x.id === id);
+      if (!m || m.sortVal !== 0) return; // Si no está Ready
+
+      let reward = m.type === 'basic' ? m.reward : m.getReward(m.tier);
+
+      // Actualizar Estado Local
+      if (m.type === 'basic') {
+        misionesState.claimedMissions.push(id);
+      } else {
+        misionesState.tiersCompleted[id] = (misionesState.tiersCompleted[id] || 0) + 1;
+      }
+
+      await procesarRecompensas(reward.xp, reward.coins);
+    };
+
+    async function procesarRecompensas(addXp, addCoins) {
+      misMonedas += addCoins;
+      misionesState.xp += addXp;
+
+      let levelUpInfo = false;
+
+      // Check Level Up(s)
+      while (misionesState.xp >= (misionesState.level * 100)) {
+        misionesState.xp -= (misionesState.level * 100);
+        misionesState.level++;
+        levelUpInfo = true;
+      }
+
+      try {
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { 
+          misionesState: misionesState,
+          monedas: misMonedas 
+        });
+
+        // Feedback Visual
+        let msg = `Has ganado <b>${addXp} XP</b>`;
+        if (addCoins > 0) msg += ` y <b>${addCoins} 🪙</b>.`;
+        if (levelUpInfo) msg += `<br><br><span style="color:#00A878; font-weight:800; font-size:16px;">¡HAS SUBIDO AL NIVEL ${misionesState.level}!</span><br>Visita el Camino de Recompensas para cobrar tu premio de nivel.`;
+
+        mostrarAlerta("¡Recompensa Obtenida!", msg);
+
+        // Recargar todo fresco
+        evaluarMisiones();
+        actualizarResumenTop();
+
+      } catch (e) { console.error("Error al guardar recompensa:", e); }
+    }
+
+    // ==========================================
+    // MODAL DE NIVELES (TIMELINE)
+    // ==========================================
+
+    window.abrirModalNiveles = function() {
+      const container = document.getElementById('timelineContainer');
+      container.innerHTML = '';
+
+      for (let i = 2; i <= MAX_LEVELS; i++) {
+        let reqLevel = i;
+        let isReached = misionesState.level >= reqLevel;
+        let isClaimed = misionesState.claimedLevels.includes(reqLevel);
+        
+        let rewardCoins = reqLevel * 50;
+        let rewardCupon = (reqLevel % 5 === 0); // Cupón cada 5 niveles
+
+        let stateClass = isClaimed ? 'claimed' : (isReached ? 'ready' : 'locked');
+        let txtRecompensa = `<b>${rewardCoins} 🪙</b>`;
+        if (rewardCupon) txtRecompensa += ` + <b>1 Cupón Tienda</b>`;
+
+        let onclickHtml = (isReached && !isClaimed) ? `onclick="reclamarNivel(${reqLevel}, ${rewardCoins}, ${rewardCupon})"` : '';
+
+        container.innerHTML += `
+          <div class="tl-item ${stateClass}">
+            <div class="tl-marker" ${onclickHtml}>${reqLevel}</div>
+            <div class="tl-content" ${onclickHtml}>
+              <div style="font-size:12px; font-weight:700; color:#0B1A2E; margin-bottom:4px;">Nivel ${reqLevel}</div>
+              <div style="font-size:11px; color:#555;">Recompensa: ${txtRecompensa}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      abrirModal('modalNiveles');
+    };
+
+    window.reclamarNivel = async function(nivel, coins, givesCoupon) {
+      misMonedas += coins;
+      misionesState.claimedLevels.push(nivel);
+      
+      let msg = `Has reclamado <b>${coins} 🪙</b>.`;
+      
+      if (givesCoupon) {
+        // Asignar cupón aleatorio del pool
+        let randCoupon = POOL_CUPONES[Math.floor(Math.random() * POOL_CUPONES.length)];
+        cuponesGanados.push(randCoupon);
+        cuponesGanados = [...new Set(cuponesGanados)]; // Evitar duplicados exactos
+        msg += `<br><br>¡Y has conseguido un <b>Cupón Descuento</b> exclusivo!<br>Búscalo en tu billetera de cupones.`;
+      }
+
+      try {
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { 
+          misionesState: misionesState,
+          monedas: misMonedas,
+          cuponesGanados: cuponesGanados
+        });
+        
+        actualizarResumenTop();
+        abrirModalNiveles(); // Refrescar línea temporal visualmente
+        setTimeout(() => mostrarAlerta('Recompensa de Nivel', msg), 400);
+
+      } catch (e) { console.error("Error nivel:", e); }
+    };
+
+    // ==========================================
+    // MODAL DE CUPONES
+    // ==========================================
+
+    window.abrirModalCupones = function() {
+      const container = document.getElementById('cuponesListContainer');
+      container.innerHTML = '';
+
+      if (cuponesGanados.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:#999; font-size:13px; font-weight:600; padding:20px;">Aún no tienes ningún cupón.<br>Sube de nivel para ganarlos.</p>`;
+      } else {
+        cuponesGanados.forEach(codigo => {
+          container.innerHTML += `
+            <div class="coupon-item">
+              <div class="coupon-code">${codigo}</div>
+              <button class="btn-copy" onclick="copiarCupon('${codigo}')">Copiar</button>
+            </div>
+          `;
+        });
+      }
+
+      abrirModal('modalCupones');
+    };
+
+    window.copiarCupon = function(codigo) {
+      navigator.clipboard.writeText(codigo).then(() => {
+        mostrarAlerta("Copiado", `El código <b>${codigo}</b> ha sido copiado al portapapeles.<br>Ya puedes pegarlo en el carrito de la tienda.`);
+      });
+    };
+
+    cargarDatos();
+  </script>
+</body>
+</html>
