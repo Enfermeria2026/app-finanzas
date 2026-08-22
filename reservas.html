@@ -367,19 +367,21 @@
         <p id="msgSinTransfObj" style="display: none; color: #F44336; font-size: 12px; margin-top: 6px; font-weight: 600;">No hay objetivos con capacidad libre.</p>
       </div>
 
-      <div id="secTransfRepartir" style="display:none; background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #E0E0E0;">
+     <div id="secTransfRepartir" style="display:none; background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #E0E0E0;">
         <div class="repartir-box">
           <div class="repartir-title">A Fondos Disponibles</div>
           <input type="number" id="transfRepDispAmt" placeholder="Importe (€)" class="modal-input-group" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:0;">
         </div>
         <div class="repartir-box">
-          <div class="repartir-title">A Otro Fondo de Reserva</div>
+          <div class="repartir-title">A Fondo de Reserva</div>
           <select id="transfRepFondoSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+          <p id="msgSinTransfRepFondo" style="display: none; color: #F44336; font-size: 11px; font-weight: 700; margin-bottom: 8px;">No hay fondos con espacio libre.</p>
           <input type="number" id="transfRepFondoAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
         </div>
         <div class="repartir-box">
           <div class="repartir-title">A Objetivo de Ahorro</div>
           <select id="transfRepObjSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+          <p id="msgSinTransfRepObj" style="display: none; color: #F44336; font-size: 11px; font-weight: 700; margin-bottom: 8px;">No hay objetivos con espacio libre.</p>
           <input type="number" id="transfRepObjAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
         </div>
       </div>
@@ -447,13 +449,15 @@
             <input type="number" id="repDispAmt" placeholder="Importe (€)" class="modal-input-group" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:0;">
           </div>
           <div class="repartir-box">
-            <div class="repartir-title">A Otro Fondo de Reserva</div>
+            <div class="repartir-title">A Fondo de Reserva</div>
             <select id="repFondoSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+            <p id="msgSinDelRepFondo" style="display: none; color: #F44336; font-size: 11px; font-weight: 700; margin-bottom: 8px;">No hay fondos con espacio libre.</p>
             <input type="number" id="repFondoAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
           </div>
           <div class="repartir-box">
             <div class="repartir-title">A Objetivo de Ahorro</div>
             <select id="repObjSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+            <p id="msgSinDelRepObj" style="display: none; color: #F44336; font-size: 11px; font-weight: 700; margin-bottom: 8px;">No hay objetivos con espacio libre.</p>
             <input type="number" id="repObjAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
           </div>
         </div>
@@ -725,11 +729,25 @@
          if(libre > 0) htmlO += `<option value="${idx}" data-libre="${libre}">${o.nombre} (Libre: ${formatMoney(libre)})</option>`;
       });
 
-      if(htmlF === '') { sFondo.style.display = 'none'; mFondo.style.display = 'block'; }
-      else { sFondo.style.display = 'block'; mFondo.style.display = 'none'; sFondo.innerHTML = htmlF; rFondo.innerHTML = htmlF; }
+      if(htmlF === '') { 
+        sFondo.style.display = 'none'; mFondo.style.display = 'block'; 
+        rFondo.style.display = 'none'; document.getElementById('msgSinTransfRepFondo').style.display = 'block';
+        document.getElementById('transfRepFondoAmt').disabled = true; document.getElementById('transfRepFondoAmt').style.opacity = '0.4';
+      } else { 
+        sFondo.style.display = 'block'; mFondo.style.display = 'none'; sFondo.innerHTML = htmlF; 
+        rFondo.style.display = 'block'; document.getElementById('msgSinTransfRepFondo').style.display = 'none'; rFondo.innerHTML = htmlF;
+        document.getElementById('transfRepFondoAmt').disabled = false; document.getElementById('transfRepFondoAmt').style.opacity = '1';
+      }
 
-      if(htmlO === '') { sObj.style.display = 'none'; mObj.style.display = 'block'; }
-      else { sObj.style.display = 'block'; mObj.style.display = 'none'; sObj.innerHTML = htmlO; rObj.innerHTML = htmlO; }
+      if(htmlO === '') { 
+        sObj.style.display = 'none'; mObj.style.display = 'block'; 
+        rObj.style.display = 'none'; document.getElementById('msgSinTransfRepObj').style.display = 'block';
+        document.getElementById('transfRepObjAmt').disabled = true; document.getElementById('transfRepObjAmt').style.opacity = '0.4';
+      } else { 
+        sObj.style.display = 'block'; mObj.style.display = 'none'; sObj.innerHTML = htmlO; 
+        rObj.style.display = 'block'; document.getElementById('msgSinTransfRepObj').style.display = 'none'; rObj.innerHTML = htmlO;
+        document.getElementById('transfRepObjAmt').disabled = false; document.getElementById('transfRepObjAmt').style.opacity = '1';
+      }
     }
 
     document.getElementById('btnConfirmarTransferencia').addEventListener('click', async () => {
@@ -870,8 +888,21 @@
       if (htmlObjCompleto === '') { sObj.style.display='none'; msgO.style.display='block'; document.getElementById('btnDelObjetivo').style.opacity='0.4'; document.getElementById('btnDelObjetivo').style.pointerEvents='none'; } 
       else { sObj.style.display='block'; msgO.style.display='none'; sObj.innerHTML = htmlObjCompleto; document.getElementById('btnDelObjetivo').style.opacity='1'; document.getElementById('btnDelObjetivo').style.pointerEvents='auto';}
 
-      if (htmlFondoParcial !== '') rFondo.innerHTML = htmlFondoParcial;
-      if (htmlObjParcial !== '') rObj.innerHTML = htmlObjParcial;
+     if (htmlFondoParcial === '') {
+        rFondo.style.display = 'none'; document.getElementById('msgSinDelRepFondo').style.display = 'block';
+        document.getElementById('repFondoAmt').disabled = true; document.getElementById('repFondoAmt').style.opacity = '0.4';
+      } else {
+        rFondo.style.display = 'block'; document.getElementById('msgSinDelRepFondo').style.display = 'none'; rFondo.innerHTML = htmlFondoParcial;
+        document.getElementById('repFondoAmt').disabled = false; document.getElementById('repFondoAmt').style.opacity = '1';
+      }
+
+      if (htmlObjParcial === '') {
+        rObj.style.display = 'none'; document.getElementById('msgSinDelRepObj').style.display = 'block';
+        document.getElementById('repObjAmt').disabled = true; document.getElementById('repObjAmt').style.opacity = '0.4';
+      } else {
+        rObj.style.display = 'block'; document.getElementById('msgSinDelRepObj').style.display = 'none'; rObj.innerHTML = htmlObjParcial;
+        document.getElementById('repObjAmt').disabled = false; document.getElementById('repObjAmt').style.opacity = '1';
+      }
 
       if (totalDineroHuerfano === 0) {
         document.getElementById('textoBorradoInfo').innerHTML = `Vas a borrar <b>${itemsSeleccionados.size} fondos</b>.<br><br>Al no tener fondos retenidos, puedes borrarlos directamente.`;
