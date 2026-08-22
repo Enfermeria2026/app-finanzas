@@ -47,9 +47,12 @@
     .gs-amounts span { color: #999; font-size: 16px; font-weight: 600; }
     .gs-pct { display: inline-block; background: #E8F5E9; color: #00A878; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
     
-    /* FONDOS DISPONIBLES */
-    .gs-disponibles { font-size: 13px; font-weight: 600; color: #555; border-top: 1px solid #F0F0F0; padding-top: 12px; }
-    .gs-disponibles strong { color: #2196F3; font-size: 15px;}
+    /* FONDOS DESGLOSADOS (NUEVO) */
+    .summary-row-financial { display: flex; justify-content: space-around; text-align: center; border-top: 1px solid #F0F0F0; padding-top: 16px; margin-top: 4px; }
+    .fin-col { flex: 1; }
+    .fin-lbl { font-size: 9px; color: #777; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; }
+    .fin-val { font-size: 11px; font-weight: 800; color: #0B1A2E; }
+    .fin-val.retenido { color: #9C27B0; } .fin-val.disponible { color: #2196F3; } .fin-val.gasto { color: #F44336; } .fin-val.ingreso { color: #00A878; }
 
     /* ZONA MEDIA SCROLLABLE (El único lugar donde se puede deslizar) */
     .categories-container {
@@ -185,13 +188,13 @@
       <a href="categorias.html" class="menu-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías
       </a>
-      <a href="imprevistos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Gastos Imprevistos</a>
       <a href="reservas.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Fondos reservados</a>
       <a href="ahorro.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Objetivos de ahorro</a>
+      <a href="imprevistos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Gastos Imprevistos</a>
       <a href="misiones.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
-      <a href="historia.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Estadísticas</a>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.59.81 3.14 1.5 4.5.77.76 1.24 1.52 1.42 2.5"></path></svg> Asesor financiero <span class="badge-nuevo">Nuevo</span></a>
+      <a href="historia.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
       <div class="menu-divider"></div>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Ayuda y soporte</a>
@@ -210,12 +213,18 @@
       </div>
     </header>
 
-    <!-- RESUMEN GLOBAL FIJO -->
+    <!-- RESUMEN GLOBAL FIJO CON FONDOS DESGLOSADOS -->
     <div class="global-summary">
       <div class="gs-title">Uso del Presupuesto Total</div>
-      <div class="gs-amounts"><span id="gsGastado">0,00 €</span> / <span id="gsMaximo">0,00 €</span></div>
+      <div class="gs-amounts"><span id="gsGastado" style="color: #0B1A2E;">0,00 €</span> <span style="font-size: 16px; color: #999;">/</span> <span id="gsMaximo" style="font-size: 16px; color: #999;">0,00 €</span></div>
       <div class="gs-pct" id="gsPorcentaje">0% consumido</div>
-      <div class="gs-disponibles">Fondos disponibles para asignar: <strong id="gsDisponibles">0,00 €</strong></div>
+      
+      <div class="summary-row-financial">
+        <div class="fin-col"><div class="fin-lbl">Ingresos</div><div class="fin-val ingreso" id="finTotales">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Gastos</div><div class="fin-val gasto" id="finPagos">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Retenidos</div><div class="fin-val retenido" id="finRetenidos">0,00 €</div></div>
+        <div class="fin-col"><div class="fin-lbl">Disponibles</div><div class="fin-val disponible" id="finDisponibles">0,00 €</div></div>
+      </div>
     </div>
 
     <!-- CONTENEDOR DE CATEGORÍAS (HACE SCROLL) -->
@@ -369,7 +378,7 @@
 
   <!-- MODAL GENÉRICO DE ALERTA -->
   <div id="modalAlertaBasica" class="modal-overlay" style="z-index: 3500;">
-    <div class="modal-box">
+    <div class="modal-box" style="text-align: center; padding: 28px 20px;">
       <div id="alertaTitulo" class="modal-title" style="justify-content: center; color: #F44336;">Atención</div>
       <div id="alertaMensaje" class="modal-text">Mensaje</div>
       <button onclick="document.getElementById('modalAlertaBasica').classList.remove('active')" class="btn-main" style="background: #0B1A2E;">Entendido</button>
@@ -437,7 +446,6 @@
         userDocData = docSnap.data();
         categoriasCache = Array.isArray(userDocData.categorias) ? userDocData.categorias : [];
         
-        // --- CÁLCULO DE LÍMITES PRESUPUESTABLES (BASE CERO) ---
         const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
         let fondosRetenidos = 0;
         if (Array.isArray(userDocData.fondosReservados)) userDocData.fondosReservados.forEach(r => fondosRetenidos += (parseFloat(r.cantidadAportada) || 0));
@@ -447,10 +455,7 @@
         const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
         const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
         
-        // FÓRMULA MAESTRA BASE CERO: Solo descontamos Retenidos, Imprevistos y Pagos efectivos.
-        // Los presupuestos máximos se restarán justo abajo dinámicamente.
-        window.limitePresupuestable = ingresoTotal - fondosRetenidos - gastosImprevistos - pagosRes - pagosAho;
-        // -------------------------------------------------------
+        window.limitePresupuestable = ingresoTotal - fondosRetenidos - pagosRes - pagosAho;
         
         const container = document.getElementById('categoriesContainer');
         const emptyState = document.getElementById('emptyState');
@@ -462,6 +467,16 @@
           document.getElementById('gsGastado').innerText = "0,00 €";
           document.getElementById('gsMaximo').innerText = "0,00 €";
           document.getElementById('gsPorcentaje').innerText = "0% consumido";
+          
+          const gastosTotales = gastosImprevistos + pagosRes + pagosAho;
+          const retenidosVisual = fondosRetenidos; 
+          dineroDisponibleGeneral = window.limitePresupuestable - gastosImprevistos;
+
+          document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
+          document.getElementById('finPagos').innerText = formatMoney(gastosTotales);
+          document.getElementById('finRetenidos').innerText = formatMoney(retenidosVisual);
+          document.getElementById('finDisponibles').innerText = formatMoney(dineroDisponibleGeneral);
+
           generarSelectoresEdicion();
           return;
         }
@@ -513,10 +528,21 @@
         document.getElementById('gsGastado').innerText = formatMoney(totalGastado);
         document.getElementById('gsMaximo').innerText = formatMoney(totalMaximo);
         
-        // CÁLCULO FINAL DE FONDOS DISPONIBLES (BASE CERO)
-        // Restamos al límite general la suma de todos los "Sobres" (presupuestos máximos) creados
-        dineroDisponibleGeneral = window.limitePresupuestable - totalMaximo;
-        document.getElementById('gsDisponibles').innerText = formatMoney(dineroDisponibleGeneral);
+        // --- CÁLCULO DE LAS 4 VARIABLES PRINCIPALES (BASE CERO) ---
+        const gastosTotales = totalGastado + gastosImprevistos + pagosRes + pagosAho;
+        
+        // El dinero retenido visible incluye las huchas más el dinero que aún no se ha gastado de los sobres
+        const presupuestoRestanteCategorias = Math.max(0, totalMaximo - totalGastado);
+        const retenidosVisual = fondosRetenidos + presupuestoRestanteCategorias;
+        
+        // El dinero líquido libre descuenta todos los sobres completos (totalMaximo)
+        dineroDisponibleGeneral = window.limitePresupuestable - totalMaximo - gastosImprevistos;
+
+        document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
+        document.getElementById('finPagos').innerText = formatMoney(gastosTotales);
+        document.getElementById('finRetenidos').innerText = formatMoney(retenidosVisual);
+        document.getElementById('finDisponibles').innerText = formatMoney(dineroDisponibleGeneral);
+        // ----------------------------------------------------------
 
         const globalPct = totalMaximo > 0 ? Math.round((totalGastado / totalMaximo) * 100) : 0;
         
@@ -556,9 +582,6 @@
         mostrarAlerta("Presupuesto excedido", `No es posible registrar este gasto.<br><br>Superas el máximo de <b>${formatMoney(maximo)}</b> para esta categoría.<br><br>Reduce el gasto o edita la categoría para aumentar el presupuesto máximo.`);
         return;
       }
-
-      // ELIMINADA LA VERIFICACIÓN DE FONDOS DISPONIBLES AL GASTAR.
-      // En un Presupuesto Base Cero, el dinero ya fue reservado cuando creaste la categoría.
 
       const btn = document.getElementById('btnConfirmarGasto');
       btn.innerText = "Añadiendo..."; btn.disabled = true;
@@ -658,7 +681,6 @@
 
       if (transfGastoTipoActual === 'imprevistos') {
          if (document.getElementById('transfConceptoImp').value.trim() === "") return mostrarAlerta('Falta Concepto', 'Escribe el concepto del imprevisto.');
-         // Validación estricta: Al sacar un gasto del "sobre", se gasta dinero líquido no presupuestado. ¿Hay fondos?
          if (cantGeneral > dineroDisponibleGeneral) return mostrarAlerta('Fondos insuficientes', `No puedes mover este gasto a Imprevistos porque supera tus fondos libres actuales (<b>${formatMoney(dineroDisponibleGeneral)}</b>).`);
       }
       else if (transfGastoTipoActual === 'otras_categorias') {
