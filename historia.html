@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Historia Mensual - BudgetWise</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    html, body {
+      height: 100%; overflow: hidden; 
+      background-color: #F5F7FA;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #0B1A2E;
+    }
+
+    .app-container {
+      width: 100%; max-width: 480px; margin: 0 auto;
+      background-color: #F5F7FA; height: 100%;
+      display: flex; flex-direction: column; position: relative; padding-bottom: 75px; 
+    }
+
+    /* CABECERA FIJA */
+    .header {
+      flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: white; z-index: 10;
+    }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; transition: 0.2s;}
+    .header-icon:active { transform: scale(0.9); }
+    .page-title { font-weight: 800; font-size: 17px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
+    .header-actions { display: flex; gap: 14px; align-items: center; }
+
+    /* CUADRO RESUMEN GLOBAL FIJO */
+    .summary-grid {
+      flex-shrink: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      padding: 16px 24px; background: white; margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-radius: 0 0 20px 20px;
+    }
+    .summary-card {
+      text-align: center; padding: 4px;
+    }
+    .summary-title { font-size: 10px; color: #666; margin-bottom: 6px; font-weight: 600; text-transform: uppercase;}
+    .summary-amount { font-size: 12px; font-weight: 800; word-break: break-word; }
+    .color-green { color: #00A878; } .color-red { color: #F44336; }
+    .color-purple { color: #9C27B0; } .color-blue { color: #2196F3; }
+
+    /* CONTENEDOR DESLIZABLE (SCROLL) */
+    .history-container {
+      flex: 1; overflow-y: auto; padding: 0 20px 20px 20px;
+    }
+    .history-container::-webkit-scrollbar { display: none; }
+
+    /* BLOQUES DE SECCIÓN */
+    .history-section {
+      background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+      border-bottom: 2px solid #F0F0F0; padding-bottom: 12px;
+    }
+    .section-icon {
+      width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;
+    }
+    .si-green { background: #E8F5E9; color: #00A878; }
+    .si-red { background: #FFEBEE; color: #F44336; }
+    .si-purple { background: #F3E5F5; color: #9C27B0; }
+    .si-blue { background: #E3F2FD; color: #2196F3; }
+    
+    .section-title { font-size: 15px; font-weight: 800; color: #0B1A2E; text-transform: uppercase;}
+    .section-desc { font-size: 12px; color: #666; line-height: 1.4; margin-bottom: 16px; }
+
+    /* LISTAS DE ELEMENTOS */
+    .data-list { display: flex; flex-direction: column; gap: 12px; }
+    .data-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px; background: #F9FAFB; border-radius: 12px; border: 1px solid #F0F0F0;
+    }
+    .di-left { flex: 1; min-width: 0; padding-right: 12px; }
+    .di-title { font-size: 13px; font-weight: 800; color: #0B1A2E; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+    .di-sub { font-size: 11px; color: #666; font-weight: 500;}
+    .di-right { text-align: right; flex-shrink: 0; }
+    .di-amount { font-size: 14px; font-weight: 800; }
+    .di-date { font-size: 10px; color: #999; margin-top: 2px; font-weight: 600;}
+
+    /* ESTILOS DE BADGES */
+    .badge { display: inline-block; padding: 3px 6px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
+    .bg-cat { background: #FFF3E0; color: #F57F17; }
+    .bg-imp { background: #FFEBEE; color: #D32F2F; }
+    .bg-res { background: #E3F2FD; color: #1976D2; }
+    .bg-aho { background: #F3E5F5; color: #7B1FA2; }
+
+    /* POTENCIAL DE AHORRO */
+    .savings-total {
+      background: #E8F5E9; border: 1px dashed #A5D6A7; padding: 16px; border-radius: 12px;
+      text-align: center; margin-top: 16px;
+    }
+    .savings-total p { font-size: 12px; color: #2E7D32; font-weight: 600; margin-bottom: 4px;}
+    .savings-total h3 { font-size: 24px; font-weight: 800; color: #1B5E20; }
+    .info-note { background: #FFF8E1; border-left: 3px solid #FFC107; padding: 10px 12px; font-size: 11px; color: #666; margin-top: 12px; border-radius: 0 8px 8px 0; line-height: 1.4;}
+
+    /* FÓRMULA MATEMÁTICA */
+    .math-box { background: #0B1A2E; padding: 20px; border-radius: 12px; color: white; margin-top: 12px;}
+    .math-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; margin-bottom: 12px; color: #B0BEC5;}
+    .math-row strong { font-size: 14px; font-weight: 700; color: white;}
+    .math-divider { height: 1px; background: rgba(255,255,255,0.2); margin: 12px 0; }
+    .math-row.total { font-size: 15px; font-weight: 800; margin-bottom: 0; color: white;}
+    .math-row.total strong { font-size: 18px; color: #00A878; }
+
+    /* ESTADO VACÍO (Si no hay datos) */
+    .empty-state { text-align: center; padding: 20px; color: #999; font-size: 13px; font-weight: 500; }
+
+    /* NAVEGACIÓN Y MENÚS */
+    .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .menu-overlay.open { opacity: 1; pointer-events: auto; }
+    .side-menu { position: fixed; top: 0; left: -100%; width: 290px; max-width: 85%; height: 100%; background: white; z-index: 2001; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; display: flex; flex-direction: column; overflow-y: auto; }
+    .side-menu.open { left: 0; }
+    .side-menu-header { padding: 24px; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; }
+    .side-menu-header .logo-container { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; color: #0B1A2E; }
+    .side-menu-content { padding: 12px 0; flex: 1; display: flex; flex-direction: column; }
+    .menu-link { display: flex; align-items: center; gap: 16px; padding: 14px 24px; color: #333; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .menu-link svg { width: 20px; height: 20px; color: #666; flex-shrink: 0; }
+    .menu-link.active-link { color: #00A878; background: #F4F9F8; border-right: 4px solid #00A878; }
+    .menu-link.active-link svg { color: #00A878; }
+    .badge-nuevo { background: #00A878; color: white; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 12px; margin-left: auto; text-transform: uppercase; }
+    .menu-divider { height: 1px; background: #F0F0F0; margin: 8px 24px; }
+    .menu-logout { color: #F44336; margin-top: 12px; }
+
+    .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-item.active { color: #00A878; }
+    .nav-item svg { width: 22px; height: 22px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; display: none; }
+    .nav-item.active .active-dot { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- MENÚ LATERAL -->
+  <div id="menuOverlay" class="menu-overlay"></div>
+  <div id="sideMenu" class="side-menu">
+    <div class="side-menu-header">
+      <div class="logo-container"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg> BudgetWise</div>
+      <svg id="btnCloseMenu" onclick="closeSideMenu()" style="cursor:pointer; color:#999;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    <div class="side-menu-content">
+      <a href="dashboard.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard</a>
+      <a href="presupuestos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos</a>
+      <a href="categorias.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías</a>
+      <a href="imprevistos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Gastos Imprevistos</a>
+      <a href="reservas.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Fondos reservados</a>
+      <a href="ahorro.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Objetivos de ahorro</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Estadísticas</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.59.81 3.14 1.5 4.5.77.76 1.24 1.52 1.42 2.5"></path></svg> Asesor financiero <span class="badge-nuevo">Nuevo</span></a>
+      <a href="misiones.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
+      <a href="historia.html" class="menu-link active-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
+      <div class="menu-divider"></div>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Ayuda y soporte</a>
+      <a href="#" class="menu-link menu-logout" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="header">
+      <svg onclick="openSideMenu()" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div class="page-title">HISTORIA MENSUAL</div>
+      <div class="header-actions">
+        <!-- Espacio en blanco para centrar el título -->
+        <div style="width: 24px;"></div>
+      </div>
+    </header>
+
+    <!-- RESUMEN GLOBAL FIJO -->
+    <section class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-title">Fondos Totales</div>
+        <div class="summary-amount color-green" id="valIngresos">0,00 €</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Gastos</div>
+        <div class="summary-amount color-red" id="valGastos">0,00 €</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Retenidos</div>
+        <div class="summary-amount color-purple" id="valRetenidos">0,00 €</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Disponibles</div>
+        <div class="summary-amount color-blue" id="valDisponibles">0,00 €</div>
+      </div>
+    </section>
+
+    <!-- ÁREA DE SCROLL -->
+    <div class="history-container">
+      
+      <!-- SECCIÓN 1: INGRESOS -->
+      <div class="history-section">
+        <div class="section-header">
+          <div class="section-icon si-green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
+          <div class="section-title">Fondos Totales (Ingresos)</div>
+        </div>
+        <div class="section-desc">Detalle de todo el dinero que ha entrado a tus cuentas o que sobró del mes anterior.</div>
+        <div class="data-list" id="listaIngresos">
+          <!-- JS Fill -->
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: GASTOS -->
+      <div class="history-section">
+        <div class="section-header">
+          <div class="section-icon si-red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg></div>
+          <div class="section-title">Desglose de Gastos</div>
+        </div>
+        <div class="section-desc">Historial cronológico de todos tus movimientos de salida (categorías, imprevistos y pagos de ahorros/reservas).</div>
+        <div class="data-list" id="listaGastos">
+          <!-- JS Fill -->
+        </div>
+      </div>
+
+      <!-- SECCIÓN 3: FONDOS RETENIDOS -->
+      <div class="history-section">
+        <div class="section-header">
+          <div class="section-icon si-purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+          <div class="section-title">Fondos Retenidos</div>
+        </div>
+        <div class="section-desc">Dinero que actualmente está protegido y bloqueado (Objetivos, Reservas y Presupuestos asignados a Categorías).</div>
+        
+        <h4 style="font-size: 13px; color: #0B1A2E; margin-bottom: 8px;">Presupuestos de Categorías</h4>
+        <div class="data-list" style="margin-bottom: 16px;" id="listaRetCategorias">
+          <!-- JS Fill -->
+        </div>
+
+        <h4 style="font-size: 13px; color: #0B1A2E; margin-bottom: 8px;">Huchas y Reservas</h4>
+        <div class="data-list" id="listaRetAhorros">
+          <!-- JS Fill -->
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4: POTENCIAL DE AHORRO -->
+      <div class="history-section">
+        <div class="section-header">
+          <div class="section-icon" style="background:#FFF3E0; color:#F57F17;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></div>
+          <div class="section-title">Potencial de Ahorro</div>
+        </div>
+        <div class="section-desc">Es el dinero de tus categorías que <b>aún no has gastado</b>.</div>
+        
+        <div class="data-list" id="listaPotencial">
+          <!-- JS Fill -->
+        </div>
+
+        <div class="savings-total">
+          <p>Total Potencial Sobrante</p>
+          <h3 id="valPotencialTotal">0,00 €</h3>
+        </div>
+        <div class="info-note">
+          <b>Nota:</b> Si este dinero no se gasta al finalizar el mes, "romperá" los sobres de tus categorías y será devuelto automáticamente a tus fondos líquidos disponibles.
+        </div>
+      </div>
+
+      <!-- SECCIÓN 5: FÓRMULA DE DISPONIBLES -->
+      <div class="history-section">
+        <div class="section-header" style="border: none; margin-bottom: 4px;">
+          <div class="section-icon si-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg></div>
+          <div class="section-title">Tus Fondos Disponibles</div>
+        </div>
+        
+        <div class="math-box">
+          <div class="math-row">
+            <span>Ingresos Totales</span>
+            <strong id="mathIngresos">+ 0,00 €</strong>
+          </div>
+          <div class="math-row">
+            <span>Fondos Retenidos (Ahorros + Sobres)</span>
+            <strong class="color-red" id="mathRetenidos">- 0,00 €</strong>
+          </div>
+          <div class="math-row">
+            <span>Gastos Libres (Imprevistos + Pagos)</span>
+            <strong class="color-red" id="mathLibres">- 0,00 €</strong>
+          </div>
+          <div class="math-divider"></div>
+          <div class="math-row total">
+            <span>= Líquido Disponible</span>
+            <strong id="mathDisponibles">0,00 €</strong>
+          </div>
+        </div>
+
+        <div class="info-note" style="margin-top: 16px; border-left-color: #2196F3; background: #E3F2FD;">
+          Este es el dinero libre que dispones actualmente para hacer frente a <b>gastos imprevistos</b>, meter en <b>objetivos de ahorro</b> o crear <b>nuevos presupuestos</b>.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MENÚ INFERIOR FIJO (Sin activo) -->
+    <nav class="bottom-nav">
+      <a href="presupuestos.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Presupuestos
+      </a>
+      <a href="reservas.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Reservas
+      </a>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg> Dashboard
+      </a>
+      <a href="ahorro.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Ahorros
+      </a>
+      <a href="misiones.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones
+      </a>
+    </nav>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyCJJsgp1RnXGqva04EuQEONEM9frfx-7I8", authDomain: "budgetwise-9608f.firebaseapp.com", projectId: "budgetwise-9608f", storageBucket: "budgetwise-9608f.firebasestorage.app", messagingSenderId: "438887897789", appId: "1:438887897789:web:1075b7b21577d1b632b5d4" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (!usuarioLogueado) window.location.href = 'login.html';
+
+    // UI Helpers
+    window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); document.body.style.overflow = 'hidden';};
+    window.closeSideMenu = function() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); document.body.style.overflow = '';};
+    document.getElementById('menuOverlay').addEventListener('click', closeSideMenu);
+    document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
+
+    function formatMoney(amount) { return parseFloat(amount || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+    function formatDate(isoString) { 
+      if (!isoString) return "Fecha desconocida";
+      return new Date(isoString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }); 
+    }
+
+    async function cargarHistoria() {
+      try {
+        const docSnap = await getDoc(doc(db, "usuarios", usuarioLogueado));
+        if (!docSnap.exists()) return;
+        const data = docSnap.data();
+
+        // 1. EXTRAER ARRAYS
+        const historialIngresos = Array.isArray(data.historialIngresos) ? data.historialIngresos : [];
+        const historialGastos = Array.isArray(data.historialGastos) ? data.historialGastos : [];
+        const categorias = Array.isArray(data.categorias) ? data.categorias : [];
+        const ahorros = Array.isArray(data.objetivosAhorro) ? data.objetivosAhorro : [];
+        const reservas = Array.isArray(data.fondosReservados) ? data.fondosReservados : [];
+
+        // 2. CÁLCULOS MATEMÁTICOS BASE CERO
+        const ingresoTotal = parseFloat(data.ingresoTotalMensual) || 0;
+        
+        let totalCajasAhorro = 0;
+        ahorros.forEach(a => totalCajasAhorro += (parseFloat(a.cantidadAportada) || 0));
+        reservas.forEach(r => totalCajasAhorro += (parseFloat(r.cantidadAportada) || 0));
+
+        let totalPresupuestosCat = 0;
+        let totalGastosCat = 0;
+        categorias.forEach(c => {
+           totalPresupuestosCat += (parseFloat(c.presupuesto) || 0);
+           totalGastosCat += (parseFloat(c.gastado) || 0);
+        });
+
+        const gastosImp = parseFloat(data.gastosImprevistos) || 0;
+        const pagosRes = parseFloat(data.pagosDesdeReservas) || 0;
+        const pagosAho = parseFloat(data.pagosDesdeAhorros) || 0;
+        const gastosLibres = gastosImp + pagosRes + pagosAho; // Gastos que afectan directamente a la liquidez
+
+        const gastosTotalesHistoricos = totalGastosCat + gastosLibres;
+        const retenidosVisual = totalCajasAhorro + totalPresupuestosCat; // Huchas + Sobres completos
+        const fondosDisponibles = ingresoTotal - retenidosVisual - gastosLibres; // BASE CERO
+
+        // --- ACTUALIZAR CUADRO SUPERIOR ---
+        document.getElementById('valIngresos').innerText = formatMoney(ingresoTotal);
+        document.getElementById('valGastos').innerText = formatMoney(gastosTotalesHistoricos);
+        document.getElementById('valRetenidos').innerText = formatMoney(retenidosVisual);
+        document.getElementById('valDisponibles').innerText = formatMoney(fondosDisponibles);
+
+        // --- SECCIÓN 1: INGRESOS ---
+        const listIng = document.getElementById('listaIngresos');
+        listIng.innerHTML = '';
+        if (historialIngresos.length === 0) {
+            // Fake entry si hay dinero pero no historial
+            if (ingresoTotal > 0) {
+               listIng.innerHTML = `
+                 <div class="data-item">
+                   <div class="di-left">
+                     <div class="di-title">Ingreso Base / Fondo Inicial</div>
+                     <div class="di-sub">Aportación manual</div>
+                   </div>
+                   <div class="di-right">
+                     <div class="di-amount color-green">+ ${formatMoney(ingresoTotal)}</div>
+                   </div>
+                 </div>`;
+            } else {
+               listIng.innerHTML = `<div class="empty-state">No hay ingresos registrados este mes.</div>`;
+            }
+        } else {
+            // Ordenar por fecha desc
+            let ingOrd = [...historialIngresos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            ingOrd.forEach(ing => {
+               listIng.innerHTML += `
+                 <div class="data-item">
+                   <div class="di-left">
+                     <div class="di-title">${ing.concepto}</div>
+                     <div class="di-sub">Añadido manualmente</div>
+                   </div>
+                   <div class="di-right">
+                     <div class="di-amount color-green">+ ${formatMoney(ing.cantidad)}</div>
+                     <div class="di-date">${formatDate(ing.fecha)}</div>
+                   </div>
+                 </div>`;
+            });
+        }
+
+        // --- SECCIÓN 2: GASTOS ---
+        const listGas = document.getElementById('listaGastos');
+        listGas.innerHTML = '';
+        if (historialGastos.length === 0) {
+            listGas.innerHTML = `<div class="empty-state">No hay gastos registrados este mes.</div>`;
+        } else {
+            let gasOrd = [...historialGastos].sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            gasOrd.forEach(gas => {
+               let badgeClass = 'bg-cat'; let badgeText = 'Categoría';
+               let catName = gas.categoria;
+               let concepto = gas.concepto;
+
+               // Lógica inteligente de tipos de gasto
+               if (catName === 'Gastos Imprevistos') {
+                  badgeClass = 'bg-imp'; badgeText = 'Imprevisto';
+                  if (concepto.includes("Reasignado:")) {
+                     badgeText = 'Reasignado';
+                     concepto = concepto.replace("Reasignado:", "").trim();
+                  } else if (concepto.toLowerCase().includes("traspaso")) {
+                     badgeText = 'Traspaso';
+                  }
+               } else if (catName && catName.startsWith('Pago Fondo:')) {
+                  badgeClass = 'bg-res'; badgeText = 'Fondo Reserva';
+                  catName = catName.replace('Pago Fondo:', '').trim();
+               } else if (catName && catName.startsWith('Pago Ahorro:')) {
+                  badgeClass = 'bg-aho'; badgeText = 'Obj. Ahorro';
+                  catName = catName.replace('Pago Ahorro:', '').trim();
+               } else if (concepto.includes("Reasignación por categoría borrada")) {
+                  badgeClass = 'bg-imp'; badgeText = 'Cat. Borrada';
+               }
+
+               listGas.innerHTML += `
+                 <div class="data-item">
+                   <div class="di-left">
+                     <span class="badge ${badgeClass}">${badgeText}</span>
+                     <div class="di-title">${concepto}</div>
+                     <div class="di-sub">${catName}</div>
+                   </div>
+                   <div class="di-right">
+                     <div class="di-amount color-red">- ${formatMoney(gas.cantidad)}</div>
+                     <div class="di-date">${formatDate(gas.fecha)}</div>
+                   </div>
+                 </div>`;
+            });
+        }
+
+        // --- SECCIÓN 3: FONDOS RETENIDOS ---
+        const listRetCat = document.getElementById('listaRetCategorias');
+        const listRetAho = document.getElementById('listaRetAhorros');
+        listRetCat.innerHTML = ''; listRetAho.innerHTML = '';
+
+        if (categorias.length === 0) listRetCat.innerHTML = `<div class="empty-state">Sin categorías activas.</div>`;
+        else {
+           categorias.forEach(cat => {
+              listRetCat.innerHTML += `
+                <div class="data-item">
+                  <div class="di-left">
+                    <div class="di-title">${cat.icono||''} ${cat.nombre}</div>
+                    <div class="di-sub">Presupuesto máximo reservado</div>
+                  </div>
+                  <div class="di-right"><div class="di-amount color-purple">${formatMoney(cat.presupuesto)}</div></div>
+                </div>`;
+           });
+        }
+
+        let hasHuchas = false;
+        ahorros.forEach(a => {
+           hasHuchas = true;
+           listRetAho.innerHTML += `
+             <div class="data-item">
+               <div class="di-left">
+                 <span class="badge bg-aho">Ahorro</span>
+                 <div class="di-title">${a.icono||''} ${a.nombre}</div>
+               </div>
+               <div class="di-right"><div class="di-amount color-purple">${formatMoney(a.cantidadAportada)}</div></div>
+             </div>`;
+        });
+        reservas.forEach(r => {
+           hasHuchas = true;
+           listRetAho.innerHTML += `
+             <div class="data-item">
+               <div class="di-left">
+                 <span class="badge bg-res">Reserva</span>
+                 <div class="di-title">${r.icono||''} ${r.nombre}</div>
+               </div>
+               <div class="di-right"><div class="di-amount color-purple">${formatMoney(r.cantidadAportada)}</div></div>
+             </div>`;
+        });
+        if (!hasHuchas) listRetAho.innerHTML = `<div class="empty-state">No tienes dinero en ahorros ni reservas.</div>`;
+
+
+        // --- SECCIÓN 4: POTENCIAL DE AHORRO ---
+        const listPot = document.getElementById('listaPotencial');
+        listPot.innerHTML = '';
+        let totalPotencial = 0;
+
+        if (categorias.length === 0) {
+           listPot.innerHTML = `<div class="empty-state">Crea categorías para calcular tu potencial.</div>`;
+        } else {
+           categorias.forEach(cat => {
+              const libre = Math.max(0, parseFloat(cat.presupuesto) - parseFloat(cat.gastado));
+              totalPotencial += libre;
+              if (libre > 0) {
+                 listPot.innerHTML += `
+                   <div class="data-item">
+                     <div class="di-left">
+                       <div class="di-title">${cat.icono||''} ${cat.nombre}</div>
+                     </div>
+                     <div class="di-right">
+                       <div class="di-sub">Sobrante</div>
+                       <div class="di-amount" style="color:#2E7D32;">${formatMoney(libre)}</div>
+                     </div>
+                   </div>`;
+              }
+           });
+           if (totalPotencial === 0) {
+               listPot.innerHTML = `<div class="empty-state">No queda dinero sobrante en tus categorías.</div>`;
+           }
+        }
+        document.getElementById('valPotencialTotal').innerText = formatMoney(totalPotencial);
+
+
+        // --- SECCIÓN 5: MATEMÁTICA VISUAL ---
+        document.getElementById('mathIngresos').innerText = `+ ${formatMoney(ingresoTotal)}`;
+        document.getElementById('mathRetenidos').innerText = `- ${formatMoney(retenidosVisual)}`;
+        document.getElementById('mathLibres').innerText = `- ${formatMoney(gastosLibres)}`;
+        document.getElementById('mathDisponibles').innerText = formatMoney(fondosDisponibles);
+        
+        if (fondosDisponibles < 0) {
+            document.getElementById('mathDisponibles').style.color = '#F44336'; // Rojo si está en negativo
+        }
+
+      } catch (error) { console.error("Error cargando historia:", error); }
+    }
+
+    cargarHistoria();
+  </script>
+</body>
+</html>
