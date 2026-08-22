@@ -69,7 +69,7 @@
     }
     .cat-icon-box { width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 26px; }
     .cat-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;}
-    .cat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; padding-right: 60px; }
+    .cat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; padding-right: 90px; }
     .cat-name { font-size: 16px; font-weight: 700; color: #0B1A2E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .cat-amounts { font-size: 13px; color: #666; margin-bottom: 10px; font-weight: 500; }
     .cat-amounts strong { color: #0B1A2E; font-weight: 700; }
@@ -78,11 +78,11 @@
     .cat-progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background-color 0.4s ease; }
     .cat-pct-text { font-size: 12px; font-weight: 700; width: 36px; text-align: right; }
 
-    .cat-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; }
-    .btn-action { width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center; background: #F5F7FA; border: none; cursor: pointer; color: #555; transition: 0.2s; }
-    .btn-action:active { background: #E0E0E0; }
+    .cat-actions { position: absolute; top: 16px; right: 16px; display: flex; gap: 6px; }
+    .btn-action { width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center; background: #F5F7FA; border: none; cursor: pointer; color: #555; transition: 0.2s; }
+    .btn-action:active { background: #E0E0E0; transform: scale(0.92); }
     .btn-action.add { color: #00A878; background: #E8F5E9; }
-    .btn-action.add:active { background: #C8E6C9; }
+    .btn-action.transfer { color: #2196F3; background: #E3F2FD; }
 
     /* MENSAJE FINAL (Fijo abajo, justo encima del menú) */
     .bottom-notice {
@@ -119,15 +119,15 @@
     /* MODALES Y MENÚS */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.active { display: flex; opacity: 1; }
-    .modal-box { background: white; width: 90%; max-width: 340px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s ease; position: relative; max-height: 90vh; overflow-y: auto;}
+    .modal-box { background: white; width: 90%; max-width: 360px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s ease; position: relative; max-height: 90vh; overflow-y: auto;}
     .modal-overlay.active .modal-box { transform: scale(1); }
     .close-modal { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #999; }
     .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center;}
     .modal-text { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 16px; text-align: center;}
     .modal-input-group { text-align: left; margin-bottom: 16px; }
     .modal-input-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
-    .modal-input-group input { width: 100%; padding: 14px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; }
-    .modal-input-group input:focus { border-color: #00A878; }
+    .modal-input-group input, .modal-input-group select { width: 100%; padding: 14px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; background: white;}
+    .modal-input-group input:focus, .modal-input-group select:focus { border-color: #00A878; }
     .btn-main { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; color: white; background-color: #00A878; cursor: pointer; margin-top: 8px;}
     
     .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
@@ -147,6 +147,19 @@
     .menu-divider { height: 1px; background: #F0F0F0; margin: 8px 24px; }
     .menu-logout { color: #F44336; margin-top: 12px; }
     .menu-logout svg { color: #F44336; }
+
+    /* ESTILOS REASIGNAR (GRID Y BOX) */
+    .dest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .btn-dest { 
+      padding: 14px 10px; border: 2px solid #E0E0E0; border-radius: 12px; background: white; 
+      font-size: 12px; font-weight: 700; color: #555; cursor: pointer; text-align: center; 
+      transition: 0.2s; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 6px;
+    }
+    .btn-dest:active { transform: scale(0.95); }
+    .btn-dest.active { border-color: #00A878; color: #00A878; background: #E8F5E9; box-shadow: 0 4px 12px rgba(0,168,120,0.15); }
+    
+    .repartir-box { background: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #E0E0E0;}
+    .repartir-title { font-size: 12px; font-weight: 700; color: #0B1A2E; margin-bottom: 8px; border-bottom: 1px solid #E0E0E0; padding-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -209,7 +222,7 @@
       <!-- Se rellenará desde JS -->
     </div>
 
-    <!-- ESTADO VACÍO (Si no hay nada, ocupa el espacio del medio) -->
+    <!-- ESTADO VACÍO -->
     <div class="empty-state" id="emptyState">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
       <p style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px;">No tienes categorías activas</p>
@@ -292,8 +305,69 @@
     </div>
   </div>
 
+  <!-- MODAL: TRANSFERIR / REASIGNAR GASTO (LA NUEVA LÓGICA) -->
+  <div id="modalTransferirGasto" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title" style="color: #2196F3;">Reasignar Gasto</div>
+      
+      <p style="font-size: 13px; color: #555; text-align: center; margin-bottom: 12px;">¿Has asignado un gasto que no correspondía a esta categoría? Estás a tiempo de reasignarlo.</p>
+      <p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 16px;">Gasto disponible para reasignar: <strong id="transfGastoMax" style="color: #FF9800;">0,00 €</strong></p>
+
+      <div class="modal-input-group">
+        <label>Importe a reasignar (€)</label>
+        <input type="number" id="transfGastoAmt" placeholder="Ej: 15.50">
+      </div>
+
+      <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 8px;">Elegir destino:</label>
+      <div class="dest-grid">
+        <div class="btn-dest active" id="btnTransfImp" onclick="cambiarTransfGastoDestino('imprevistos')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          Gasto Imprevisto
+        </div>
+        <div class="btn-dest" id="btnTransfCat" onclick="cambiarTransfGastoDestino('otras_categorias')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+          Categoría
+        </div>
+        <div class="btn-dest" id="btnTransfRep" onclick="cambiarTransfGastoDestino('repartir')" style="grid-column: span 2;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          Repartir
+        </div>
+      </div>
+
+      <!-- SECCIONES DE DESTINO -->
+      <div id="secTransfImp" style="display:block;" class="modal-input-group">
+        <label>Concepto (Obligatorio)</label>
+        <input type="text" id="transfConceptoImp" placeholder="Ej: Gasto reasignado">
+      </div>
+
+      <div id="secTransfCat" style="display:none;" class="modal-input-group">
+        <label>Selecciona la categoría destino</label>
+        <select id="transfSelectCat"></select>
+        <p id="msgSinTransfCat" style="display:none; color:#F44336; font-size:11px; margin-top:6px; font-weight:700;">No hay categorías con capacidad suficiente.</p>
+      </div>
+
+      <div id="secTransfRepartir" style="display:none; background:#F5F7FA; padding:16px; border-radius:12px; margin-bottom:16px; border: 1px solid #E0E0E0;">
+        <div class="repartir-box">
+          <div class="repartir-title">A Gasto Imprevisto</div>
+          <input type="text" id="transfRepConceptoImp" placeholder="Concepto (Ej: Varios)" class="modal-input-group" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;">
+          <input type="number" id="transfRepImpAmt" placeholder="Importe (€)" class="modal-input-group" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:0;">
+        </div>
+        
+        <div class="repartir-box">
+          <div class="repartir-title">A Otra Categoría Existente</div>
+          <select id="transfRepCatSel" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+          <p id="msgSinTransfRepCat" style="display:none; color:#F44336; font-size:11px; margin-bottom:8px; font-weight:700;">No hay categorías con espacio libre.</p>
+          <input type="number" id="transfRepCatAmt" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
+        </div>
+      </div>
+
+      <button id="btnConfirmarTransferirGasto" class="btn-main" style="background: #2196F3;">Confirmar reasignación</button>
+    </div>
+  </div>
+
   <!-- MODAL GENÉRICO DE ALERTA -->
-  <div id="modalAlertaBasica" class="modal-overlay">
+  <div id="modalAlertaBasica" class="modal-overlay" style="z-index: 3500;">
     <div class="modal-box">
       <div id="alertaTitulo" class="modal-title" style="justify-content: center; color: #F44336;">Atención</div>
       <div id="alertaMensaje" class="modal-text">Mensaje</div>
@@ -340,6 +414,7 @@
     let currentIndex = -1; 
     let dineroDisponibleGeneral = 0; 
     let userDocData = {};
+    let transfGastoTipoActual = 'imprevistos'; // Variable para la transferencia de gastos
 
     const baseIcons = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"];
     const premiumIcons = ["🍕", "🥤", "🍻", "🍎", "🥐", "🍣", "🍩", "🥩", "🚆", "🌍", "📍", "✈️", "🏖️", "🚢", "🗽", "🚲", "🛵", "🚜", "🚁", "👮", "👨‍🚒", "👨‍🏫", "🧑‍💻", "🧑‍🎨", "👩‍⚕️", "🧑‍🔬", "👨‍🚀", "📺", "🎬", "📚", "🎵", "🎲", "🎮", "🎫", "🎢", "📷", "🏫", "✉️", "📶", "💬", "💵", "👓", "♻️", "🎤", "❤️", "🎁", "🔍", "💡", "🌐", "▶️", "🆖", "🪟", "☁️", "☀️", "⚠️", "🐶", "🐱", "🐹", "🐦", "🐟", "🎓", "🔬", "⌚", "⭐", "🐴", "🐢", "🏛️", "💍", "🤖", "🏰", "🧠", "♊"];
@@ -361,7 +436,6 @@
         userDocData = docSnap.data();
         categoriasCache = Array.isArray(userDocData.categorias) ? userDocData.categorias : [];
         
-
         // --- CÁLCULO DE LÍMITES PRESUPUESTABLES ---
         const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
         let fondosRetenidos = 0;
@@ -375,7 +449,6 @@
         // Guardamos el límite matemático restando el dinero que ya se pagó desde los fondos
         window.limitePresupuestable = ingresoTotal - fondosRetenidos - pagosRes - pagosAho;
         // ------------------------------------------
-        
         
         const container = document.getElementById('categoriesContainer');
         const emptyState = document.getElementById('emptyState');
@@ -427,8 +500,9 @@
               </div>
             </div>
             <div class="cat-actions">
-              <button class="btn-action add" onclick="abrirAddGasto(${index})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
-              <button class="btn-action" onclick="abrirEditCat(${index})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
+              <button class="btn-action add" onclick="abrirAddGasto(${index})" title="Añadir gasto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+              <button class="btn-action transfer" onclick="abrirTransferirGasto(${index})" title="Reasignar gasto"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></button>
+              <button class="btn-action" onclick="abrirEditCat(${index})" title="Editar límite"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
             </div>
           `;
           container.appendChild(card);
@@ -453,6 +527,9 @@
       } catch (error) { console.error("Error cargando presupuestos:", error); }
     }
 
+    // ==========================================
+    // AÑADIR GASTO A CATEGORÍA
+    // ==========================================
     window.abrirAddGasto = function(index) {
       currentIndex = index;
       document.getElementById('gastoCatName').innerText = categoriasCache[index].nombre;
@@ -477,7 +554,6 @@
         return;
       }
 
-      // REGLA DE LÍQUIDEZ (La que tú has deducido)
       if (cantidad > dineroDisponibleGeneral) {
         mostrarAlerta("Fondos insuficientes", `No puedes registrar este gasto.<br><br>Intentas anotar <b>${formatMoney(cantidad)}</b>, pero tus fondos reales disponibles son de solo <b>${formatMoney(dineroDisponibleGeneral)}</b>.`);
         return;
@@ -510,6 +586,156 @@
       }
     });
 
+    // ==========================================
+    // REASIGNAR / TRANSFERIR GASTO
+    // ==========================================
+    window.cambiarTransfGastoDestino = function(tipo) {
+      transfGastoTipoActual = tipo;
+      document.getElementById('btnTransfImp').classList.toggle('active', tipo === 'imprevistos');
+      document.getElementById('btnTransfCat').classList.toggle('active', tipo === 'otras_categorias');
+      document.getElementById('btnTransfRep').classList.toggle('active', tipo === 'repartir');
+
+      document.getElementById('secTransfImp').style.display = tipo === 'imprevistos' ? 'block' : 'none';
+      document.getElementById('secTransfCat').style.display = tipo === 'otras_categorias' ? 'block' : 'none';
+      document.getElementById('secTransfRepartir').style.display = tipo === 'repartir' ? 'block' : 'none';
+    };
+
+    window.abrirTransferirGasto = function(index) {
+      currentIndex = index;
+      const cat = categoriasCache[index];
+      const gastado = parseFloat(cat.gastado) || 0;
+
+      if (gastado === 0) {
+         return mostrarAlerta('Sin gastos', 'Esta categoría no tiene gastos registrados para reasignar.');
+      }
+
+      document.getElementById('transfGastoMax').innerText = formatMoney(gastado);
+      document.getElementById('transfGastoAmt').value = '';
+      document.getElementById('transfConceptoImp').value = '';
+      document.getElementById('transfRepConceptoImp').value = '';
+      document.getElementById('transfRepImpAmt').value = '';
+      document.getElementById('transfRepCatAmt').value = '';
+
+      cambiarTransfGastoDestino('imprevistos');
+      
+      const sCat = document.getElementById('transfSelectCat');
+      const rCat = document.getElementById('transfRepCatSel');
+      sCat.innerHTML = ''; rCat.innerHTML = '';
+      let html = '';
+
+      categoriasCache.forEach((c, idx) => {
+         if (idx !== currentIndex) {
+             const libre = (parseFloat(c.presupuesto) || 0) - (parseFloat(c.gastado) || 0);
+             if (libre > 0) {
+                 html += `<option value="${idx}" data-libre="${libre}">${c.nombre} (Libre: ${formatMoney(libre)})</option>`;
+             }
+         }
+      });
+
+      if (html === '') {
+         sCat.style.display = 'none'; document.getElementById('msgSinTransfCat').style.display = 'block';
+         rCat.style.display = 'none'; document.getElementById('msgSinTransfRepCat').style.display = 'block';
+         document.getElementById('transfRepCatAmt').disabled = true; document.getElementById('transfRepCatAmt').style.opacity = '0.4';
+         document.getElementById('btnTransfCat').style.pointerEvents = 'none'; document.getElementById('btnTransfCat').style.opacity = '0.4';
+      } else {
+         sCat.style.display = 'block'; document.getElementById('msgSinTransfCat').style.display = 'none'; sCat.innerHTML = html;
+         rCat.style.display = 'block'; document.getElementById('msgSinTransfRepCat').style.display = 'none'; rCat.innerHTML = html;
+         document.getElementById('transfRepCatAmt').disabled = false; document.getElementById('transfRepCatAmt').style.opacity = '1';
+         document.getElementById('btnTransfCat').style.pointerEvents = 'auto'; document.getElementById('btnTransfCat').style.opacity = '1';
+      }
+
+      abrirModal('modalTransferirGasto');
+    }
+
+    document.getElementById('btnConfirmarTransferirGasto').addEventListener('click', async () => {
+      const cat = categoriasCache[currentIndex];
+      const yaGastado = parseFloat(cat.gastado) || 0;
+      const cantGeneral = parseFloat(document.getElementById('transfGastoAmt').value);
+
+      if (isNaN(cantGeneral) || cantGeneral <= 0) return mostrarAlerta('Importe inválido', 'Introduce un importe a reasignar.');
+      if (cantGeneral > yaGastado) return mostrarAlerta('Saldo insuficiente', `Solo tienes <b>${formatMoney(yaGastado)}</b> gastados en esta categoría.`);
+
+      if (transfGastoTipoActual === 'imprevistos') {
+         if (document.getElementById('transfConceptoImp').value.trim() === "") return mostrarAlerta('Falta Concepto', 'Escribe el concepto del imprevisto.');
+      }
+      else if (transfGastoTipoActual === 'otras_categorias') {
+         const s = document.getElementById('transfSelectCat');
+         if (s.options.length === 0) return mostrarAlerta('Error', 'No hay categorías destino.');
+         const libre = parseFloat(s.options[s.selectedIndex].dataset.libre);
+         if (cantGeneral > libre) return mostrarAlerta('Límite excedido', `La categoría destino solo admite <b>${formatMoney(libre)}</b>.`);
+      }
+      else if (transfGastoTipoActual === 'repartir') {
+         const iImp = parseFloat(document.getElementById('transfRepImpAmt').value) || 0;
+         const iCat = parseFloat(document.getElementById('transfRepCatAmt').value) || 0;
+         const conc = document.getElementById('transfRepConceptoImp').value.trim();
+
+         if (iImp > 0 && conc === "") return mostrarAlerta('Falta Concepto', 'Escribe el concepto del imprevisto.');
+         if (iCat > 0) {
+             const s = document.getElementById('transfRepCatSel');
+             if (s.options.length === 0) return mostrarAlerta('Error', 'No hay categorías con capacidad.');
+             const libre = parseFloat(s.options[s.selectedIndex].dataset.libre);
+             if (iCat > libre) return mostrarAlerta('Límite excedido', `La categoría elegida solo admite <b>${formatMoney(libre)}</b>.`);
+         }
+         
+         const sum = iImp + iCat;
+         if (sum.toFixed(2) !== cantGeneral.toFixed(2)) {
+             return mostrarAlerta('Descuadre', `La suma repartida (<b>${formatMoney(sum)}</b>) debe ser EXACTAMENTE <b>${formatMoney(cantGeneral)}</b>.`);
+         }
+      }
+
+      const btn = document.getElementById('btnConfirmarTransferirGasto');
+      btn.innerText = "Procesando..."; btn.disabled = true;
+
+      try {
+         let nuevosGastosImprevistos = parseFloat(userDocData.gastosImprevistos) || 0;
+         const historial = Array.isArray(userDocData.historialGastos) ? userDocData.historialGastos : [];
+         const fechaIso = new Date().toISOString();
+
+         // Restar de la categoría origen
+         categoriasCache[currentIndex].gastado = yaGastado - cantGeneral;
+
+         if (transfGastoTipoActual === 'imprevistos') {
+             const conc = document.getElementById('transfConceptoImp').value.trim();
+             nuevosGastosImprevistos += cantGeneral;
+             historial.push({concepto: `Reasignado: ${conc}`, cantidad: cantGeneral, categoria: 'Gastos Imprevistos', fecha: fechaIso});
+         } 
+         else if (transfGastoTipoActual === 'otras_categorias') {
+             const idxDest = parseInt(document.getElementById('transfSelectCat').value);
+             categoriasCache[idxDest].gastado = (parseFloat(categoriasCache[idxDest].gastado) || 0) + cantGeneral;
+             historial.push({concepto: `Gasto reasignado desde ${cat.nombre}`, cantidad: cantGeneral, categoria: categoriasCache[idxDest].nombre, fecha: fechaIso});
+         }
+         else if (transfGastoTipoActual === 'repartir') {
+             const iImp = parseFloat(document.getElementById('transfRepImpAmt').value) || 0;
+             const iCat = parseFloat(document.getElementById('transfRepCatAmt').value) || 0;
+             
+             if (iImp > 0) {
+                 const conc = document.getElementById('transfRepConceptoImp').value.trim();
+                 nuevosGastosImprevistos += iImp;
+                 historial.push({concepto: `Reasignado: ${conc}`, cantidad: iImp, categoria: 'Gastos Imprevistos', fecha: fechaIso});
+             }
+             if (iCat > 0) {
+                 const idxDest = parseInt(document.getElementById('transfRepCatSel').value);
+                 categoriasCache[idxDest].gastado = (parseFloat(categoriasCache[idxDest].gastado) || 0) + iCat;
+                 historial.push({concepto: `Gasto reasignado desde ${cat.nombre}`, cantidad: iCat, categoria: categoriasCache[idxDest].nombre, fecha: fechaIso});
+             }
+         }
+
+         const userRef = doc(db, "usuarios", usuarioLogueado);
+         await updateDoc(userRef, { categorias: categoriasCache, gastosImprevistos: nuevosGastosImprevistos, historialGastos: historial });
+
+         cerrarModal();
+         cargarPresupuestos();
+         mostrarAlerta('Éxito', 'Gasto reasignado correctamente.');
+      } catch(e) {
+         mostrarAlerta('Error', e.message);
+      } finally {
+         btn.innerText = "Confirmar reasignación"; btn.disabled = false;
+      }
+    });
+
+    // ==========================================
+    // EDITAR CATEGORÍA (PRESUPUESTO MÁXIMO)
+    // ==========================================
     let editIcon = "";
     let editColor = "";
 
@@ -521,7 +747,6 @@
       const contColores = document.getElementById('editColorSelector');
       contIconos.innerHTML = ''; contColores.innerHTML = '';
 
-      // 1. ICONOS BÁSICOS
       baseIcons.forEach((ico) => {
         const div = document.createElement('div');
         div.className = `item-select`; div.dataset.val = ico; div.innerText = ico;
@@ -532,7 +757,6 @@
         contIconos.appendChild(div);
       });
 
-      // 2. ICONOS PREMIUM DESBLOQUEADOS
       premiumIcons.filter(ico => iconosComprados.includes(ico)).forEach(ico => {
         const div = document.createElement('div');
         div.className = `item-select`; div.dataset.val = ico; div.innerText = ico;
@@ -543,7 +767,6 @@
         contIconos.appendChild(div);
       });
 
-      // 3. ICONOS PREMIUM BLOQUEADOS
       premiumIcons.filter(ico => !iconosComprados.includes(ico)).forEach(ico => {
         const div = document.createElement('div');
         div.className = `item-select item-locked`; div.innerHTML = `${ico}<div class="padlock">🔒</div>`;
@@ -551,7 +774,6 @@
         contIconos.appendChild(div);
       });
 
-      // 1. COLORES BÁSICOS
       baseColors.forEach((col) => {
         const div = document.createElement('div');
         div.className = `item-select`; div.dataset.val = col; div.style.background = col;
@@ -562,7 +784,6 @@
         contColores.appendChild(div);
       });
 
-      // 2. COLORES PREMIUM DESBLOQUEADOS
       premiumColors.filter(col => coloresComprados.includes(col)).forEach(col => {
         const div = document.createElement('div');
         div.className = `item-select`; div.dataset.val = col; div.style.background = col;
@@ -573,7 +794,6 @@
         contColores.appendChild(div);
       });
 
-      // 3. COLORES PREMIUM BLOQUEADOS
       premiumColors.filter(col => !coloresComprados.includes(col)).forEach(col => {
         const div = document.createElement('div');
         div.className = `item-select item-locked`; div.style.background = col; div.innerHTML = `<div class="padlock">🔒</div>`;
@@ -614,14 +834,12 @@
         return;
       }
 
-      // Validar si el NUEVO máximo supera el límite presupuestable
       let sumaOtrosPresupuestos = 0;
       categoriasCache.forEach((cat, index) => {
         if (index !== currentIndex) sumaOtrosPresupuestos += parseFloat(cat.presupuesto);
       });
       
       if ((sumaOtrosPresupuestos + nuevoMax) > window.limitePresupuestable) {
-         // Calculamos exactamente cuánto puede darle como máximo a esta categoría
          const margenDisponibleEdit = Math.max(0, window.limitePresupuestable - sumaOtrosPresupuestos);
          mostrarAlerta("Fondos insuficientes", `Límite global excedido.<br><br>El máximo que puedes asignarle a esta categoría es de <b>${formatMoney(margenDisponibleEdit)}</b>.<br><br>Reduce este límite o quítale presupuesto a otras categorías.`);
          return;
