@@ -58,7 +58,7 @@
     .mission-card.ready .btn-claim { background: #00A878; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,168,120,0.2); }
     .mission-card.ready .btn-claim:active { transform: scale(0.95); }
 
-    .mission-rewards { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .mission-rewards { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;}
     .reward-badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
     .rb-xp { background: #E3F2FD; color: #1565C0; }
     .rb-coin { background: #FFF8E1; color: #F57F17; }
@@ -277,9 +277,9 @@
     let misionesState = {
       level: 1,
       xp: 0,
-      claimedLevels: [], // Ej: [2, 3, 4]
-      claimedMissions: [], // Ej: ['b_cat', 'b_ing']
-      tiersCompleted: {} // Ej: { 'r_gastos': 2 } (Ha cobrado la recompensa del tier 1 y 2)
+      claimedLevels: [],
+      claimedMissions: [],
+      tiersCompleted: {} 
     };
     
     let cuponesGanados = [];
@@ -294,9 +294,12 @@
     // MÉTRICAS CALCULADAS EN TIEMPO REAL DESDE FIREBASE
     let metricas = {
       categoriasCreadas: 0, fondosCreados: 0, ahorrosCreados: 0,
-      gastosRegistrados: 0, comprasTienda: 0, dineroAhorrado: 0,
-      dineroGastado: 0, ingresosRegistrados: 0, pagosDesdeReservas: 0, pagosDesdeAhorros: 0,
-      ahorroCompletado: false, fondoCompletado: false
+      gastosCat: 0, gastosImp: 0, 
+      iconosC: 0, coloresC: 0, 
+      ahorroRetenido: 0, reservasRetenido: 0,
+      ahorrosCompletadosCount: 0, ahorroCompletado: false, 
+      pagosResCount: 0, ingresosRegistrados: 0,
+      mesesFinalizados: 0
     };
 
     window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); };
@@ -307,19 +310,17 @@
 
     document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
 
-    // CARGAR DATOS
+    // CARGAR DATOS Y CALCULAR MÉTRICAS
     async function cargarDatos() {
       try {
         const docSnap = await getDoc(doc(db, "usuarios", usuarioLogueado));
         if (!docSnap.exists()) return;
         userDocData = docSnap.data();
 
-        // 1. Extraer estado
         misMonedas = parseFloat(userDocData.monedas) || 0;
         if (userDocData.misionesState) misionesState = userDocData.misionesState;
         cuponesGanados = Array.isArray(userDocData.cuponesGanados) ? userDocData.cuponesGanados : [];
 
-        // 2. Calcular Métricas dinámicas cruzando las arrays
         const categorias = Array.isArray(userDocData.categorias) ? userDocData.categorias : [];
         const fondos = Array.isArray(userDocData.fondosReservados) ? userDocData.fondosReservados : [];
         const ahorros = Array.isArray(userDocData.objetivosAhorro) ? userDocData.objetivosAhorro : [];
@@ -330,27 +331,42 @@
         metricas.categoriasCreadas = categorias.length;
         metricas.fondosCreados = fondos.length;
         metricas.ahorrosCreados = ahorros.length;
-        metricas.gastosRegistrados = historial.length;
-        metricas.comprasTienda = iconosC.length + coloresC.length;
-        metricas.pagosDesdeReservas = parseFloat(userDocData.pagosDesdeReservas) || 0;
-        metricas.pagosDesdeAhorros = parseFloat(userDocData.pagosDesdeAhorros) || 0;
-        metricas.ingresosRegistrados = parseFloat(userDocData.ingresoTotalMensual) > 0 ? 1 : 0; // Simplificado
+        metricas.iconosC = iconosC.length;
+        metricas.coloresC = coloresC.length;
+        metricas.ingresosRegistrados = parseFloat(userDocData.ingresoTotalMensual) > 0 ? 1 : 0;
+        
+        // Simulación de los meses finalizados si en un futuro hay botón de cierre
+        metricas.mesesFinalizados = Array.isArray(userDocData.cierresMensuales) ? userDocData.cierresMensuales.length : 0;
 
-        let sumGastado = 0; historial.forEach(h => sumGastado += (parseFloat(h.cantidad)||0));
-        metricas.dineroGastado = sumGastado;
-
-        let sumAhorro = 0;
-        fondos.forEach(f => {
-           let r = parseFloat(f.cantidadAportada)||0; let obj = parseFloat(f.objetivo)||0;
-           sumAhorro += r;
-           if (obj > 0 && r >= obj) metricas.fondoCompletado = true;
+        let gCat = 0, gImp = 0, pRes = 0;
+        historial.forEach(h => {
+            if (h.categoria === 'Gastos Imprevistos') gImp++;
+            else if (h.categoria && h.categoria.startsWith('Pago Fondo:')) pRes++;
+            else if (h.categoria && h.categoria.startsWith('Pago Ahorro:')) {} 
+            else if (h.categoria && h.categoria.startsWith('Reasignación')) {} 
+            else gCat++;
         });
+        metricas.gastosCat = gCat;
+        metricas.gastosImp = gImp;
+        metricas.pagosResCount = pRes;
+
+        let sumAhorroRetenido = 0;
+        let ahorrosComp = 0;
         ahorros.forEach(a => {
            let r = parseFloat(a.cantidadAportada)||0; let obj = parseFloat(a.objetivo)||0;
-           sumAhorro += r;
-           if (obj > 0 && r >= obj) metricas.ahorroCompletado = true;
+           sumAhorroRetenido += r;
+           if (obj > 0 && r >= obj) ahorrosComp++;
         });
-        metricas.dineroAhorrado = sumAhorro;
+        metricas.ahorroRetenido = sumAhorroRetenido;
+        metricas.ahorrosCompletadosCount = ahorrosComp;
+        metricas.ahorroCompletado = ahorrosComp >= 1;
+
+        let sumReservasRetenido = 0;
+        fondos.forEach(f => {
+           let r = parseFloat(f.cantidadAportada)||0;
+           sumReservasRetenido += r;
+        });
+        metricas.reservasRetenido = sumReservasRetenido;
 
         actualizarResumenTop();
         evaluarMisiones();
@@ -372,7 +388,7 @@
     }
 
     // ==========================================
-    // DEFINICIÓN DE MISIONES
+    // DEFINICIÓN DE MISIONES AMPLIADAS
     // ==========================================
 
     const misionesBasicas = [
@@ -380,32 +396,63 @@
       { id: 'b_ing', title: 'Punto de partida', desc: 'Registra tu primer ingreso mensual.', check: () => metricas.ingresosRegistrados >= 1, reward: {xp: 50, coins: 50} },
       { id: 'b_aho', title: 'Ahorrador novato', desc: 'Crea tu primer objetivo de ahorro.', check: () => metricas.ahorrosCreados >= 1, reward: {xp: 50, coins: 50} },
       { id: 'b_res', title: 'Precavido vale por dos', desc: 'Crea tu primer fondo de reserva.', check: () => metricas.fondosCreados >= 1, reward: {xp: 50, coins: 50} },
-      { id: 'b_gas', title: 'Consumidor habitual', desc: 'Registra tu primer gasto en la app.', check: () => metricas.gastosRegistrados >= 1, reward: {xp: 20, coins: 20} },
-      { id: 'b_sho', title: 'De compras', desc: 'Realiza tu primera compra en la tienda de iconos o colores.', check: () => metricas.comprasTienda >= 1, reward: {xp: 100, coins: 0} },
+      { id: 'b_gas', title: 'Consumidor habitual', desc: 'Registra tu primer gasto en una categoría.', check: () => metricas.gastosCat >= 1, reward: {xp: 20, coins: 20} },
+      { id: 'b_sho', title: 'De compras', desc: 'Realiza tu primera compra en la tienda de iconos o colores.', check: () => (metricas.iconosC > 0 || metricas.coloresC > 0), reward: {xp: 100, coins: 0} },
       { id: 'b_met', title: 'Meta cumplida', desc: 'Completa al 100% el dinero de un objetivo de ahorro.', check: () => metricas.ahorroCompletado, reward: {xp: 100, coins: 150} },
-      { id: 'b_pag', title: 'Uso de reservas', desc: 'Realiza un pago efectivo usando el dinero de un fondo o ahorro.', check: () => (metricas.pagosDesdeReservas > 0 || metricas.pagosDesdeAhorros > 0), reward: {xp: 80, coins: 100} }
+      { id: 'b_pag', title: 'Uso de reservas', desc: 'Realiza un pago efectivo usando el dinero de un fondo.', check: () => metricas.pagosResCount > 0, reward: {xp: 80, coins: 100} },
+      { id: 'b_cie', title: 'Cuentas claras', desc: 'Completa un cierre mensual por primera vez.', check: () => metricas.mesesFinalizados >= 1, reward: {xp: 150, coins: 100} }
     ];
 
     const misionesRecurrentes = [
-      { id: 'r_gas', titleFn: (t) => `Gastador serial`, desc: 'Registra gastos en tus categorías o imprevistos.', 
+      { id: 'r_gas_cat', titleFn: (t) => `Gastador ordenado`, desc: 'Registra gastos dentro de tus categorías.', 
         targets: [5, 10, 25, 50, 100, 200, 300, 500, 750, 1000],
         getReward: (tier) => ({ xp: (tier+1)*20, coins: (tier+1)*30 }),
-        checkVal: () => metricas.gastosRegistrados 
+        checkVal: () => metricas.gastosCat 
       },
-      { id: 'r_aho', titleFn: (t) => `El gran tesoro`, desc: 'Acumula euros en tus objetivos y reservas.', 
-        targets: [100, 500, 1000, 2500, 5000, 10000, 20000, 50000, 75000, 100000],
-        getReward: (tier) => ({ xp: (tier+1)*30, coins: (tier+1)*50 }),
-        checkVal: () => metricas.dineroAhorrado 
-      },
-      { id: 'r_vip', titleFn: (t) => `Cliente VIP`, desc: 'Desbloquea iconos y colores en la tienda.', 
+      { id: 'r_gas_imp', titleFn: (t) => `Saliendo del paso`, desc: 'Registra gastos como Imprevistos.', 
         targets: [1, 3, 5, 10, 15, 20, 25, 30, 40, 50],
-        getReward: (tier) => ({ xp: (tier+1)*50, coins: 0 }),
-        checkVal: () => metricas.comprasTienda 
+        getReward: (tier) => ({ xp: (tier+1)*15, coins: (tier+1)*20 }),
+        checkVal: () => metricas.gastosImp 
+      },
+      { id: 'r_aho_ret', titleFn: (t) => `Hucha cerdito`, desc: 'Acumula euros retenidos en tus Objetivos de Ahorro.', 
+        targets: [50, 200, 500, 1000, 2500, 5000, 10000, 20000, 50000, 100000],
+        getReward: (tier) => ({ xp: (tier+1)*30, coins: (tier+1)*50 }),
+        checkVal: () => metricas.ahorroRetenido 
+      },
+      { id: 'r_res_ret', titleFn: (t) => `Colchón de seguridad`, desc: 'Acumula euros retenidos en tus Fondos de Reserva.', 
+        targets: [50, 200, 500, 1000, 2500, 5000, 10000, 20000, 50000, 100000],
+        getReward: (tier) => ({ xp: (tier+1)*30, coins: (tier+1)*50 }),
+        checkVal: () => metricas.reservasRetenido 
+      },
+      { id: 'r_aho_comp', titleFn: (t) => `Cumpliendo sueños`, desc: 'Completa Objetivos de Ahorro al 100%.', 
+        targets: [2, 3, 5, 7, 10, 15, 20, 25, 30, 50],
+        getReward: (tier) => ({ xp: (tier+1)*100, coins: (tier+1)*150 }),
+        checkVal: () => metricas.ahorrosCompletadosCount 
+      },
+      { id: 'r_res_pag', titleFn: (t) => `Tirando de reservas`, desc: 'Realiza pagos utilizando tus fondos de reserva.', 
+        targets: [1, 3, 5, 10, 15, 20, 25, 30, 40, 50],
+        getReward: (tier) => ({ xp: (tier+1)*40, coins: (tier+1)*50 }),
+        checkVal: () => metricas.pagosResCount 
+      },
+      { id: 'r_vip_ico', titleFn: (t) => `Coleccionista de iconos`, desc: 'Desbloquea iconos premium en la tienda.', 
+        targets: [1, 5, 10, 20, 30, 40, 50, 60, 70, 77],
+        getReward: (tier) => ({ xp: (tier+1)*25, coins: 0 }),
+        checkVal: () => metricas.iconosC 
+      },
+      { id: 'r_vip_col', titleFn: (t) => `Paleta de artista`, desc: 'Desbloquea colores premium en la tienda.', 
+        targets: [1, 2, 4, 6, 8, 10, 12, 14, 16, 18],
+        getReward: (tier) => ({ xp: (tier+1)*40, coins: 0 }),
+        checkVal: () => metricas.coloresC 
       },
       { id: 'r_org', titleFn: (t) => `Organizador experto`, desc: 'Crea diferentes categorías de gastos.', 
         targets: [3, 5, 8, 12, 15, 20, 25, 30, 35, 40],
         getReward: (tier) => ({ xp: (tier+1)*20, coins: (tier+1)*20 }),
         checkVal: () => metricas.categoriasCreadas 
+      },
+      { id: 'r_meses', titleFn: (t) => `Constancia y control`, desc: 'Finaliza ciclos mensuales en la aplicación.', 
+        targets: [2, 3, 6, 9, 12, 18, 24, 36, 48, 60],
+        getReward: (tier) => ({ xp: (tier+1)*200, coins: (tier+1)*200 }),
+        checkVal: () => metricas.mesesFinalizados 
       }
     ];
 
@@ -417,14 +464,13 @@
       misionesBasicas.forEach(b => {
         let isClaimed = misionesState.claimedMissions.includes(b.id);
         let isCompleted = b.check();
-        // Orden: 0 (Completa sin cobrar), 1 (Pendiente), 2 (Cobrada)
         let sortVal = isClaimed ? 2 : (isCompleted ? 0 : 1);
         lista.push({ ...b, type: 'basic', isClaimed, isCompleted, sortVal });
       });
 
       // 2. Recurrentes (10 tiers)
       misionesRecurrentes.forEach(r => {
-        let claimedTiers = misionesState.tiersCompleted[r.id] || 0; // 0 a 10
+        let claimedTiers = misionesState.tiersCompleted[r.id] || 0;
         if (claimedTiers >= 10) {
            lista.push({ ...r, type: 'recur', tier: 10, isClaimed: true, isCompleted: true, sortVal: 2 });
         } else {
@@ -436,7 +482,7 @@
         }
       });
 
-      // Ordenar: Prioridad -> sortVal (0, 1, 2). En caso de empate, alfabético por ID.
+      // Ordenar: Prioridad -> sortVal (0, 1, 2). En caso de empate, alfabético
       lista.sort((a,b) => {
         if (a.sortVal !== b.sortVal) return a.sortVal - b.sortVal;
         return a.id.localeCompare(b.id);
@@ -513,13 +559,11 @@
     // ==========================================
 
     window.reclamarMision = async function(id, type) {
-      // Buscar la mision en la lista actual
       let m = misionesParaMostrar.find(x => x.id === id);
-      if (!m || m.sortVal !== 0) return; // Si no está Ready
+      if (!m || m.sortVal !== 0) return;
 
       let reward = m.type === 'basic' ? m.reward : m.getReward(m.tier);
 
-      // Actualizar Estado Local
       if (m.type === 'basic') {
         misionesState.claimedMissions.push(id);
       } else {
@@ -535,7 +579,6 @@
 
       let levelUpInfo = false;
 
-      // Check Level Up(s)
       while (misionesState.xp >= (misionesState.level * 100)) {
         misionesState.xp -= (misionesState.level * 100);
         misionesState.level++;
@@ -549,14 +592,12 @@
           monedas: misMonedas 
         });
 
-        // Feedback Visual
         let msg = `Has ganado <b>${addXp} XP</b>`;
         if (addCoins > 0) msg += ` y <b>${addCoins} 🪙</b>.`;
         if (levelUpInfo) msg += `<br><br><span style="color:#00A878; font-weight:800; font-size:16px;">¡HAS SUBIDO AL NIVEL ${misionesState.level}!</span><br>Visita el Camino de Recompensas para cobrar tu premio de nivel.`;
 
         mostrarAlerta("¡Recompensa Obtenida!", msg);
 
-        // Recargar todo fresco
         evaluarMisiones();
         actualizarResumenTop();
 
@@ -577,7 +618,7 @@
         let isClaimed = misionesState.claimedLevels.includes(reqLevel);
         
         let rewardCoins = reqLevel * 50;
-        let rewardCupon = (reqLevel % 5 === 0); // Cupón cada 5 niveles
+        let rewardCupon = (reqLevel % 5 === 0);
 
         let stateClass = isClaimed ? 'claimed' : (isReached ? 'ready' : 'locked');
         let txtRecompensa = `<b>${rewardCoins} 🪙</b>`;
@@ -606,10 +647,9 @@
       let msg = `Has reclamado <b>${coins} 🪙</b>.`;
       
       if (givesCoupon) {
-        // Asignar cupón aleatorio del pool
         let randCoupon = POOL_CUPONES[Math.floor(Math.random() * POOL_CUPONES.length)];
         cuponesGanados.push(randCoupon);
-        cuponesGanados = [...new Set(cuponesGanados)]; // Evitar duplicados exactos
+        cuponesGanados = [...new Set(cuponesGanados)];
         msg += `<br><br>¡Y has conseguido un <b>Cupón Descuento</b> exclusivo!<br>Búscalo en tu billetera de cupones.`;
       }
 
@@ -622,7 +662,7 @@
         });
         
         actualizarResumenTop();
-        abrirModalNiveles(); // Refrescar línea temporal visualmente
+        abrirModalNiveles();
         setTimeout(() => mostrarAlerta('Recompensa de Nivel', msg), 400);
 
       } catch (e) { console.error("Error nivel:", e); }
