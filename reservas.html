@@ -100,7 +100,6 @@
     .nav-item svg { width: 22px; height: 22px; }
     .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
 
-    /* MODALES */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: 0.3s; padding: 20px; }
     .modal-overlay.active { display: flex; opacity: 1; }
     .modal-box { background: white; width: 100%; max-width: 380px; padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: 0.3s; position: relative; max-height: 90vh; overflow-y: auto; }
@@ -127,7 +126,7 @@
     .repartir-box { background: #F5F7FA; padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #E0E0E0;}
     .repartir-title { font-size: 12px; font-weight: 700; color: #0B1A2E; margin-bottom: 8px; border-bottom: 1px solid #E0E0E0; padding-bottom: 4px; }
 
-    /* CUADRÍCULA 2x2 PARA ELEGIR DESTINO (SÚPER BONITA) */
+    /* CUADRÍCULA 2x2 PARA ELEGIR DESTINO */
     .dest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .btn-dest { 
       padding: 14px 10px; border: 2px solid #E0E0E0; border-radius: 12px; background: white; 
@@ -158,7 +157,7 @@
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
       <div class="menu-divider"></div>
-      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Ayuda y soporte</a>
       <a href="#" class="menu-link menu-logout" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
     </div>
@@ -405,7 +404,7 @@
     </div>
   </div>
 
-  <!-- MODAL: BORRAR Y REDISTRIBUIR -->
+  <!-- MODAL: BORRAR Y REDISTRIBUIR (CUADRÍCULA 2x2) -->
   <div id="modalDelete" class="modal-overlay">
     <div class="modal-box">
       <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -502,6 +501,7 @@
     let destinoTipoActual = 'fondo'; 
     let delTipoActual = 'disponibles';
     let fondoIdPostPago = -1;
+    let totalDineroHuerfano = 0; // ESTA ERA LA VARIABLE QUE FALTABA
 
     window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); };
     window.closeSideMenu = function() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); };
@@ -613,7 +613,7 @@
                 <div class="fondo-amounts"><strong>${formatMoney(ret)}</strong> / ${formatMoney(meta)}</div>
               </div>
               <div class="card-actions">
-                <button class="btn-card-action add" title="Retener dinero" onclick="abrirModalAddDinero(${index})">
+                <button class="btn-card-action add" title="Ingresar dinero" onclick="abrirModalAddDinero(${index})">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
                 <button class="btn-card-action pay" title="Pagar" onclick="abrirModalPagar(${index})">
@@ -983,8 +983,8 @@
       const coloresComprados = Array.isArray(userDocData.coloresComprados) ? userDocData.coloresComprados : [];
 
       ['add', 'edit'].forEach(modo => {
-        const contIco = document.getElementById(`${modo}IconSelector`);
-        const contCol = document.getElementById(`${modo}ColorSelector`);
+        const contIco = document.getElementById(`${modo}FondoIconSelector`);
+        const contCol = document.getElementById(`${modo}FondoColorSelector`);
         contIco.innerHTML = ''; contCol.innerHTML = '';
 
         baseIcons.forEach(ico => {
@@ -1027,20 +1027,20 @@
       });
     }
 
-    document.getElementById('btnAbrirAdd').addEventListener('click', () => {
-      document.getElementById('addNombre').value = ''; document.getElementById('addMeta').value = ''; document.getElementById('addFecha').value = '';
-      addIcon = '🚗'; addColor = '#2196F3'; abrirModal('modalAdd');
+    document.getElementById('btnAbrirAddFondo').addEventListener('click', () => {
+      document.getElementById('addFondoNombre').value = ''; document.getElementById('addFondoObjetivo').value = ''; document.getElementById('addFondoFecha').value = '';
+      addIcon = '🚗'; addColor = '#2196F3'; abrirModal('modalAddFondo');
     });
 
-    document.getElementById('btnConfirmarAdd').addEventListener('click', async () => {
-      const nombre = document.getElementById('addNombre').value.trim();
-      const meta = parseFloat(document.getElementById('addMeta').value);
-      const fecha = document.getElementById('addFecha').value;
+    document.getElementById('btnConfirmarAddFondo').addEventListener('click', async () => {
+      const nombre = document.getElementById('addFondoNombre').value.trim();
+      const meta = parseFloat(document.getElementById('addFondoObjetivo').value);
+      const fecha = document.getElementById('addFondoFecha').value;
 
       if (nombre === "") return mostrarAlerta("Faltan datos", "Escribe un nombre.");
       if (isNaN(meta) || meta <= 0) return mostrarAlerta("Objetivo inválido", "El objetivo debe ser mayor a 0.");
 
-      const btn = document.getElementById('btnConfirmarAdd'); btn.innerText = "Guardando..."; btn.disabled = true;
+      const btn = document.getElementById('btnConfirmarAddFondo'); btn.innerText = "Guardando..."; btn.disabled = true;
 
       try {
         fondosList.push({ nombre: nombre, objetivo: meta, cantidadAportada: 0, icono: addIcon, color: addColor, fechaPrevista: fecha || '' });
@@ -1053,21 +1053,21 @@
 
     window.abrirModalEdit = function(index) {
       currentIndex = index; const f = fondosList[index];
-      document.getElementById('editNombre').value = f.nombre; document.getElementById('editMeta').value = f.objetivo; document.getElementById('editFecha').value = f.fechaPrevista || '';
-      editIcon = f.icono || '🚗'; editColor = f.color || '#2196F3'; abrirModal('modalEdit');
+      document.getElementById('editFondoNombre').value = f.nombre; document.getElementById('editFondoObjetivo').value = f.objetivo; document.getElementById('editFondoFecha').value = f.fechaPrevista || '';
+      editIcon = f.icono || '🚗'; editColor = f.color || '#2196F3'; abrirModal('modalEditFondo');
     };
 
-    document.getElementById('btnConfirmarEdit').addEventListener('click', async () => {
-      const nombre = document.getElementById('editNombre').value.trim();
-      const meta = parseFloat(document.getElementById('editMeta').value);
-      const fecha = document.getElementById('editFecha').value;
+    document.getElementById('btnConfirmarEditFondo').addEventListener('click', async () => {
+      const nombre = document.getElementById('editFondoNombre').value.trim();
+      const meta = parseFloat(document.getElementById('editFondoObjetivo').value);
+      const fecha = document.getElementById('editFondoFecha').value;
       const yaRetenido = parseFloat(fondosList[currentIndex].cantidadAportada) || 0;
 
       if (nombre === "") return mostrarAlerta("Faltan datos", "El fondo debe tener un nombre.");
       if (isNaN(meta) || meta <= 0) return mostrarAlerta("Objetivo inválido", "El objetivo debe ser mayor a 0.");
       if (meta < yaRetenido) return mostrarAlerta("Límite inválido", `El objetivo no puede ser inferior al dinero que ya tienes retenido (<b>${formatMoney(yaRetenido)}</b>).`);
 
-      const btn = document.getElementById('btnConfirmarEdit'); btn.innerText = "Guardando..."; btn.disabled = true;
+      const btn = document.getElementById('btnConfirmarEditFondo'); btn.innerText = "Guardando..."; btn.disabled = true;
 
       try {
         fondosList[currentIndex].nombre = nombre; fondosList[currentIndex].objetivo = meta; fondosList[currentIndex].fechaPrevista = fecha || '';
@@ -1085,7 +1085,7 @@
     window.abrirModalAddDinero = function(index) {
       currentIndex = index;
       const fondo = fondosList[index];
-      document.getElementById('addDineroName').innerText = fondo.nombre;
+      document.getElementById('addDineroFondoName').innerText = fondo.nombre;
       document.getElementById('inputImporteRetener').value = "";
       document.getElementById('dispInfoRetener').innerText = formatMoney(fondosDisponiblesGlobal);
       abrirModal('modalAddDinero');
@@ -1115,10 +1115,10 @@
 
     window.abrirModalPagar = function(index) {
       currentIndex = index; const f = fondosList[index]; const ret = parseFloat(f.cantidadAportada) || 0;
-      document.getElementById('pagarName').innerText = f.nombre; document.getElementById('pagarSaldoRetenido').innerText = formatMoney(ret);
+      document.getElementById('pagarFondoName').innerText = f.nombre; document.getElementById('pagarSaldoRetenido').innerText = formatMoney(ret);
       document.getElementById('pagarConcepto').value = ""; document.getElementById('pagarImporte').value = ""; document.getElementById('checkPagarTodo').checked = false;
       document.getElementById('checkPagarTodo').onchange = function() { document.getElementById('pagarImporte').value = this.checked ? ret : ""; };
-      abrirModal('modalPagar');
+      abrirModal('modalPagarFondo');
     };
 
     document.getElementById('btnConfirmarPago').addEventListener('click', async () => {
