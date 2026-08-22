@@ -617,8 +617,9 @@
         let isReached = misionesState.level >= reqLevel;
         let isClaimed = misionesState.claimedLevels.includes(reqLevel);
         
-        let rewardCoins = reqLevel * 50;
-        let rewardCupon = (reqLevel % 5 === 0);
+        let rewardCoins = reqLevel * 40;
+       // Repartimos los 7 cupones exactamente en estos 7 niveles estratégicos
+        let rewardCupon = [3, 6, 9, 12, 15, 18, 20].includes(reqLevel);
 
         let stateClass = isClaimed ? 'claimed' : (isReached ? 'ready' : 'locked');
         let txtRecompensa = `<b>${rewardCoins} 🪙</b>`;
