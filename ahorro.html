@@ -11,8 +11,10 @@
 
     /* CABECERA FIJA */
     .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; z-index: 10; }
-    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; transition: 0.2s;}
+    .header-icon:active { transform: scale(0.9); }
     .page-title { font-weight: 800; font-size: 17px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
+    .header-actions { display: flex; gap: 14px; align-items: center; }
 
     /* CUADRO RESUMEN FIJO */
     .summary-box { flex-shrink: 0; background: white; margin: 12px 20px 10px 20px; padding: 16px 18px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
@@ -92,7 +94,8 @@
     .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
     .nav-item.active { color: #00A878; }
     .nav-item svg { width: 22px; height: 22px; }
-    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; display: none;}
+    .nav-item.active .active-dot { display: block; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: 0.3s; padding: 20px; }
     .modal-overlay.active { display: flex; opacity: 1; }
@@ -145,15 +148,16 @@
       <a href="dashboard.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard</a>
       <a href="presupuestos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos</a>
       <a href="categorias.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías</a>
+      <a href="imprevistos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Gastos Imprevistos</a>
       <a href="reservas.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Fondos reservados</a>
       <a href="ahorro.html" class="menu-link active-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Objetivos de ahorro</a>
-      <a href="imprevistos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Gastos Imprevistos</a>
-      <a href="missiones.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Estadísticas</a>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.59.81 3.14 1.5 4.5.77.76 1.24 1.52 1.42 2.5"></path></svg> Asesor financiero <span class="badge-nuevo">Nuevo</span></a>
+      <a href="misiones.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
       <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
       <div class="menu-divider"></div>
-      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Ajustes</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Ayuda y soporte</a>
       <a href="#" class="menu-link menu-logout" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
     </div>
   </div>
@@ -164,7 +168,12 @@
     <header class="header">
       <svg onclick="openSideMenu()" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       <div class="page-title">OBJETIVOS DE AHORRO</div>
-      <div style="width: 24px;"></div>
+      <div class="header-actions">
+        <!-- ICONO DE TIENDA -->
+        <a href="#" onclick="localStorage.setItem('origenTienda', 'ahorro.html'); window.location.href='tienda.html';" style="color: inherit;">
+          <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        </a>
+      </div>
     </header>
 
     <!-- CUADRO RESUMEN -->
@@ -461,7 +470,7 @@
   <!-- MODAL ALERTA BÁSICA -->
   <div id="modalAlertaBasica" class="modal-overlay" style="z-index: 3500;">
     <div class="modal-box" style="text-align: center; padding: 28px 20px;">
-      <div id="alertaTitulo" class="modal-title" style="color: #F44336;">Atención</div>
+      <div id="alertaTitulo" class="modal-title" style="color: #F44336; justify-content: center;">Atención</div>
       <div id="alertaMensaje" style="font-size: 14px; color: #555; margin-bottom: 20px;">Mensaje</div>
       <button onclick="document.getElementById('modalAlertaBasica').classList.remove('active')" class="btn-main" style="background: #0B1A2E;">Entendido</button>
     </div>
@@ -497,9 +506,11 @@
     window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); };
     window.closeSideMenu = function() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); };
     document.getElementById('menuOverlay').addEventListener('click', closeSideMenu);
-    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); };
-    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
+    
+    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; };
+    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); document.body.style.overflow = ''; };
     window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; abrirModal('modalAlertaBasica'); };
+    
     function formatMoney(amount) { return parseFloat(amount || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
 
     document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
@@ -515,6 +526,7 @@
         objetivosList = Array.isArray(userDocData.objetivosAhorro) ? userDocData.objetivosAhorro : [];
 
         const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
+        
         let totalRetenidoReservas = 0;
         if (Array.isArray(userDocData.fondosReservados)) {
           userDocData.fondosReservados.forEach(f => totalRetenidoReservas += (parseFloat(f.cantidadAportada) || 0));
@@ -525,19 +537,27 @@
 
         const totalRetenidoGlobal = totalRetenidoReservas + totalRetenidoAhorros;
 
-        let totalGastosCat = 0;
+        // FÓRMULA MAESTRA BASE CERO
+        let totalGastosCat = 0; // Para el cuadro resumen visual
+        let totalPresupuestosCat = 0; // Para la matemática del dinero líquido
         if (Array.isArray(userDocData.categorias)) {
-          userDocData.categorias.forEach(c => totalGastosCat += (parseFloat(c.gastado) || 0));
+          userDocData.categorias.forEach(c => {
+             totalGastosCat += (parseFloat(c.gastado) || 0);
+             totalPresupuestosCat += (parseFloat(c.presupuesto) || 0);
+          });
         }
+        
         const gastosImp = parseFloat(userDocData.gastosImprevistos) || 0;
         const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
         const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
 
-        const pagosTotales = totalGastosCat + gastosImp + pagosRes + pagosAho;
-        fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - pagosTotales;
+        const pagosTotalesReales = totalGastosCat + gastosImp + pagosRes + pagosAho;
+        
+        // Restamos PRESUPUESTOS (no gastos) para proteger el dinero de las categorías
+        fondosDisponiblesGlobal = ingresoTotal - totalRetenidoGlobal - totalPresupuestosCat - gastosImp - pagosRes - pagosAho;
 
         document.getElementById('finTotales').innerText = formatMoney(ingresoTotal);
-        document.getElementById('finPagos').innerText = formatMoney(pagosTotales);
+        document.getElementById('finPagos').innerText = formatMoney(pagosTotalesReales);
         document.getElementById('finRetenidos').innerText = formatMoney(totalRetenidoGlobal);
         document.getElementById('finDisponibles').innerText = formatMoney(fondosDisponiblesGlobal);
 
@@ -1093,7 +1113,7 @@
       finally { btn.innerText = "Guardar cambios"; btn.disabled = false; }
     });
 
-    // AÑADIR DINERO, PAGAR Y POST-PAGO (Igual que en reservas)
+    // AÑADIR DINERO, PAGAR Y POST-PAGO
     window.abrirModalAddDinero = function(index) {
       currentIndex = index;
       const obj = objetivosList[index];
@@ -1106,7 +1126,7 @@
     document.getElementById('btnConfirmarAddDinero').addEventListener('click', async () => {
       const cant = parseFloat(document.getElementById('inputImporteRetener').value);
       if (isNaN(cant) || cant <= 0) return mostrarAlerta("Importe no válido", "Introduce una cantidad mayor a 0.");
-      if (cant > fondosDisponiblesGlobal) return mostrarAlerta("Fondos insuficientes", `Tus fondos disponibles reales son de <b>${formatMoney(fondosDisponiblesGlobal)}</b>.`);
+      if (cant > fondosDisponiblesGlobal) return mostrarAlerta("Fondos insuficientes", `Tus fondos líquidos disponibles son de <b>${formatMoney(fondosDisponiblesGlobal)}</b>.`);
 
       const meta = parseFloat(objetivosList[currentIndex].objetivo) || 0;
       const retenido = parseFloat(objetivosList[currentIndex].cantidadAportada) || 0;
