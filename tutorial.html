@@ -409,8 +409,13 @@
             });
           }
 
-          await updateDoc(userRef, {
+        await updateDoc(userRef, {
             ingresoTotalMensual: ingreso,
+            historialIngresos: [{
+              concepto: "Saldo inicial",
+              cantidad: parseFloat(ingreso),
+              fecha: new Date().toISOString()
+            }],
             categorias: [cat],
             fondosReservados: reservas,
             objetivosAhorro: ahorros,
