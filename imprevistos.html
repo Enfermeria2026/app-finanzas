@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gastos Imprevistos - BudgetWise</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; background-color: #F5F7FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0B1A2E; }
+    .app-container { width: 100%; max-width: 480px; margin: 0 auto; background-color: #F5F7FA; height: 100%; display: flex; flex-direction: column; position: relative; padding-bottom: 75px; }
+
+    /* CABECERA FIJA */
+    .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; z-index: 10; }
+    .header-icon { width: 24px; height: 24px; color: #333; cursor: pointer; transition: 0.2s; }
+    .header-icon:active { transform: scale(0.9); }
+    .page-title { font-weight: 800; font-size: 17px; color: #0B1A2E; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* CUADRO RESUMEN */
+    .summary-box { flex-shrink: 0; background: white; margin: 16px 24px; padding: 24px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); text-align: center; }
+    .summary-box h2 { font-size: 36px; font-weight: 800; color: #F44336; line-height: 1; margin-bottom: 4px; }
+    .summary-box p { font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; margin-bottom: 16px; }
+    .gs-disponibles { font-size: 13px; font-weight: 600; color: #555; border-top: 1px solid #F0F0F0; padding-top: 16px; }
+    .gs-disponibles strong { color: #2196F3; font-size: 16px; }
+
+    /* LISTA DE IMPREVISTOS (SCROLL) */
+    .list-container { flex: 1; overflow-y: auto; padding: 0 24px 10px 24px; }
+    .list-container::-webkit-scrollbar { display: none; }
+
+    .imp-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 16px; position: relative; }
+    .imp-icon-box { width: 44px; height: 44px; background: #FFEBEE; color: #F44336; border-radius: 12px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
+    .imp-icon-box svg { width: 22px; height: 22px; }
+    .imp-info { flex: 1; min-width: 0; }
+    .imp-name { font-size: 15px; font-weight: 700; color: #0B1A2E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+    .imp-date { font-size: 11px; color: #999; font-weight: 500; }
+    .imp-amount { font-size: 16px; font-weight: 800; color: #F44336; text-align: right; }
+    
+    .btn-delete { background: none; border: none; color: #CCC; padding: 8px; margin-left: 8px; cursor: pointer; transition: 0.2s; }
+    .btn-delete:active { color: #F44336; transform: scale(0.9); }
+
+    /* ESTADO VACÍO */
+    .empty-state { flex: 1; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; color: #666; text-align: center; }
+    .empty-state svg { width: 56px; height: 56px; color: #E0E0E0; margin-bottom: 16px; }
+
+    /* BOTÓN FLOTANTE (+) */
+    .fab { position: absolute; bottom: 85px; right: 24px; width: 56px; height: 56px; background: #F44336; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4); cursor: pointer; z-index: 40; transition: 0.2s; }
+    .fab:active { transform: scale(0.95); background: #D32F2F; }
+
+    /* NAVEGACIÓN Y MENÚS */
+    .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .menu-overlay.open { opacity: 1; pointer-events: auto; }
+    .side-menu { position: fixed; top: 0; left: -100%; width: 290px; max-width: 85%; height: 100%; background: white; z-index: 2001; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; display: flex; flex-direction: column; overflow-y: auto; }
+    .side-menu.open { left: 0; }
+    .side-menu-header { padding: 24px; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; }
+    .side-menu-header .logo-container { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; color: #0B1A2E; }
+    .side-menu-content { padding: 12px 0; flex: 1; display: flex; flex-direction: column; }
+    .menu-link { display: flex; align-items: center; gap: 16px; padding: 14px 24px; color: #333; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .menu-link svg { width: 20px; height: 20px; color: #666; flex-shrink: 0; }
+    .menu-link.active-link { color: #00A878; background: #F4F9F8; border-right: 4px solid #00A878; }
+    .menu-link.active-link svg { color: #00A878; }
+    .menu-divider { height: 1px; background: #F0F0F0; margin: 8px 24px; }
+    .menu-logout { color: #F44336; margin-top: 12px; }
+
+    .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0 20px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #999; text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-item.active { color: #00A878; }
+    .nav-item svg { width: 22px; height: 22px; }
+    .active-dot { width: 4px; height: 4px; background: #00A878; border-radius: 50%; margin-top: 2px; display: none; }
+    .nav-item.active .active-dot { display: block; }
+
+    /* MODALES */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 26, 46, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: 0.3s; padding: 20px; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box { background: white; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; transform: scale(0.9); transition: 0.3s; position: relative; display: flex; flex-direction: column;}
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .close-modal { position: absolute; top: 16px; right: 16px; cursor: pointer; color: #999; }
+    .modal-title { font-size: 18px; color: #0B1A2E; margin-bottom: 20px; font-weight: bold; text-align: center; }
+    
+    .modal-input-group { text-align: left; margin-bottom: 16px; }
+    .modal-input-group label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
+    .modal-input-group input { width: 100%; padding: 14px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; background: white;}
+    .modal-input-group input:focus { border-color: #F44336; }
+    
+    .btn-main { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; color: white; background-color: #F44336; cursor: pointer; margin-top: 6px; transition: 0.2s;}
+    .btn-main:active { transform: scale(0.98); }
+    .btn-secondary { background: white; border: 1px solid #CCC; color: #555; margin-top: 0;}
+  </style>
+</head>
+<body>
+
+  <!-- MENÚ LATERAL -->
+  <div id="menuOverlay" class="menu-overlay"></div>
+  <div id="sideMenu" class="side-menu">
+    <div class="side-menu-header">
+      <div class="logo-container"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00A878" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg> BudgetWise</div>
+      <svg id="btnCloseMenu" onclick="closeSideMenu()" style="cursor:pointer; color:#999;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    <div class="side-menu-content">
+      <a href="dashboard.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Dashboard</a>
+      <a href="presupuestos.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg> Presupuestos</a>
+      <a href="categorias.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Categorías</a>
+      <a href="imprevistos.html" class="menu-link active-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Gastos Imprevistos</a>
+      <a href="reservas.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Fondos reservados</a>
+      <a href="ahorro.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Objetivos de ahorro</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Estadísticas</a>
+      <a href="misiones.html" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones</a>
+      <a href="#" class="menu-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Historial mensual</a>
+      <div class="menu-divider"></div>
+      <a href="#" class="menu-link menu-logout" id="btnLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Cerrar sesión</a>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="header">
+      <svg onclick="openSideMenu()" class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <div class="page-title">IMPREVISTOS</div>
+      <div style="width: 24px;"></div>
+    </header>
+
+    <!-- RESUMEN -->
+    <div class="summary-box">
+      <p>Total Imprevistos</p>
+      <h2 id="uiTotalImprevistos">0,00 €</h2>
+      <div class="gs-disponibles">Fondos líquidos restantes: <strong id="uiFondosDisponibles">0,00 €</strong></div>
+    </div>
+
+    <!-- LISTA DE IMPREVISTOS -->
+    <div class="list-container" id="impContainer"></div>
+
+    <!-- ESTADO VACÍO -->
+    <div class="empty-state" id="emptyState">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+      <p style="font-size: 16px; font-weight: 700; color: #333; margin-bottom: 6px;">Todo bajo control</p>
+      <p style="font-size: 14px;">Aún no has registrado ningún gasto de emergencia este mes.</p>
+    </div>
+
+    <!-- BOTÓN (+) -->
+    <div class="fab" onclick="abrirModal('modalAddImp')">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </div>
+
+    <!-- MENÚ INFERIOR FIJO -->
+    <nav class="bottom-nav">
+      <a href="presupuestos.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> Presupuestos
+      </a>
+      <a href="reservas.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Reservas
+      </a>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"></rect><rect x="10" y="8" width="4" height="13"></rect><rect x="2" y="13" width="4" height="8"></rect></svg> Dashboard
+      </a>
+      <a href="ahorro.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Ahorros
+      </a>
+      <a href="misiones.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Misiones
+      </a>
+    </nav>
+  </div>
+
+  <!-- MODAL: AÑADIR IMPREVISTO -->
+  <div id="modalAddImp" class="modal-overlay">
+    <div class="modal-box">
+      <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="modal-title" style="color: #F44336;">Registrar Imprevisto</div>
+      
+      <div class="modal-input-group">
+        <label>Concepto de la emergencia</label>
+        <input type="text" id="impConcepto" placeholder="Ej: Multa de tráfico, Avería coche...">
+      </div>
+      <div class="modal-input-group">
+        <label>Importe gastado (€)</label>
+        <input type="number" id="impImporte" placeholder="Ej: 120.00">
+      </div>
+      
+      <button id="btnConfirmarAdd" class="btn-main">Registrar gasto</button>
+    </div>
+  </div>
+
+  <!-- MODAL: BORRAR IMPREVISTO -->
+  <div id="modalDeleteImp" class="modal-overlay">
+    <div class="modal-box" style="text-align: center;">
+      <div class="modal-title" style="color: #0B1A2E;">Anular Imprevisto</div>
+      <p style="font-size: 14px; color: #555; margin-bottom: 24px; line-height: 1.5;">¿Te has equivocado?<br>Si anulas este gasto, el dinero volverá a tus fondos líquidos disponibles automáticamente.</p>
+      
+      <div style="display: flex; gap: 10px;">
+        <button onclick="cerrarModal()" class="btn-main btn-secondary">Mantener</button>
+        <button id="btnConfirmarDelete" class="btn-main">Anular gasto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO ALERTA -->
+  <div id="modalAlertaBasica" class="modal-overlay" style="z-index: 3500;">
+    <div class="modal-box" style="text-align: center; padding: 28px 20px;">
+      <div id="alertaTitulo" class="modal-title" style="justify-content: center; color: #F44336;">Atención</div>
+      <div id="alertaMensaje" style="font-size: 14px; color: #555; margin-bottom: 20px; line-height: 1.5;">Mensaje</div>
+      <button onclick="cerrarModal()" class="btn-main" style="background: #0B1A2E;">Entendido</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyCJJsgp1RnXGqva04EuQEONEM9frfx-7I8", authDomain: "budgetwise-9608f.firebaseapp.com", projectId: "budgetwise-9608f", storageBucket: "budgetwise-9608f.firebasestorage.app", messagingSenderId: "438887897789", appId: "1:438887897789:web:1075b7b21577d1b632b5d4" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (!usuarioLogueado) window.location.href = 'login.html';
+
+    let userDocData = {};
+    let fondosDisponiblesGlobal = 0;
+    let historialCompleto = [];
+    let deleteGlobalIndex = -1;
+
+    // Helpers UI
+    window.openSideMenu = function() { document.getElementById('sideMenu').classList.add('open'); document.getElementById('menuOverlay').classList.add('open'); };
+    window.closeSideMenu = function() { document.getElementById('sideMenu').classList.remove('open'); document.getElementById('menuOverlay').classList.remove('open'); };
+    document.getElementById('menuOverlay').addEventListener('click', closeSideMenu);
+    
+    window.abrirModal = function(id) { document.getElementById(id).classList.add('active'); };
+    window.cerrarModal = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
+    window.mostrarAlerta = function(titulo, mensaje) { document.getElementById('alertaTitulo').innerText = titulo; document.getElementById('alertaMensaje').innerHTML = mensaje; abrirModal('modalAlertaBasica'); };
+    function formatMoney(amount) { return parseFloat(amount || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+    document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
+
+    // CARGAR DATOS
+    async function cargarDatos() {
+      try {
+        const docSnap = await getDoc(doc(db, "usuarios", usuarioLogueado));
+        if (!docSnap.exists()) return;
+        userDocData = docSnap.data();
+
+        historialCompleto = Array.isArray(userDocData.historialGastos) ? userDocData.historialGastos : [];
+
+        const ingresoTotal = parseFloat(userDocData.ingresoTotalMensual) || 0;
+        let retenidos = 0;
+        (userDocData.fondosReservados || []).forEach(f => retenidos += parseFloat(f.cantidadAportada) || 0);
+        (userDocData.objetivosAhorro || []).forEach(a => retenidos += parseFloat(a.cantidadAportada) || 0);
+        
+        let gastosCat = 0;
+        (userDocData.categorias || []).forEach(c => gastosCat += parseFloat(c.gastado) || 0);
+
+        const gastosImp = parseFloat(userDocData.gastosImprevistos) || 0;
+        const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
+        const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
+
+        fondosDisponiblesGlobal = ingresoTotal - retenidos - gastosCat - gastosImp - pagosRes - pagosAho;
+
+        document.getElementById('uiTotalImprevistos').innerText = formatMoney(gastosImp);
+        document.getElementById('uiFondosDisponibles').innerText = formatMoney(fondosDisponiblesGlobal);
+
+        renderLista();
+      } catch (e) { console.error("Error:", e); }
+    }
+
+    function renderLista() {
+      const container = document.getElementById('impContainer');
+      const emptyState = document.getElementById('emptyState');
+      container.innerHTML = '';
+
+      // Filtramos solo los que son imprevistos y guardamos su index real para poder borrarlos luego
+      let listaImprevistos = [];
+      historialCompleto.forEach((item, index) => {
+        if (item.categoria === 'Gastos Imprevistos') {
+          listaImprevistos.push({ ...item, realIndex: index });
+        }
+      });
+
+      // Ordenar más recientes primero
+      listaImprevistos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+      if (listaImprevistos.length === 0) {
+        emptyState.style.display = 'flex';
+        container.style.display = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        container.style.display = 'block';
+
+        listaImprevistos.forEach(imp => {
+          const fechaFormateada = new Date(imp.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+          
+          container.innerHTML += `
+            <div class="imp-card">
+              <div class="imp-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              </div>
+              <div class="imp-info">
+                <div class="imp-name">${imp.concepto}</div>
+                <div class="imp-date">${fechaFormateada}</div>
+              </div>
+              <div class="imp-amount">${formatMoney(imp.cantidad)}</div>
+              <button class="btn-delete" onclick="abrirDelete(${imp.realIndex})" title="Anular imprevisto">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
+          `;
+        });
+      }
+    }
+
+    // AÑADIR IMPREVISTO
+    document.getElementById('btnConfirmarAdd').addEventListener('click', async () => {
+      const concepto = document.getElementById('impConcepto').value.trim();
+      const cant = parseFloat(document.getElementById('impImporte').value);
+
+      if (concepto === "") return mostrarAlerta("Falta concepto", "Escribe el motivo del imprevisto.");
+      if (isNaN(cant) || cant <= 0) return mostrarAlerta("Importe no válido", "Introduce un gasto válido.");
+      
+      if (cant > fondosDisponiblesGlobal) {
+        return mostrarAlerta("Fondos Insuficientes", `No puedes registrar este imprevisto.<br><br>El importe (<b>${formatMoney(cant)}</b>) supera tus fondos líquidos disponibles (<b>${formatMoney(fondosDisponiblesGlobal)}</b>).`);
+      }
+
+      const btn = document.getElementById('btnConfirmarAdd');
+      btn.innerText = "Registrando..."; btn.disabled = true;
+
+      try {
+        let nuevosImprevistos = (parseFloat(userDocData.gastosImprevistos) || 0) + cant;
+        
+        historialCompleto.push({
+          concepto: concepto,
+          cantidad: cant,
+          categoria: 'Gastos Imprevistos',
+          fecha: new Date().toISOString()
+        });
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { 
+          gastosImprevistos: nuevosImprevistos,
+          historialGastos: historialCompleto
+        });
+
+        document.getElementById('impConcepto').value = "";
+        document.getElementById('impImporte').value = "";
+        cerrarModal();
+        cargarDatos();
+      } catch (e) {
+        mostrarAlerta("Error", e.message);
+      } finally {
+        btn.innerText = "Registrar gasto"; btn.disabled = false;
+      }
+    });
+
+    // BORRAR IMPREVISTO
+    window.abrirDelete = function(indexReal) {
+      deleteGlobalIndex = indexReal;
+      abrirModal('modalDeleteImp');
+    };
+
+    document.getElementById('btnConfirmarDelete').addEventListener('click', async () => {
+      const btn = document.getElementById('btnConfirmarDelete');
+      btn.innerText = "Anulando..."; btn.disabled = true;
+
+      try {
+        const itemABorrar = historialCompleto[deleteGlobalIndex];
+        let nuevosImprevistos = (parseFloat(userDocData.gastosImprevistos) || 0) - parseFloat(itemABorrar.cantidad);
+        if (nuevosImprevistos < 0) nuevosImprevistos = 0; // Seguridad
+
+        historialCompleto.splice(deleteGlobalIndex, 1);
+
+        const userRef = doc(db, "usuarios", usuarioLogueado);
+        await updateDoc(userRef, { 
+          gastosImprevistos: nuevosImprevistos,
+          historialGastos: historialCompleto
+        });
+
+        cerrarModal();
+        cargarDatos();
+      } catch (e) {
+        mostrarAlerta("Error", e.message);
+      } finally {
+        btn.innerText = "Anular gasto"; btn.disabled = false;
+      }
+    });
+
+    cargarDatos();
+  </script>
+</body>
+</html>
