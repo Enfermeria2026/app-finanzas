@@ -133,6 +133,12 @@
     .item-select.active { border-color: #00A878; background: #E8F5E9; transform: scale(1.05); }
     .item-locked { opacity: 0.4; cursor: not-allowed; background: #f0f0f0; position: relative; filter: grayscale(100%); }
     .padlock { position: absolute; top: -4px; right: -4px; background: #0B1A2E; color: white; font-size: 9px; padding: 3px; border-radius: 50%; width: 16px; height: 16px; display: flex; justify-content: center; align-items: center; }
+
+    /* CUADRÍCULA Y ESTILOS PARA LA DISTRIBUCIÓN */
+    .dest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .btn-dest { padding: 14px 10px; border: 2px solid #E0E0E0; border-radius: 12px; background: white; font-size: 12px; font-weight: 700; color: #555; cursor: pointer; text-align: center; transition: 0.2s; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 4px; }
+    .btn-dest:active { transform: scale(0.95); }
+    .btn-dest.active { border-color: #00A878; color: #00A878; background: #E8F5E9; box-shadow: 0 4px 12px rgba(0,168,120,0.15); }
   </style>
 </head>
 <body>
@@ -183,12 +189,10 @@
         <p>Categorías Creadas</p>
       </div>
 
-      <!-- FILA DE GASTOS VS MÁXIMO (Sin texto redundante) -->
       <div class="summary-budget">
         <div class="summary-budget-amounts"><span id="gsGastado" style="color: #0B1A2E;">0,00 €</span> <span>/ <span id="gsMaximo">0,00 €</span></span></div>
       </div>
 
-      <!-- TODAS LAS ESTADÍSTICAS EN UNA SOLA FILA -->
       <div class="summary-row" style="margin-bottom:0; gap: 2px;">
         <div class="summary-col"><div class="summary-val" id="sumGastoCero" style="font-size: 15px;">0</div><div class="summary-label" style="font-size: 9.5px; white-space: nowrap;">Gasto 0€</div></div>
         <div class="summary-col"><div class="summary-val val-green" id="sumVerde" style="font-size: 15px;">0</div><div class="summary-label" style="font-size: 9.5px; white-space: nowrap;">< 50%</div></div>
@@ -275,50 +279,55 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMAR BORRADO Y REDISTRIBUCIÓN -->
+  <!-- MODAL: CONFIRMAR BORRADO Y REDISTRIBUCIÓN (CON CUADRÍCULA 2x2 MODIFICADA A 3 BOTONES) -->
   <div id="modalDeleteCat" class="modal-overlay">
     <div class="modal-box">
       <svg class="close-modal" onclick="cerrarModal()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       <div class="modal-title" style="color: #F44336;">Borrar Categorías</div>
       
-      <div class="modal-text" style="text-align: left; font-size: 13px;" id="textoBorradoInfo"></div>
+      <div class="modal-text" style="text-align: left; font-size: 13px; margin-bottom: 16px; color: #555;" id="textoBorradoInfo"></div>
 
-      <div class="modal-input-group" id="grupoRedistribucion">
-        <label>Reasignar gastos a:</label>
-        <select id="selectRedistribucion">
-          <option value="imprevistos">Gastos imprevistos</option>
-          <option value="otras_categorias">Otras categorías existentes</option>
-          <option value="repartir">Repartir</option>
-        </select>
-      </div>
-
-      <div id="secImprevistos" style="display:block;">
-        <div class="modal-input-group">
-          <label>Concepto (Obligatorio)</label>
-          <input type="text" id="conceptoImprevistos" placeholder="Ej: Gastos reasignados">
+      <div id="grupoRedistribucion" style="display:none;">
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 8px;">Reasignar gastos a:</label>
+        <div class="dest-grid">
+          <div class="btn-dest active" id="btnDelImp" onclick="cambiarRedistCat('imprevistos')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Imprevistos
+          </div>
+          <div class="btn-dest" id="btnDelCat" onclick="cambiarRedistCat('otras_categorias')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            Categorías
+          </div>
+          <div class="btn-dest" id="btnDelRep" onclick="cambiarRedistCat('repartir')" style="grid-column: span 2;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            Repartir
+          </div>
         </div>
       </div>
 
-      <div id="secOtrasCat" style="display:none;">
-        <div class="modal-input-group">
-          <label>Selecciona la categoría destino</label>
-          <select id="selectCatDestino"></select>
-          <p id="msgSinCategorias" style="display:none; color:#F44336; font-size:12px; margin-top:6px; font-weight:600;">No hay otras categorías disponibles.</p>
-        </div>
+      <div id="secImprevistos" style="display:none;" class="modal-input-group">
+        <label>Concepto (Obligatorio)</label>
+        <input type="text" id="conceptoImprevistos" placeholder="Ej: Gastos reasignados">
       </div>
 
-      <div id="secRepartir" style="display:none; background:#F5F7FA; padding:16px; border-radius:12px; margin-bottom:16px;">
-        <p style="font-size:13px; font-weight:700; margin-bottom:12px; color:#0B1A2E;">1. Gastos Imprevistos</p>
-        <div class="modal-input-group" style="margin-bottom:12px;">
-          <input type="text" id="conceptoRepartirImp" placeholder="Concepto (Ej: Varios)" style="margin-bottom:8px;">
-          <input type="number" id="importeRepartirImp" placeholder="Importe (€)">
+      <div id="secOtrasCat" style="display:none;" class="modal-input-group">
+        <label>Selecciona la categoría destino</label>
+        <select id="selectCatDestino"></select>
+        <p id="msgSinCategorias" style="display:none; color:#F44336; font-size:12px; margin-top:6px; font-weight:600;">No hay otras categorías con capacidad suficiente para este importe.</p>
+      </div>
+
+      <div id="secRepartir" style="display:none; background:#F5F7FA; padding:16px; border-radius:12px; margin-bottom:16px; border: 1px solid #E0E0E0;">
+        <div style="background: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #E0E0E0;">
+          <p style="font-size:12px; font-weight:700; color:#0B1A2E; margin-bottom:8px; border-bottom: 1px solid #E0E0E0; padding-bottom: 4px;">A Gastos Imprevistos</p>
+          <input type="text" id="conceptoRepartirImp" placeholder="Concepto (Ej: Varios)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;">
+          <input type="number" id="importeRepartirImp" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
         </div>
         
-        <p style="font-size:13px; font-weight:700; margin-bottom:12px; color:#0B1A2E;">2. Otra Categoría Existente</p>
-        <div class="modal-input-group" style="margin-bottom:0;">
-          <select id="selectCatRepartir" style="margin-bottom:8px;"></select>
-          <p id="msgSinCategoriasRepartir" style="display:none; color:#F44336; font-size:12px; margin-bottom:8px; font-weight:600;">No hay otras categorías disponibles.</p>
-          <input type="number" id="importeRepartirCat" placeholder="Importe (€)">
+        <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #E0E0E0;">
+          <p style="font-size:12px; font-weight:700; color:#0B1A2E; margin-bottom:8px; border-bottom: 1px solid #E0E0E0; padding-bottom: 4px;">A Categoría Existente</p>
+          <select id="selectCatRepartir" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px; margin-bottom:8px;"></select>
+          <p id="msgSinCategoriasRepartir" style="display:none; color:#F44336; font-size:11px; margin-bottom:8px; font-weight:700;">No hay categorías con espacio libre.</p>
+          <input type="number" id="importeRepartirCat" placeholder="Importe (€)" style="width:100%; padding:10px; border:1px solid #CCC; border-radius:8px;">
         </div>
       </div>
 
@@ -326,7 +335,7 @@
     </div>
   </div>
 
-  <!-- MODAL ALERTA BÁSICA (CON Z-INDEX ALTO Y AUTO-CIERRE) -->
+  <!-- MODAL ALERTA BÁSICA -->
   <div id="modalAlertaBasica" class="modal-overlay" style="z-index: 3500;">
     <div class="modal-box" style="text-align: center; padding: 28px 20px;">
       <div id="alertaTitulo" class="modal-title" style="color: #F44336;">Atención</div>
@@ -346,7 +355,6 @@
     const usuarioLogueado = localStorage.getItem('usuarioLogueado');
     if (!usuarioLogueado) window.location.href = 'login.html';
 
-    // EL CATÁLOGO SINCRONIZADO CON LA TIENDA
     const baseIcons = ["🧺","🍔","🏠","🚗","📱","👕","🛍️","🚫"];
     const premiumIcons = ["🍕", "🥤", "🍻", "🍎", "🥐", "🍣", "🍩", "🥩", "🚆", "🌍", "📍", "✈️", "🏖️", "🚢", "🗽", "🚲", "🛵", "🚜", "🚁", "👮", "👨‍🚒", "👨‍🏫", "🧑‍💻", "🧑‍🎨", "👩‍⚕️", "🧑‍🔬", "👨‍🚀", "📺", "🎬", "📚", "🎵", "🎲", "🎮", "🎫", "🎢", "📷", "🏫", "✉️", "📶", "💬", "💵", "👓", "♻️", "🎤", "❤️", "🎁", "🔍", "💡", "🌐", "▶️", "🆖", "🪟", "☁️", "☀️", "⚠️", "🐶", "🐱", "🐹", "🐦", "🐟", "🎓", "🔬", "⌚", "⭐", "🐴", "🐢", "🏛️", "💍", "🤖", "🏰", "🧠", "♊"];
     const baseColors = ["#2196F3","#F44336","#FFC107","#4CAF50","#FFFFFF","#FF9800"];
@@ -365,7 +373,6 @@
 
     document.getElementById('btnLogout').addEventListener('click', () => { localStorage.removeItem('usuarioLogueado'); window.location.href = 'login.html'; });
 
-    // CÓDIGO BLINDADO PARA CARGAR DATOS
     async function cargarCategorias() {
       try {
         const docSnap = await getDoc(doc(db, "usuarios", usuarioLogueado));
@@ -381,7 +388,6 @@
         const pagosRes = parseFloat(userDocData.pagosDesdeReservas) || 0;
         const pagosAho = parseFloat(userDocData.pagosDesdeAhorros) || 0;
         
-        // Límite presupuestable blindado
         window.limitePresupuestable = ingresoTotal - fondosRetenidos - pagosRes - pagosAho; 
         
         actualizarUI();
@@ -476,19 +482,21 @@
     }
 
     // ==========================================
-    // LOGICA BORRAR Y REDISTRIBUIR (CÁLCULO EXACTO DE ESPACIOS)
+    // LOGICA BORRAR Y REDISTRIBUIR 
     // ==========================================
     let totalDineroHuerfano = 0;
-    const selectRedist = document.getElementById('selectRedistribucion');
+    let redistTipoActual = 'imprevistos';
 
-    selectRedist.addEventListener('change', (e) => {
-      document.getElementById('secImprevistos').style.display = 'none';
-      document.getElementById('secOtrasCat').style.display = 'none';
-      document.getElementById('secRepartir').style.display = 'none';
-      if (e.target.value === 'imprevistos') document.getElementById('secImprevistos').style.display = 'block';
-      if (e.target.value === 'otras_categorias') document.getElementById('secOtrasCat').style.display = 'block';
-      if (e.target.value === 'repartir') document.getElementById('secRepartir').style.display = 'block';
-    });
+    window.cambiarRedistCat = function(tipo) {
+      redistTipoActual = tipo;
+      document.getElementById('btnDelImp').classList.toggle('active', tipo === 'imprevistos');
+      document.getElementById('btnDelCat').classList.toggle('active', tipo === 'otras_categorias');
+      document.getElementById('btnDelRep').classList.toggle('active', tipo === 'repartir');
+
+      document.getElementById('secImprevistos').style.display = tipo === 'imprevistos' ? 'block' : 'none';
+      document.getElementById('secOtrasCat').style.display = tipo === 'otras_categorias' ? 'block' : 'none';
+      document.getElementById('secRepartir').style.display = tipo === 'repartir' ? 'block' : 'none';
+    };
 
     document.getElementById('btnPrepararBorrado').addEventListener('click', () => {
       totalDineroHuerfano = 0;
@@ -517,34 +525,31 @@
       });
 
       if (opcionesDestinoHTML === '') {
-        optDestino.style.display = 'none';
-        document.getElementById('msgSinCategorias').style.display = 'block';
-        document.getElementById('msgSinCategorias').innerText = 'No hay categorías con capacidad para recibir el total de este importe.';
+        optDestino.style.display = 'none'; document.getElementById('msgSinCategorias').style.display = 'block';
+        document.getElementById('btnDelCat').style.opacity='0.4'; document.getElementById('btnDelCat').style.pointerEvents='none';
       } else {
-        optDestino.style.display = 'block';
-        document.getElementById('msgSinCategorias').style.display = 'none';
-        optDestino.innerHTML = opcionesDestinoHTML;
+        optDestino.style.display = 'block'; document.getElementById('msgSinCategorias').style.display = 'none'; optDestino.innerHTML = opcionesDestinoHTML;
+        document.getElementById('btnDelCat').style.opacity='1'; document.getElementById('btnDelCat').style.pointerEvents='auto';
       }
 
       if (opcionesRepartirHTML === '') {
-        optRepartir.style.display = 'none';
-        document.getElementById('msgSinCategoriasRepartir').style.display = 'block';
-        document.getElementById('msgSinCategoriasRepartir').innerText = 'Ninguna de tus categorías actuales admite más gastos.';
+        optRepartir.style.display = 'none'; document.getElementById('msgSinCategoriasRepartir').style.display = 'block';
+        document.getElementById('importeRepartirCat').disabled = true; document.getElementById('importeRepartirCat').style.opacity = '0.4';
       } else {
-        optRepartir.style.display = 'block';
-        document.getElementById('msgSinCategoriasRepartir').style.display = 'none';
-        optRepartir.innerHTML = opcionesRepartirHTML;
+        optRepartir.style.display = 'block'; document.getElementById('msgSinCategoriasRepartir').style.display = 'none'; optRepartir.innerHTML = opcionesRepartirHTML;
+        document.getElementById('importeRepartirCat').disabled = false; document.getElementById('importeRepartirCat').style.opacity = '1';
       }
 
       if (totalDineroHuerfano === 0) {
         document.getElementById('textoBorradoInfo').innerHTML = `Estás a punto de borrar <b>${itemsSeleccionados.size} categorías</b>.<br><br>Al no tener ningún gasto registrado, puedes borrarlas directamente sin problema.`;
         document.getElementById('grupoRedistribucion').style.display = 'none';
         document.getElementById('secImprevistos').style.display = 'none';
+        document.getElementById('secOtrasCat').style.display = 'none';
+        document.getElementById('secRepartir').style.display = 'none';
       } else {
-        document.getElementById('textoBorradoInfo').innerHTML = `Estás a punto de borrar categorías que contienen <b>gastos ya registrados</b> por un valor de <b style="color:#00A878;">${formatMoney(totalDineroHuerfano)}</b>.<br><br>Para no descuadrar tu balance general, debes reasignar ese gasto:`;
+        document.getElementById('textoBorradoInfo').innerHTML = `Estás a punto de borrar categorías que contienen <b>gastos ya registrados</b> por un valor de <b style="color:#00A878;">${formatMoney(totalDineroHuerfano)}</b>.<br><br>Elige un destino para no descuadrar tu balance:`;
         document.getElementById('grupoRedistribucion').style.display = 'block';
-        selectRedist.value = 'imprevistos';
-        selectRedist.dispatchEvent(new Event('change'));
+        cambiarRedistCat('imprevistos');
         document.getElementById('conceptoImprevistos').value = '';
         document.getElementById('conceptoRepartirImp').value = '';
         document.getElementById('importeRepartirImp').value = '';
@@ -556,17 +561,17 @@
 
     document.getElementById('btnConfirmarBorrado').addEventListener('click', async () => {
       const btn = document.getElementById('btnConfirmarBorrado');
-      const opcion = selectRedist.value;
+      const opcion = redistTipoActual;
 
       if (totalDineroHuerfano > 0) {
         if (opcion === 'imprevistos') {
           if (document.getElementById('conceptoImprevistos').value.trim() === "") return mostrarAlerta('Falta Concepto', 'Debes introducir un concepto para guardar este dinero como gasto imprevisto.');
         } 
         else if (opcion === 'otras_categorias') {
-          const haySobrantes = (document.getElementById('selectCatDestino').options.length > 0);
-          if (!haySobrantes) return mostrarAlerta('Acción no permitida', 'No tienes categorías con margen suficiente para asumir este gasto íntegro.');
+          const sDestino = document.getElementById('selectCatDestino');
+          if (sDestino.options.length === 0) return mostrarAlerta('Acción no permitida', 'No tienes categorías con margen suficiente.');
           
-          const idxDest = parseInt(document.getElementById('selectCatDestino').value);
+          const idxDest = parseInt(sDestino.value);
           const margen = parseFloat(categoriasActuales[idxDest].presupuesto) - parseFloat(categoriasActuales[idxDest].gastado);
           if (totalDineroHuerfano > margen) return mostrarAlerta('Límite excedido', `La categoría seleccionada no tiene espacio suficiente.`);
         } 
@@ -574,22 +579,22 @@
           const impImp = parseFloat(document.getElementById('importeRepartirImp').value) || 0;
           const impCat = parseFloat(document.getElementById('importeRepartirCat').value) || 0;
           const concepto = document.getElementById('conceptoRepartirImp').value.trim();
-          const hayRepartir = (document.getElementById('selectCatRepartir').options.length > 0);
+          const sRepartir = document.getElementById('selectCatRepartir');
           
           if (impImp > 0 && concepto === "") return mostrarAlerta('Falta Concepto', 'Has introducido importe en Imprevistos, pero te falta escribir el Concepto.');
           
           if (impCat > 0) {
-             if (!hayRepartir) return mostrarAlerta('Acción no permitida', 'No hay categorías con espacio libre disponible.');
-             const idxRep = parseInt(document.getElementById('selectCatRepartir').value);
+             if (sRepartir.options.length === 0) return mostrarAlerta('Acción no permitida', 'No hay categorías con espacio libre disponible.');
+             const idxRep = parseInt(sRepartir.value);
              const margen = (parseFloat(categoriasActuales[idxRep].presupuesto) || 0) - (parseFloat(categoriasActuales[idxRep].gastado) || 0);
              if (impCat > margen) {
-                 return mostrarAlerta('Límite excedido', `Intentas transferir <b>${formatMoney(impCat)}</b> a una categoría que solo tiene <b>${formatMoney(margen)}</b> de espacio libre.`);
+                 return mostrarAlerta('Límite excedido', `Intentas transferir <b>${formatMoney(impCat)}</b> a una categoría que solo tiene <b>${formatMoney(margen)}</b> libres.`);
              }
           }
           
           const totalRepartido = impImp + impCat;
           if (totalRepartido.toFixed(2) !== totalDineroHuerfano.toFixed(2)) {
-            return mostrarAlerta('Descuadre', `Debes repartir EXACTAMENTE <b>${formatMoney(totalDineroHuerfano)}</b>.<br><br>Actualmente, la suma que has indicado da <b>${formatMoney(totalRepartido)}</b>. Por favor, ajusta los importes para que coincidan.`);
+            return mostrarAlerta('Descuadre', `Debes repartir EXACTAMENTE <b>${formatMoney(totalDineroHuerfano)}</b>.<br><br>Actualmente, la suma que has indicado da <b>${formatMoney(totalRepartido)}</b>.`);
           }
         }
       }
